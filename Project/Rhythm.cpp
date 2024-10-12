@@ -194,7 +194,7 @@ void Engine::Rhythm::Update()
 
 	std::cout << "Beats : " << bps << std::endl;
 
-
+#pragma region Movement
 
 	vec2 oldMonsterPos = note1->GetPosition();
 	float x = oldMonsterPos.x, y = oldMonsterPos.y;
@@ -221,6 +221,8 @@ void Engine::Rhythm::Update()
 
 	note1->SetPosition(x, y);
 
+#pragma endregion
+
 #pragma region sprite angle according to mouse pos
 
 	int mouseX, mouseY;
@@ -229,11 +231,11 @@ void Engine::Rhythm::Update()
 	//float dx = mouseX - note1->GetPosition().x;
 	//float dy = mouseY - note1->GetPosition().y;
 
-	//float angle = atan2(dy, dx) * (90 / M_PI);
+	//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
 
 	glm::vec2 mousePos = { mouseX, mouseY };
 
-	glm::vec2 screenCenter(setting->screenWidth / 2.f, setting->screenHeight / 2.f);
+	glm::vec2 screenCenter(setting->screenWidth / 2.0f, setting->screenHeight / 2.0f);
 
 	glm::vec2 mouseDirection = mousePos - screenCenter;
 

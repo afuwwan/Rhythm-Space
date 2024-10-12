@@ -29,7 +29,16 @@ void Engine::Lesson09_Bullet::Init()
 
 
 	// Add input mapping 
-	inputManager->AddInputMapping("Run Right", SDLK_RIGHT)->AddInputMapping("Run Left", SDLK_LEFT)->AddInputMapping("Jump", SDLK_UP)->AddInputMapping("Attack", SDLK_x)->AddInputMapping("Run Right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT)->AddInputMapping("Run Left", SDL_CONTROLLER_BUTTON_DPAD_LEFT)->AddInputMapping("Jump", SDL_CONTROLLER_BUTTON_A)->AddInputMapping("Attack", SDL_CONTROLLER_BUTTON_X)->AddInputMapping("Quit", SDLK_ESCAPE)->AddInputMapping("Quit", SDL_CONTROLLER_BUTTON_Y);
+	inputManager->AddInputMapping("Run Right", SDLK_RIGHT)
+		->AddInputMapping("Run Left", SDLK_LEFT)
+		->AddInputMapping("Jump", SDLK_UP)
+		->AddInputMapping("Attack", SDLK_x)
+		->AddInputMapping("Run Right", SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+		->AddInputMapping("Run Left", SDL_CONTROLLER_BUTTON_DPAD_LEFT)
+		->AddInputMapping("Jump", SDL_CONTROLLER_BUTTON_A)
+		->AddInputMapping("Attack", SDL_CONTROLLER_BUTTON_X)
+		->AddInputMapping("Quit", SDLK_ESCAPE)
+		->AddInputMapping("Quit", SDL_CONTROLLER_BUTTON_Y);
 
 	SetBackgroundColor(65, 180, 242);
 
