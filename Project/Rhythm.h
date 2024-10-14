@@ -9,6 +9,8 @@
 #include "Sound.h"
 #include "Text.h"
 #include "Input.h"
+#include "Bullet.h"
+//#include "Shader.h"
 #include <vector>
 #include <GLFW/glfw3.h>
 
@@ -27,7 +29,7 @@ namespace Engine {
 		////////////Sprites////////////
 		Engine::Texture* texture_N1 = NULL;
 
-		Engine::Sprite* note1 = NULL;
+		Engine::Sprite* sprite = NULL;
 
 		Engine::Texture* texture_bg = NULL;
 
@@ -56,6 +58,23 @@ namespace Engine {
 		void AddToLayer(vector<Sprite*>& bg, string name);
 
 		float offset = 0;
+
+		/////////////Shader////////////
+		//Shader* shader;
+		//glm::mat4 view;
+
+
+		///////////Bullets////////////
+		Engine::Texture* texture = NULL, * bulletTexture = NULL;
+		vector<Bullet*> inUseBullets;
+		vector<Bullet*> readyBullets;
+		float yVelocity = 0, gravity = 0, timeInterval = 0, xBulletVel = 0;
+		bool jump = false, toTop = true;
+		void SpawnBullets();
+
+		
+		
+		//////////Enemies////////////
 
 
 	};

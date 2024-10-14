@@ -69,7 +69,7 @@ Engine::Rhythm::Rhythm(Setting* setting) :Engine::Game(setting)
 Engine::Rhythm::~Rhythm()
 {
 	delete texture_N1;
-	delete note1;
+	//delete sprite;
 }
 
 //void Engine::Rhythm::setupCamera()
@@ -97,24 +97,22 @@ void Engine::Rhythm::Init()
 
 	// Init Notes Sprite 
 	texture_N1 = new Texture("ship.png");
-	note1 = new Sprite(texture_N1, defaultSpriteShader, defaultQuad);
+	sprite = new Sprite(texture_N1, defaultSpriteShader, defaultQuad);
 
 	texture_bg = new Texture("Space.png");
 	bg = (new Sprite(texture_bg, defaultSpriteShader, defaultQuad))->SetSize((float)setting->screenWidth, (float)setting->screenHeight);
 
-	note1->SetScale(0.30)
+	sprite->SetScale(0.30)
 		 ->SetPosition(setting->screenWidth / 2.15, (setting->screenHeight / 12) - 50);
 
 
 #pragma endregion
-
 
 #pragma region Camera init
 
 	//cam_follow = new Game(defaultProjection);
 
 #pragma endregion
-
 
 #pragma region Music and Sound init
 
@@ -131,6 +129,8 @@ void Engine::Rhythm::Init()
 	inputManager->AddInputMapping("Move Right", SDLK_d)
 		->AddInputMapping("Move Left", SDLK_a)
 		->AddInputMapping("Move Center", SDLK_s)
+		->AddInputMapping("Attack", SDL_BUTTON_LEFT)
+		->AddInputMapping("Avoid", SDLK_SPACE)
 		->AddInputMapping("Quit", SDLK_ESCAPE)
 		->AddInputMapping("Quit", SDL_CONTROLLER_BUTTON_Y);
 
@@ -165,24 +165,48 @@ void Engine::Rhythm::Init()
 
 #pragma endregion
 
+#pragma region Bullet Init
+
+	 //Add bullets
+	bulletTexture = new Texture("bullet.png");
+	int bulletNum = 100000;
+	for (int i = 0; i < bulletNum; i++) {
+		Sprite* bs = (new Sprite(bulletTexture, defaultSpriteShader, defaultQuad))->SetNumXFrames(1)->SetNumYFrames(1)->SetScale(1);
+		readyBullets.push_back(new Bullet(bs));
+	}
+
+#pragma endregion
+
+
 }
 
 void Engine::Rhythm::Update()
 {
 
-	//vec2 mousePos = getRelMousePosition();
-	//float xM = mousePos.x, yM = mousePos.y;
-	//std::cout << "mouse x coords : " << xM << std::endl;
-	
+#pragma region Camera Handling
+
 	//glm::mat4 view = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	//glm::mat4 projection = glm::perspective(45.0f, (GLfloat)this->screenWidth / (GLfloat)this->screenHeight, 0.1f, 100.0f);
 	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(setting->screenWidth), 0.0f, static_cast<GLfloat>(setting->screenHeight), -1.0f, 1.0f);
 
+	//vec2 notePosition = note1->GetPosition();
+
+	// Define camera view matrix to follow note1's position
+	//glm::vec3 cameraPosition(notePosition.x, notePosition.y, 0.0f); // Camera positioned behind the scene
+	//view = glm::lookAt(cameraPosition, glm::vec3(notePosition.x, notePosition.y, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	// Update the shader with the view matrix to apply the camera
+	//shader->setMat4(view, "view");
+
+	//std::cout << "Camera Position: " << cameraPosition.x << ", " << cameraPosition.y << ", " << cameraPosition.z << std::endl;
+
+#pragma endregion
+	
 	//float duration;
 	duration += GetGameTime();
 
 	//1 beat = 1 / 3 of a second
-	bps = (duration / 1000) * 3;
+	bps = (duration / 1000) *  2.7; //song end in around beat 437?
 
 	// Add function where every time the value of bps is added by 1 the sound metronome is played 
 
@@ -196,7 +220,7 @@ void Engine::Rhythm::Update()
 
 #pragma region Movement
 
-	vec2 oldMonsterPos = note1->GetPosition();
+	vec2 oldMonsterPos = sprite->GetPosition();
 	float x = oldMonsterPos.x, y = oldMonsterPos.y;
 	if (inputManager->IsKeyPressed("Move Right")) {
 		x = (setting->screenWidth / 2.15) + 200;
@@ -210,16 +234,16 @@ void Engine::Rhythm::Update()
 		x = setting->screenWidth / 2.15;
 		//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
 	}
-	if (inputManager->IsKeyPressed("Move Left") && inputManager->IsKeyPressed("Move Center") && inputManager->IsKeyPressed("Move Right")) {
+	if (inputManager->IsKeyPressed("Avoid")) {
 		x = setting->screenWidth / 2.15;
 		// Remove Bounding Box
 		// Plays Jumping Animation
 	}
 
-	note1->Update(GetGameTime());
-	note1->PlayAnim("idle");
+	sprite->Update(GetGameTime());
+	sprite->PlayAnim("idle");
 
-	note1->SetPosition(x, y);
+	sprite->SetPosition(x, y);
 
 #pragma endregion
 
@@ -250,10 +274,9 @@ void Engine::Rhythm::Update()
 
 	float angle = atan2(mouseDirection.y, -mouseDirection.x) * (180 / M_PI) + 90;
 
-	note1->SetRotation(angle);
+	sprite->SetRotation(angle);
 
 #pragma endregion
-
 
 #pragma region Obstacle handling
 
@@ -288,6 +311,28 @@ void Engine::Rhythm::Update()
 
 #pragma endregion
 
+#pragma region Bullet Handling
+
+	timeInterval += GetGameTime();
+
+	if (inputManager->IsKeyPressed("Attack")) {
+		sprite->PlayAnim("attack");
+		SpawnBullets();
+	}
+
+	for (Bullet* b : inUseBullets) {
+		// If bullet off screen then remove a bullet from in-use container, and insert into ready-to-use container
+		if (b->GetPosition().x < -b->sprite->GetScaleWidth() || b->GetPosition().x > setting->screenWidth) {
+			readyBullets.push_back(b);
+			inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+		}
+
+		b->Update(GetGameTime());
+	}
+
+#pragma endregion
+
+
 	MoveLayer(backgrounds, 0.005f);
 	MoveLayer(middlegrounds, 0.03f);
 	MoveLayer(foregrounds, 0.3f);
@@ -295,11 +340,26 @@ void Engine::Rhythm::Update()
 
 void Engine::Rhythm::Render()
 {
+	
+#pragma region Camera Render
+
+	//vec2 notePosition = note1->GetPosition();
+
+	//glm::vec3 cameraPosition(notePosition.x, notePosition.y, 1.0f); // Camera positioned behind the scene
+	//glm::mat4 view = glm::lookAt(cameraPosition, glm::vec3(notePosition.x, notePosition.y, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	//shader->Use();
+	//shader->setMat4(view, "view");
+
+	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(note1->GetPosition().x), 0.0f, static_cast<GLfloat>(note1->GetPosition().y), -1.0f, 1.0f);
+	//glm::mat4 view = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	//glm::mat4 projection = glm::perspective(45.0f, (GLfloat)this->screenWidth / (GLfloat)this->screenHeight, 0.1f, 100.0f);
+
+#pragma endregion
+
 	// Draw Background Sprite
 	bg->Draw();
 
-	//glm::mat4 view = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//glm::mat4 projection = glm::perspective(45.0f, (GLfloat)this->screenWidth / (GLfloat)this->screenHeight, 0.1f, 100.0f);
 
 	// Draw parallax background
 	DrawLayer(backgrounds);
@@ -312,14 +372,17 @@ void Engine::Rhythm::Render()
 	//}
 
 	// Draw Note Sprite
-	note1->Draw();
+	sprite->Draw();
 
-	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(setting->screenWidth), 0.0f, static_cast<GLfloat>(setting->screenHeight), -1.0f, 1.0f);
+	//Bullets
+	for (Bullet* b : inUseBullets) {
+		b->Draw();
+	}
 
 
 }
 
-#pragma region Enemie(EvilShip) Handling
+#pragma region Enemies (EvilShip) Handling
 
 #pragma endregion
 
@@ -358,4 +421,45 @@ void Engine::Rhythm::AddToLayer(vector<Sprite*>& bg, string name)
 }
 
 #pragma endregion
+
+#pragma region Bullet handling
+
+void Engine::Rhythm::SpawnBullets()
+{
+	if (timeInterval >= 150) {
+		if (readyBullets.empty()) {
+			return;
+		}
+		Bullet* b = readyBullets.back();
+		readyBullets.pop_back();
+		
+		// Get spaceship's dimensions
+		float spriteWidth = sprite->GetScaleWidth();
+		float spriteHeight = sprite->GetScaleHeight();
+
+		// Calculate the spawn position at the center bottom (0.5, 1) of the sprite
+		float bulletStartX = sprite->GetPosition().x + (spriteWidth / 2.0f);
+		float bulletStartY = sprite->GetPosition().y + (spriteHeight / 2.0f);
+
+		// Set the bullet's initial position to the (0.5, 1) texture coordinate
+		b->SetPosition(bulletStartX, bulletStartY);
+		
+		// Get the angle of the spaceship (sprite rotation)
+		float angle = glm::radians(sprite->GetRotation() + 90);
+
+		// Calculate x and y velocity based on the angle
+		float speed = 0.75f;  // Adjust this as needed
+		b->xVelocity = cos(angle) * speed;
+		b->yVelocity = sin(angle) * speed;
+		
+		inUseBullets.push_back(b);
+		timeInterval = 0;
+
+	}
+
+}
+
+#pragma endregion
+
+
 

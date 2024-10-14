@@ -9,12 +9,15 @@ uniform int ny = 1;
 uniform int frameIndex = 0;
 uniform mat4 model;
 uniform mat4 projection; 
+//uniform mat4 view; //untuk manipulasi kamera
 
 out vec3 ourColor;
 out vec2 TexCoord;
 
 void main() 
 {
+    
+    //gl_Position = projection * view * model * vec4(position, 1.0f); //untuk manipulasi kamera
     gl_Position = projection * model * vec4(position, 1.0f);
     ourColor = color;
     int frameX = frameIndex % nx;

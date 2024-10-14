@@ -21,9 +21,16 @@ vec2 Engine::Bullet::GetPosition()
 
 void Engine::Bullet::Update(float deltaTime)
 {
+	
 	float x = GetPosition().x;
 	x += xVelocity * deltaTime;
 	SetPosition(x, GetPosition().y);
+	sprite->Update(deltaTime);
+
+	//bullet move up top
+	float y = GetPosition().y;
+	y += yVelocity * deltaTime;
+	SetPosition(GetPosition().x, y);
 	sprite->Update(deltaTime);
 }
 

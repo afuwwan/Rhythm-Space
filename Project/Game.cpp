@@ -65,6 +65,9 @@ Setting* Engine::Game::GetSettings()
 mat4 Game::CreateDefaultProjection()
 {
 	return ortho(0.0f, static_cast<GLfloat>(setting->screenWidth), 0.0f, static_cast<GLfloat>(setting->screenHeight), -1.0f, 1.0f);
+	
+	
+	//return ortho(0.0f, static_cast<GLfloat>(setting->screenWidth), 0.0f, static_cast<GLfloat>(setting->screenHeight), -1.0f, 1.0f);
 }
 
 Shader* Engine::Game::CreateDefaultSpriteShader()
