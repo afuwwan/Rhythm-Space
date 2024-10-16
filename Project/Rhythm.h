@@ -66,12 +66,21 @@ namespace Engine {
 
 		///////////Bullets////////////
 		Engine::Texture* texture = NULL, * bulletTexture = NULL;
+		
 		vector<Bullet*> inUseBullets;
+		
 		vector<Bullet*> readyBullets;
+		
 		float yVelocity = 0, gravity = 0, timeInterval = 0, xBulletVel = 0;
+		
 		bool jump = false, toTop = true;
+		
 		void SpawnBullets();
 
+		
+		
+		//////////Obstacle///////////
+		vector<Sprite*> platforms;
 		
 		
 		//////////Enemies////////////

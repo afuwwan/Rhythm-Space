@@ -169,7 +169,7 @@ float Sprite::GetScaleHeight()
 	return (s * height) / numYFrames;
 }
 
-BoundingBox* Sprite::GetBoundingBox()
+BoundingBox* Engine::Sprite::GetBoundingBox()
 {
 	float x = position.x;
 	float y = position.y;

@@ -2,6 +2,17 @@
 
 #pragma region TO DO
 /*
+//////// Gameplay Explanation /////////
+
+   - sprite can move to left center and right 
+   - movement limited with 3 section 
+   - sprite rotates according mousepos
+   - sprite shoot bullets
+   - enemies follow player pos
+   - enemie dead in one shot with bullets
+   - obstacle spawns randomly on any of the 3 section
+   - obstacle spawns following (beat-ish) making player 
+     has to semi avoid obstacle according to beat
 
 ///////////// Screens ////////////////
 
@@ -25,19 +36,25 @@
 	- Create a class to handle the spaceship and move the functions to there
 	
 	- In Game State
-	  - Has 3 Notes
+	  - Has 3 Section for sprite to move (Done) (9 - 10 Oct)
+
 	  - Avoid enenmies according to the beat (you can like make it semi according to beat)
-	  - Map notes with rhythm plus based on the time mapped (Done)
-	  - Add a bps counter (doesnt really need to but Done)
+
+	  - Map notes with rhythm plus based on the time mapped (Done) (9 - 12 Oct)
+	  - Add a bps counter (doesnt really need to but Done) (9 - 12 Oct)
+	  - Add Song Bacgkround (9 - 12 Oct)
+	  - Add MousePos follow sprite angle (9 - 12 Oct)
 
 	- Gameplay
-	  - Move Left and Right and Center (Done)
+	  - Move Left and Right and Center (Done) (9 - 12 Oct)
 
-	  - When 3 button pressed 
+	  - When Space button pressed 
 		1. Plays a jumping or zooming in animation
 		2. make the sprite hides its bounding box
 
-	  - Player can shoot bullets 
+	  - Sprite angle follows mouse pos (Done) (13 - 14 Oct)
+
+	  - Player can shoot bullets (Add Bounding Box to kill enemies)
 
 	- Obstacles (when shot at nothing happens, when hit you ded)
 	  - Try implementing obejct pooling 
@@ -47,14 +64,46 @@
 	- Enemies (when you kill it you get 25 score if not then -10) (create a class for this)
 	  - Randomly Spawn and automatically aims to the main sprite
 	   or same like obstacle 
-
 	   so its spawns accordingly to the beat replacing some obstacles
 
+	- Bullets 
+	  - Add Bullets spawning (Done) (9 - 12 Oct)
+	  - Bullet follows Sprite Angle and mouse pos (13 - 14 Oct) 
+	  - Add Bullets BoundingBox
 
 	- Finish State 
 	  - when the song ends
 
 ///////////////////////////////////////
+
+	- Sprite
+	 - movement on 3 section (Done)
+	 - move angle follow mousepos (Done)
+	 - add bullets 
+		- add bounding box (Done 15 Oct)
+		- follow sprite angle (Done)
+	 - add bounding box (Done 15 Oct)
+	 - death and alive state
+
+	- Enemies
+	 - add bounding box
+	 - follow player position
+	 - death and alive state
+
+	- Obstacle
+	 - spawns on 3 section where sprite moves
+	 - spawns according to the beat (beat-ish)
+
+	- Gameplay 
+	 - Main Menu 
+	  - Buttons
+	 - In game
+	  - Sprite Enemies Obstacle
+	 - Quit
+	 - Parallax Background (Done)
+	 - Add Music (Done) 
+	 - Add Sfx 
+	 - Add Beat Counter (Done)
 
 */
 
@@ -81,7 +130,6 @@ Engine::Rhythm::~Rhythm()
 //
 //}
 
-
 //GLFWwindow* wind = 0;
 //glm::ivec2 getRelMousePosition()
 //{
@@ -103,7 +151,8 @@ void Engine::Rhythm::Init()
 	bg = (new Sprite(texture_bg, defaultSpriteShader, defaultQuad))->SetSize((float)setting->screenWidth, (float)setting->screenHeight);
 
 	sprite->SetScale(0.30)
-		 ->SetPosition(setting->screenWidth / 2.15, (setting->screenHeight / 12) - 50);
+		 ->SetPosition(setting->screenWidth / 2.15, (setting->screenHeight / 12) - 50)
+		 ->SetBoundingBoxSize(sprite->GetScaleHeight(),sprite->GetScaleWidth());
 
 
 #pragma endregion
@@ -154,14 +203,14 @@ void Engine::Rhythm::Init()
 
 #pragma region Obstacle init
 
-	//Texture* platformTexture = new Texture("cathy.png");
-	//vec2 start = vec2(2000, 0);
-	//for (int i = 0; i < 1; i++) {
-	//	Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	//	platformSprite->SetSize(150, 200)->SetPosition(start.x + i * 1000, start.y);
-	//	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 10);
-	//	platforms.push_back(platformSprite);
-	//}
+	Texture* platformTexture = new Texture("cathy.png");
+	vec2 start = vec2(setting->screenWidth / 2.15, setting->screenHeight);
+	for (int i = 0; i < 1; i++) {
+		Sprite* platformSprite = new Sprite(platformTexture, defaultSpriteShader, defaultQuad);
+		platformSprite->SetSize(100, 100)->SetPosition(start.x, start.y);
+		platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 10);
+		platforms.push_back(platformSprite);
+	}
 
 #pragma endregion
 
@@ -171,12 +220,11 @@ void Engine::Rhythm::Init()
 	bulletTexture = new Texture("bullet.png");
 	int bulletNum = 100000;
 	for (int i = 0; i < bulletNum; i++) {
-		Sprite* bs = (new Sprite(bulletTexture, defaultSpriteShader, defaultQuad))->SetNumXFrames(1)->SetNumYFrames(1)->SetScale(1);
+		Sprite* bs = (new Sprite(bulletTexture, defaultSpriteShader, defaultQuad))->SetNumXFrames(1)->SetNumYFrames(1)->SetScale(0.7)->SetBoundingBoxSize((0.7 * 1) / 1, (0.7 * 1) / 1);
 		readyBullets.push_back(new Bullet(bs));
 	}
 
 #pragma endregion
-
 
 }
 
@@ -201,22 +249,6 @@ void Engine::Rhythm::Update()
 	//std::cout << "Camera Position: " << cameraPosition.x << ", " << cameraPosition.y << ", " << cameraPosition.z << std::endl;
 
 #pragma endregion
-	
-	//float duration;
-	duration += GetGameTime();
-
-	//1 beat = 1 / 3 of a second
-	bps = (duration / 1000) *  2.7; //song end in around beat 437?
-
-	// Add function where every time the value of bps is added by 1 the sound metronome is played 
-
-	//metronome->Stop(); //true will loop the sound based on game time which we dont want
-
-	if (bps % 4) {
-		//metronome->Play(false);  // Play the sound once
-	}
-
-	std::cout << "Beats : " << bps << std::endl;
 
 #pragma region Movement
 
@@ -280,34 +312,58 @@ void Engine::Rhythm::Update()
 
 #pragma region Obstacle handling
 
+	//float duration;
+	duration += GetGameTime();
+
+	//1 beat = 1 / 3 of a second
+	bps = (duration / 1000) * 2.6; //song end in around beat 437?
+
+	// Add function where every time the value of bps is added by 1 the sound metronome is played 
+
+	//metronome->Stop(); //true will loop the sound based on game time which we dont want
+
+	//if (bps % 0) {
+	//	SpawnBullets();  // Play the sound once
+	//}
+
+	int previousBps = 0;
+
+	if (floor(bps) > previousBps) {
+		previousBps = floor(bps);  // Update the previous BPS value
+		//SpawnObstacle();  // Spawn Obstacle
+	}
+
+	std::cout << "Beats : " << bps << std::endl;
+
 	// when sprite hit an obstacle the sate switch to game over
-	//for (Sprite* s : platforms) {
-	//	if (s->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
-	//		gstate = GameState::GAME_OVER;
-	//		return;
-	//	}
-	//}
+	for (Sprite* s : platforms) {
+		if (s->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
+			//gstate = GameState::GAME_OVER;
+			//return;
+			NULL;
+		}
+	}
 
-	//for (Sprite* s : platforms)
-	//{
+	for (Sprite* s : platforms)
+	{
 
-	//	float x_ = s->GetPosition().x;
-	//	float y_ = 198;
-	//	float velocity = 0.7f;
+		float x_ = s->GetPosition().x;
+		float y_ = s->GetPosition().y;
+		float velocity = 0.5f;
 
-	//	x_ -= velocity * game->GetGameTime();
-	//	s->SetFlipHorizontal(true)
-	//		->SetPosition(x_, y_)->Update(game->GetGameTime());
+		y_ -= velocity * GetGameTime();
+		s->SetFlipHorizontal(false)
+			->SetPosition(x_, y_)->Update(GetGameTime());
 
-	//	std::cout << "The Value of x_ is : " << std::endl;
-	//	std::cout << to_string(x) << std::endl;
+		std::cout << "The Value of x_ is : " << std::endl;
+		std::cout << to_string(y_) << std::endl;
 
-	//	if (x_ <= -200)
-	//	{
-	//		s->SetPosition(2000, 198);
-	//	}
+		if (y_ <= -200)
+		{
+			s->SetPosition(setting->screenWidth / 2.15, setting->screenHeight);
+		}
 
-	//}
+	}
 
 #pragma endregion
 
@@ -330,8 +386,21 @@ void Engine::Rhythm::Update()
 		b->Update(GetGameTime());
 	}
 
-#pragma endregion
+	for (Bullet* b : inUseBullets) {
+		for (Sprite* s : platforms) {
+			if (b->GetBoundingBox()->CollideWith(s->GetBoundingBox())) {
+				// Reset obstacle position
+				s->SetPosition(setting->screenWidth / 2.15, setting->screenHeight);
 
+				// Remove the bullet from in-use list and return to ready bullets
+				readyBullets.push_back(b);
+				inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+				break;
+			}
+		}
+	}
+
+#pragma endregion
 
 	MoveLayer(backgrounds, 0.005f);
 	MoveLayer(middlegrounds, 0.03f);
@@ -357,21 +426,21 @@ void Engine::Rhythm::Render()
 
 #pragma endregion
 
-	// Draw Background Sprite
+	//Draw Background Sprite
 	bg->Draw();
 
 
-	// Draw parallax background
+	//Draw parallax background
 	DrawLayer(backgrounds);
 	DrawLayer(middlegrounds);
-	DrawLayer(foregrounds);
+
 
 	//Obstacle
-	//for (Sprite* s : platforms) {
-	//		s->Draw();
-	//}
+	for (Sprite* s : platforms) {
+			s->Draw();
+	}
 
-	// Draw Note Sprite
+	//Draw Note Sprite
 	sprite->Draw();
 
 	//Bullets
@@ -379,13 +448,13 @@ void Engine::Rhythm::Render()
 		b->Draw();
 	}
 
+	DrawLayer(foregrounds);
 
 }
 
 #pragma region Enemies (EvilShip) Handling
 
 #pragma endregion
-
 
 #pragma region Parallax Functions
 
@@ -422,7 +491,7 @@ void Engine::Rhythm::AddToLayer(vector<Sprite*>& bg, string name)
 
 #pragma endregion
 
-#pragma region Bullet handling
+#pragma region Bullet Spawn
 
 void Engine::Rhythm::SpawnBullets()
 {

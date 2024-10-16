@@ -61,7 +61,16 @@ void Engine::Lesson06_ObjectPool::Render()
 */
 Engine::Sprite* Engine::Lesson06_ObjectPool::CreateSprite()
 {
-	return (new Sprite(texture, defaultSpriteShader, defaultQuad))->SetNumXFrames(14)->SetNumYFrames(4)->AddAnimation("hit", 2, 4)->AddAnimation("spikes", 5, 12)->AddAnimation("idle-1", 14, 27)->AddAnimation("idle-2", 28, 41)->AddAnimation("spikes-out", 42, 49)->PlayAnim("idle-1")->SetScale(1.5)->SetAnimationDuration(100);
+	return (new Sprite(texture, defaultSpriteShader, defaultQuad))->SetNumXFrames(14)
+																  ->SetNumYFrames(4)
+																  ->AddAnimation("hit", 2, 4)
+																  ->AddAnimation("spikes", 5, 12)
+																  ->AddAnimation("idle-1", 14, 27)
+																  ->AddAnimation("idle-2", 28, 41)
+															 	  ->AddAnimation("spikes-out", 42, 49)
+																  ->PlayAnim("idle-1")
+																  ->SetScale(1.5)
+																  ->SetAnimationDuration(100);
 
 }
 

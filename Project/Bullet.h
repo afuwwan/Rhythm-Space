@@ -2,6 +2,8 @@
 #define BULLET_H
 
 #include "Sprite.h"
+#include "BoundingBox.h"
+
 
 namespace Engine {
 	class Bullet
@@ -18,6 +20,9 @@ namespace Engine {
 		//vec2 GetRotation();
 		void Update(float deltaTime);
 		void Draw();
+		BoundingBox* GetBoundingBox();
+	private:
+		BoundingBox* boundingBox;
 	};
 }
 #endif

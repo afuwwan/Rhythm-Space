@@ -1,4 +1,5 @@
 #include "Bullet.h"
+#include "BoundingBox.h"
 
 Engine::Bullet::Bullet(Sprite* sprite)
 {
@@ -17,6 +18,11 @@ void Engine::Bullet::SetPosition(float x, float y)
 vec2 Engine::Bullet::GetPosition()
 {
 	return sprite->GetPosition();
+}
+
+Engine::BoundingBox* Engine::Bullet::GetBoundingBox()
+{
+	return sprite->GetBoundingBox();
 }
 
 void Engine::Bullet::Update(float deltaTime)
