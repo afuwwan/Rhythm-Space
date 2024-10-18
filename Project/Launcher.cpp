@@ -12,7 +12,8 @@
 #include "Lesson09_Bullet.h"
 #include "Lesson10_Platform.h"
 #include "Lesson11_ParallaxScrolling.h"
-#include "Rhythm.h"
+#include "Rhythm.h"//no menu screen
+#include "RhythmSpace.h"//with menu screen
 
 #include "LessonAI01_SteeringBehaviors.h"
 #include "LessonAI02_NPCWave.h"
@@ -20,11 +21,11 @@
 int main(int argc, char** argv) {
 	Engine::Setting* setting = new Engine::Setting();
 	setting->screenWidth = 1600;
-	setting->screenHeight = 900;
+	setting->screenHeight = 1000;
 	setting->windowFlag = Engine::WindowFlag::WINDOWED;
 	setting->vsync = false;
 	setting->targetFrameRate = 75;
-	Engine::Game* game = new Engine::Rhythm(setting);
+	Engine::Game* game = new Engine::RhythmSpace(setting);
 	game->Run();
 	delete setting;
 	delete game;

@@ -152,6 +152,15 @@
     <ClInclude Include="Rhythm.h">
       <Filter>Demo Files\Rhythm Space</Filter>
     </ClInclude>
+    <ClInclude Include="MenuScreen.h">
+      <Filter>Demo Files\Rhythm Space</Filter>
+    </ClInclude>
+    <ClInclude Include="GameScreen.h">
+      <Filter>Demo Files\Rhythm Space</Filter>
+    </ClInclude>
+    <ClInclude Include="RhythmSpace.h">
+      <Filter>Demo Files\Rhythm Space</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shader.cpp">
@@ -270,6 +279,15 @@
     </ClCompile>
     <ClCompile Include="Turtle.cpp">
       <Filter>Demo Files\Course</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScreen.cpp">
+      <Filter>Demo Files\Rhythm Space</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScreen.cpp">
+      <Filter>Demo Files\Rhythm Space</Filter>
+    </ClCompile>
+    <ClCompile Include="RhythmSpace.cpp">
+      <Filter>Demo Files\Rhythm Space</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
