@@ -15,7 +15,7 @@ namespace Engine {
 		float yVelocity = 0;
 		Sprite* sprite;
 		void SetPosition(float x, float y);
-		//void SetRotation(float degree);
+		Sprite* SetRotation(float degree);
 		vec2 GetPosition();
 		//vec2 GetRotation();
 		void Update(float deltaTime);

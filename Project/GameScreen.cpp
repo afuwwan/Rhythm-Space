@@ -1,5 +1,117 @@
 #include "GameScreen.h"
 
+#pragma region TO DO
+/*
+//////// Gameplay Explanation /////////
+
+   - sprite can move to left center and right
+   - movement limited with 3 section
+   - sprite rotates according mousepos
+   - sprite shoot bullets
+   - enemies follow player pos
+   - enemie dead in one shot with bullets
+   - obstacle spawns randomly on any of the 3 section
+   - obstacle spawns following (beat-ish) making player
+	 has to semi avoid obstacle according to beat
+
+///////////// Screens ////////////////
+
+	- Main Menu
+	  - Every Button Has SFX
+	  - Use FNF Intro Music for BGM
+	  - Buttons :
+		- Play
+		- Controls
+		- Exit
+
+	- Controls Screen
+	  - Displays Controls Text
+
+	- In Game Screen
+
+///////////////////////////////////////
+
+//////////// Game Play ////////////////
+
+	- Create a class to handle the spaceship and move the functions to there
+
+	- In Game State
+	  - Has 3 Section for sprite to move (Done) (9 - 10 Oct)
+
+	  - Avoid enenmies according to the beat (you can like make it semi according to beat)
+
+	  - Map notes with rhythm plus based on the time mapped (Done) (9 - 12 Oct)
+	  - Add a bps counter (doesnt really need to but Done) (9 - 12 Oct)
+	  - Add Song Bacgkround (9 - 12 Oct)
+	  - Add MousePos follow sprite angle (9 - 12 Oct)
+
+	- Gameplay
+	  - Move Left and Right and Center (Done) (9 - 12 Oct)
+
+	  - When Space button pressed
+		1. Plays a jumping or zooming in animation
+		2. make the sprite hides its bounding box
+
+	  - Sprite angle follows mouse pos (Done) (13 - 14 Oct)
+
+	  - Player can shoot bullets (Add Bounding Box to kill enemies)
+
+	- Obstacles (when shot at nothing happens, when hit you ded)
+	  - Try implementing obejct pooling
+	  - 3 objects spawns according to beat
+	  - if not just do it manually but not recommend
+
+	- Enemies (when you kill it you get 25 score if not then -10) (create a class for this)
+	  - Randomly Spawn and automatically aims to the main sprite
+	   or same like obstacle
+	   so its spawns accordingly to the beat replacing some obstacles
+
+	- Bullets
+	  - Add Bullets spawning (Done) (9 - 12 Oct)
+	  - Bullet follows Sprite Angle and mouse pos (13 - 14 Oct)
+	  - Add Bullets BoundingBox
+
+	- Finish State
+	  - when the song ends
+
+///////////////////////////////////////
+
+	- Sprite
+	 - movement on 3 section (Done)
+	 - move angle follow mousepos (Done)
+	 - add bullets
+		- add bounding box (Done 15 Oct)
+		- follow sprite angle (Done)
+		- bullet sprite also rotates when ship sprite rotates (19 Oct)
+	 - add bounding box (Done 15 Oct)
+	 - death and alive state
+
+	- Enemies
+	 - add bounding box
+	 - follow player position
+	 - death and alive state
+
+	- Obstacle
+	 - spawns on 3 section where sprite moves
+	 - spawns according to the beat (beat-ish)
+
+	- Gameplay
+	 - add a feature Divide into 2 screen (17 Oct)
+	 - Main Menu
+	  - Customize Buttons and Titles
+		- SFX and Sprite
+	 - In game
+	  - Sprite Enemies Obstacle
+	 - Quit
+	 - Parallax Background (Done)
+	 - Add Music (Done)
+	 - Add Sfx
+	 - Add Beat Counter (Done)
+
+*/
+
+#pragma endregion
+
 Engine::GameScreen::GameScreen()
 {
 	delete texture_N1;
@@ -101,10 +213,15 @@ void Engine::GameScreen::Init()
 #pragma region Bullet Init
 
 	//Add bullets
-	bulletTexture = new Texture("bullet.png");
+	bulletTexture = new Texture("projectiles.png");
 	int bulletNum = 100000;
 	for (int i = 0; i < bulletNum; i++) {
-		Sprite* bs = (new Sprite(bulletTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))->SetNumXFrames(1)->SetNumYFrames(1)->SetScale(0.7)->SetBoundingBoxSize((0.7 * 1) / 1, (0.7 * 1) / 1);
+		Sprite* bs = (new Sprite(bulletTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))->SetNumXFrames(3)
+																										->SetNumYFrames(2)
+																										->SetScale(0.07)
+																										->SetBoundingBoxSize((0.7 * 1) / 1, (0.7 * 1) / 1)
+																										->AddAnimation("idle", 1,1)
+																										->PlayAnim("idle");
 		readyBullets.push_back(new Bullet(bs));
 	}
 
@@ -236,6 +353,7 @@ void Engine::GameScreen::Update()
 	if (floor(bps) > previousBps) {
 		previousBps = floor(bps);  // Update the previous BPS value
 		SpawnBullets();  // Spawn Obstacle
+
 	}
 
 	std::cout << "Beats : " << bps << std::endl;
@@ -350,17 +468,18 @@ void Engine::GameScreen::Draw()
 		s->Draw();
 	}
 
-	//Draw Note Sprite
-	sprite->Draw();
-
 	//Bullets
 	for (Bullet* b : inUseBullets) {
 		b->Draw();
 	}
+	
+	//Draw Note Sprite
+	sprite->Draw();
 
-	for (Turtle* o : objects) {
-		o->Draw();
-	}
+
+	//for (Turtle* o : objects) {
+	//	o->Draw();
+	//}
 
 	DrawLayer(foregrounds);
 
@@ -370,9 +489,15 @@ void Engine::GameScreen::Draw()
 Engine::Sprite* Engine::GameScreen::CreateSprite(Texture* texture)
 {
 	return (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
-		->SetNumXFrames(14)->SetNumYFrames(4)->AddAnimation("hit", 2, 4)
-		->AddAnimation("spikes", 5, 12)->AddAnimation("idle-1", 14, 27)->AddAnimation("idle-2", 28, 41)
-		->AddAnimation("spikes-out", 42, 49)->PlayAnim("spikes")->SetScale(1.5)->SetAnimationDuration(100);
+		->SetNumXFrames(14)
+		->SetNumYFrames(4)
+		->AddAnimation("hit", 2, 4)
+		->AddAnimation("spikes", 5, 12)
+		->AddAnimation("idle-1", 14, 27)
+		->AddAnimation("idle-2", 28, 41)
+		->AddAnimation("spikes-out", 42, 49)
+		->PlayAnim("spikes")->SetScale(1.5)
+		->SetAnimationDuration(100);
 }
 
 void Engine::GameScreen::SpawnObjects()
@@ -452,8 +577,8 @@ void Engine::GameScreen::SpawnBullets()
 		float spriteHeight = sprite->GetScaleHeight();
 
 		// Calculate the spawn position at the center bottom (0.5, 1) of the sprite
-		float bulletStartX = sprite->GetPosition().x + (spriteWidth / 2.0f);
-		float bulletStartY = sprite->GetPosition().y + (spriteHeight / 2.0f);
+		float bulletStartX = sprite->GetPosition().x + (spriteWidth / 2.75f);
+		float bulletStartY = sprite->GetPosition().y + (spriteHeight / 2.75f);
 
 		// Set the bullet's initial position to the (0.5, 1) texture coordinate
 		b->SetPosition(bulletStartX, bulletStartY);
@@ -461,10 +586,43 @@ void Engine::GameScreen::SpawnBullets()
 		// Get the angle of the spaceship (sprite rotation)
 		float angle = glm::radians(sprite->GetRotation() + 90);
 
+#pragma region spacehip angle logic
+
+		int mouseX, mouseY;
+		SDL_GetMouseState(&mouseX, &mouseY);
+
+		//float dx = mouseX - note1->GetPosition().x;
+		//float dy = mouseY - note1->GetPosition().y;
+
+		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
+
+		glm::vec2 mousePos = { mouseX, mouseY };
+
+		glm::vec2 screenCenter(game->GetSettings()->screenWidth / 2.0f, game->GetSettings()->screenHeight / 2.0f);
+
+		glm::vec2 mouseDirection = mousePos - screenCenter;
+
+		if (glm::length(mouseDirection) == 0.f)
+		{
+			mouseDirection = { 1,0 };
+		}
+		else
+		{
+			mouseDirection = normalize(mouseDirection);
+		}
+
+#pragma endregion
+
+		//initiates the spaceship angle for bullets 
+		float spaceshipAngle = atan2(mouseDirection.y, -mouseDirection.x) * (180 / M_PI) + 90;
+
 		// Calculate x and y velocity based on the angle
 		float speed = 0.75f;  // Adjust this as needed
 		b->xVelocity = cos(angle) * speed;
 		b->yVelocity = sin(angle) * speed;
+
+		//sets bullets rotation the same as ships angle
+		b->SetRotation(spaceshipAngle);
 
 		inUseBullets.push_back(b);
 		timeInterval = 0;

@@ -20,6 +20,11 @@ vec2 Engine::Bullet::GetPosition()
 	return sprite->GetPosition();
 }
 
+Engine::Sprite* Engine::Bullet::SetRotation(float degree)
+{
+	return sprite->SetRotation(degree);
+}
+
 Engine::BoundingBox* Engine::Bullet::GetBoundingBox()
 {
 	return sprite->GetBoundingBox();
