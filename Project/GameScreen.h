@@ -22,6 +22,15 @@ namespace Engine {
 		public Engine::Screen
 	{
 	public:
+		enum class GameState
+		{
+			RUNNING,
+			RESET,
+			GAME_OVER,
+			FINISH
+		};
+		GameState gstate;
+
 		GameScreen();
 		void Init();
 		void Update();
@@ -55,6 +64,8 @@ namespace Engine {
 		float duration;
 
 		int bps;
+
+		int previousBps;
 
 
 		////////////Parallax////////////
@@ -91,9 +102,20 @@ namespace Engine {
 		//////////Obstacle///////////
 		vector<Sprite*> platforms;
 
+		void SpawnObstacle(float xPosition);
+
+		void GenerateObstaclePattern();
+
+		int previousEmptySection = -1;
+
 
 		//////////Enemies////////////
 
+
+
+		////////////Others////////////
+		int score = 1000;
+		Text* text = NULL;
 
 	};
 }

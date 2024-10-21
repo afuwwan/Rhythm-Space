@@ -76,24 +76,31 @@
 
 ///////////////////////////////////////
 
-	- Sprite
-	 - movement on 3 section (Done)
-	 - move angle follow mousepos (Done)
-	 - add bullets
+	- Sprite (14 Oct - 27 Oct) 
+	 - movement on 3 section (Done) 9 - 12 Oct
+	 - move angle follow mousepos (Done) 13 -14 Oct 
+	 - add bullets (Done)
 		- add bounding box (Done 15 Oct)
 		- follow sprite angle (Done)
 		- bullet sprite also rotates when ship sprite rotates (19 Oct)
 	 - add bounding box (Done 15 Oct)
-	 - death and alive state
+	 - When kill enemy score + 20
 
-	- Enemies
+
+	- Enemies (11 Nov - 24 Nov)
 	 - add bounding box
 	 - follow player position
 	 - death and alive state
+	 - when hit player score -25
 
-	- Obstacle
-	 - spawns on 3 section where sprite moves
-	 - spawns according to the beat (beat-ish)
+	- Obstacle (28 Oct - 10 Nov)
+	 - spawns on 3 section where sprite moves (Done) (19 Oct)
+	 - spawns according to the beat (beat-ish) (Done) (19 Oct)
+	 - When hit score -10 (Done) (21 Oct) 
+	 - on a certain time the "4" changes to 2 or 1  (21 Oct) (Done)   
+		if (previousBps % 4 == 0) {
+            GenerateObstaclePattern();  // Spawn obstacle pattern every 4 beats
+        }
 
 	- Gameplay
 	 - add a feature Divide into 2 screen (17 Oct)
@@ -103,10 +110,20 @@
 	 - In game
 	  - Sprite Enemies Obstacle
 	 - Quit
-	 - Parallax Background (Done)
-	 - Add Music (Done)
+
+	 - Parallax Background (Done) (10 Oct)
+	 - Add Music (Done) (10 Oct)
 	 - Add Sfx
 	 - Add Beat Counter (Done)
+	 - Add SCoring sistem (begins with 1000)
+	   - if hit obstacle -10 (Done) (21 Oct)
+	   - if kill enemies +25
+	   - if score is zero game over
+
+	- Start State
+	- Over State
+	- Finish State
+	- Exit State
 
 */
 
@@ -148,7 +165,7 @@ void Engine::GameScreen::Init()
 
 	sprite->SetScale(0.30)
 		->SetPosition(game->GetSettings()->screenWidth / 2.15, (game->GetSettings()->screenHeight / 12) - 50)
-		->SetBoundingBoxSize(sprite->GetScaleHeight(), sprite->GetScaleWidth());
+		->SetBoundingBoxSize(65,65);
 
 
 #pragma endregion
@@ -159,9 +176,18 @@ void Engine::GameScreen::Init()
 
 #pragma endregion
 
+#pragma region Score init
+
+	text = new Text("lucon.ttf", 24, game->GetDefaultTextShader());
+	text->SetScale(1.0f)->SetColor(255, 255, 255)->SetPosition(0, game->GetSettings()->screenHeight - (text->GetFontSize() * text->GetScale()));
+
+
+#pragma endregion
+
+
 #pragma region Music and Sound init
 
-	music = (new Music("Shirobon-On-The-Run.ogg"))->SetVolume(45)->Play(false);
+	music = (new Music("Shirobon-On-The-Run.ogg"))->SetVolume(45)/*->Play(false)*/;
 
 	//metronome = (new Sound("beep.ogg"))->SetVolume(70)->Play(true);
 
@@ -199,14 +225,14 @@ void Engine::GameScreen::Init()
 
 #pragma region Obstacle init
 
-	Texture* platformTexture = new Texture("cathy.png");
-	vec2 start = vec2(game->GetSettings()->screenWidth / 2.15, game->GetSettings()->screenHeight);
-	for (int i = 0; i < 1; i++) {
-		Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-		platformSprite->SetSize(100, 100)->SetPosition(start.x, start.y);
-		platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 10);
-		platforms.push_back(platformSprite);
-	}
+	//Texture* platformTexture = new Texture("cathy.png");
+	//vec2 start = vec2(game->GetSettings()->screenWidth / 2.15, game->GetSettings()->screenHeight);
+	//for (int i = 0; i < 1; i++) {
+	//	Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+	//	platformSprite->SetSize(100, 100)->SetPosition(start.x, start.y);
+	//	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 10);
+	//	platforms.push_back(platformSprite);
+	//}
 
 #pragma endregion
 
@@ -251,183 +277,381 @@ void Engine::GameScreen::Update()
 	// Count spawn duration
 	spawnDuration += (game->GetGameTime());
 
-	//////////////
+	////////////////
+
+	if (gstate == GameState::RUNNING)
+	{
+
+#pragma region Score Handling
+
+		text->SetText("Score: " + std::to_string(score))
+			->SetPosition(100, 900);
+
+#pragma endregion
+
+
+#pragma region Music Handling
+
+		if (duration / 1000 > 1.8) //add slight delay to make sound match obstacle spawning
+		{
+			if (music->IsPlaying() == false)
+			{
+				music->Play(false);
+				music->IsPlaying() == true;
+
+			}
+		}
+
+#pragma endregion
 
 #pragma region Camera Handling
 
-	//glm::mat4 view = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//glm::mat4 projection = glm::perspective(45.0f, (GLfloat)this->screenWidth / (GLfloat)this->screenHeight, 0.1f, 100.0f);
-	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(setting->screenWidth), 0.0f, static_cast<GLfloat>(setting->screenHeight), -1.0f, 1.0f);
+		//glm::mat4 view = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		//glm::mat4 projection = glm::perspective(45.0f, (GLfloat)this->screenWidth / (GLfloat)this->screenHeight, 0.1f, 100.0f);
+		//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(setting->screenWidth), 0.0f, static_cast<GLfloat>(setting->screenHeight), -1.0f, 1.0f);
 
-	//vec2 notePosition = note1->GetPosition();
+		//vec2 notePosition = note1->GetPosition();
 
-	// Define camera view matrix to follow note1's position
-	//glm::vec3 cameraPosition(notePosition.x, notePosition.y, 0.0f); // Camera positioned behind the scene
-	//view = glm::lookAt(cameraPosition, glm::vec3(notePosition.x, notePosition.y, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		// Define camera view matrix to follow note1's position
+		//glm::vec3 cameraPosition(notePosition.x, notePosition.y, 0.0f); // Camera positioned behind the scene
+		//view = glm::lookAt(cameraPosition, glm::vec3(notePosition.x, notePosition.y, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	// Update the shader with the view matrix to apply the camera
-	//shader->setMat4(view, "view");
+		// Update the shader with the view matrix to apply the camera
+		//shader->setMat4(view, "view");
 
-	//std::cout << "Camera Position: " << cameraPosition.x << ", " << cameraPosition.y << ", " << cameraPosition.z << std::endl;
+		//std::cout << "Camera Position: " << cameraPosition.x << ", " << cameraPosition.y << ", " << cameraPosition.z << std::endl;
 
 #pragma endregion
 
 #pragma region Movement
 
-	vec2 oldMonsterPos = sprite->GetPosition();
-	float x = oldMonsterPos.x, y = oldMonsterPos.y;
-	if (game->GetInputManager()->IsKeyPressed("Move Right")) {
-		x = (game->GetSettings()->screenWidth / 2.15) + 200;
-		//note1->PlayAnim("walk")->SetFlipHorizontal(false)->SetRotation(0);
-	}
-	if (game->GetInputManager()->IsKeyPressed("Move Left")) {
-		x = (game->GetSettings()->screenWidth / 2.15) - 200;
-		//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
-	}
-	if (game->GetInputManager()->IsKeyPressed("Move Center")) {
-		x = game->GetSettings()->screenWidth / 2.15;
-		//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
-	}
-	if (game->GetInputManager()->IsKeyPressed("Avoid")) {
-		x = game->GetSettings()->screenWidth / 2.15;
-		// Remove Bounding Box
-		// Plays Jumping Animation
-	}
+		vec2 oldMonsterPos = sprite->GetPosition();
+		float x = oldMonsterPos.x, y = oldMonsterPos.y;
+		if (game->GetInputManager()->IsKeyPressed("Move Right")) {
+			x = (game->GetSettings()->screenWidth / 2.15) + 200;
+			//note1->PlayAnim("walk")->SetFlipHorizontal(false)->SetRotation(0);
+		}
+		if (game->GetInputManager()->IsKeyPressed("Move Left")) {
+			x = (game->GetSettings()->screenWidth / 2.15) - 200;
+			//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
+		}
+		if (game->GetInputManager()->IsKeyPressed("Move Center")) {
+			x = game->GetSettings()->screenWidth / 2.15;
+			//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
+		}
+		if (game->GetInputManager()->IsKeyPressed("Avoid")) {
+			x = game->GetSettings()->screenWidth / 2.15;
+			// Remove Bounding Box
+			// Plays Jumping Animation
+		}
 
-	sprite->Update(game->GetGameTime());
-	sprite->PlayAnim("idle");
+		sprite->Update(game->GetGameTime());
+		sprite->PlayAnim("idle");
 
-	sprite->SetPosition(x, y);
+		sprite->SetPosition(x, y);
 
 #pragma endregion
 
 #pragma region sprite angle according to mouse pos
 
-	int mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
+		int mouseX, mouseY;
+		SDL_GetMouseState(&mouseX, &mouseY);
 
-	//float dx = mouseX - note1->GetPosition().x;
-	//float dy = mouseY - note1->GetPosition().y;
+		//float dx = mouseX - note1->GetPosition().x;
+		//float dy = mouseY - note1->GetPosition().y;
 
-	//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
+		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
 
-	glm::vec2 mousePos = { mouseX, mouseY };
+		glm::vec2 mousePos = { mouseX, mouseY };
 
-	glm::vec2 screenCenter(game->GetSettings()->screenWidth / 2.0f, game->GetSettings()->screenHeight / 2.0f);
+		glm::vec2 screenCenter(game->GetSettings()->screenWidth / 2.0f, game->GetSettings()->screenHeight / 2.0f);
 
-	glm::vec2 mouseDirection = mousePos - screenCenter;
+		glm::vec2 mouseDirection = mousePos - screenCenter;
 
-	if (glm::length(mouseDirection) == 0.f)
-	{
-		mouseDirection = { 1,0 };
-	}
-	else
-	{
-		mouseDirection = normalize(mouseDirection);
-	}
+		if (glm::length(mouseDirection) == 0.f)
+		{
+			mouseDirection = { 1,0 };
+		}
+		else
+		{
+			mouseDirection = normalize(mouseDirection);
+		}
 
-	float angle = atan2(mouseDirection.y, -mouseDirection.x) * (180 / M_PI) + 90;
+		float angle = atan2(mouseDirection.y, -mouseDirection.x) * (180 / M_PI) + 90;
 
-	sprite->SetRotation(angle);
+		sprite->SetRotation(angle);
 
 #pragma endregion
 
 #pragma region Obstacle handling
 
-	//float duration;
-	duration += game->GetGameTime();
+		//float duration;
+		duration += game->GetGameTime();
 
-	//1 beat = 1 / 3 of a second
-	bps = (duration / 1000) * 2.6; //song end in around beat 437?
+		//1 beat = 1 / 2.6 of a second
+		bps = (duration / 1000) * 2.6;
 
-	// Add function where every time the value of bps is added by 1 the sound metronome is played 
-
-	//metronome->Stop(); //true will loop the sound based on game time which we dont want
-
-	//if (bps % 0) {
-	//	SpawnBullets();  // Play the sound once
-	//}
-
-	int previousBps = 0;
-
-	if (floor(bps) > previousBps) {
-		previousBps = floor(bps);  // Update the previous BPS value
-		SpawnBullets();  // Spawn Obstacle
-
-	}
-
-	std::cout << "Beats : " << bps << std::endl;
-
-	// when sprite hit an obstacle the sate switch to game over
-	for (Sprite* s : platforms) {
-		if (s->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
-			//gstate = GameState::GAME_OVER;
-			//return;
-			NULL;
-		}
-	}
-
-	for (Sprite* s : platforms)
-	{
-
-		float x_ = s->GetPosition().x;
-		float y_ = s->GetPosition().y;
-		float velocity = 0.5f;
-
-		y_ -= velocity * game->GetGameTime();
-		s->SetFlipHorizontal(false)
-			->SetPosition(x_, y_)->Update(game->GetGameTime());
-
-		std::cout << "The Value of x_ is : " << std::endl;
-		std::cout << to_string(y_) << std::endl;
-
-		if (y_ <= -200)
+		// Obstacle pattern
+		if (duration / 1000 < 36)
 		{
-			s->SetPosition(game->GetSettings()->screenWidth / 2.15, game->GetSettings()->screenHeight);
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 4
+				if (previousBps % 4 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
 		}
 
-	}
+		if (duration / 1000 >= 36 && duration / 1000 < 59)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 2
+				if (previousBps % 2 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 59 && duration / 1000 < 84)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 3
+				if (previousBps % 3 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 84 && duration / 1000 < 107)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 1
+				if (previousBps % 1 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 107 && duration / 1000 < 132)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 2
+				if (previousBps % 2 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 132 && duration / 1000 < 156)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 1
+				if (previousBps % 1 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 156 && duration / 1000 < 167)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 4
+				if (previousBps % 4 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 167 && duration / 1000 < 192)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 2
+				if (previousBps % 2 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 192 && duration / 1000 < 215)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 1
+				if (previousBps % 1 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 215 && duration / 1000 < 240)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 2
+				if (previousBps % 2 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+
+		if (duration / 1000 >= 240 && duration / 1000 < 254)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Check if the beat count is the equivalent of 4
+				if (previousBps % 4 == 0) {
+					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+			}
+
+		}
+		std::cout << "Beats : " << bps << std::endl;
+
+		//Obstacle behaviour
+		for (auto it = platforms.begin(); it != platforms.end();) \
+		{
+
+			Sprite* obstacle = *it;
+
+			float y_ = obstacle->GetPosition().y;
+
+			y_ -= 0.5f * game->GetGameTime();  // Adjust obstacle speed as needed
+
+			obstacle->SetPosition(obstacle->GetPosition().x, y_)->Update(game->GetGameTime());
+
+			if (obstacle->GetBoundingBox()->CollideWith(sprite->GetBoundingBox()))
+			{
+				//gstate = GameState::GAME_OVER;
+				//return;
+				it = platforms.erase(it);
+				std::cout << "Player hit Obstacle!" << std::endl;
+				score -= 10;
+				text->SetText("Score: " + std::to_string(score));
+
+				//NULL;
+			}
+
+			if (y_ <= -300)
+			{
+				it = platforms.erase(it);  // Remove obstacle when it's off-screen
+			}
+			else
+			{
+				++it;
+			}
+
+			if (y_ == (game->GetSettings()->screenHeight * 0) + 300)
+			{
+				obstacle->SetBoundingBoxSize(0, 0);
+			}
+
+			//rotates meteor
+			int spinT = duration / 70;
+
+			if (spinT == 360)
+			{
+				spinT = 0;
+			}
+
+			obstacle->SetRotation(spinT);
+		}
 
 #pragma endregion
 
 #pragma region Bullet Handling
 
-	timeInterval += game->GetGameTime();
+		timeInterval += game->GetGameTime();
 
-	if (game->GetInputManager()->IsKeyPressed("Attack")) {
-		sprite->PlayAnim("attack");
-		SpawnBullets();
-	}
-
-	for (Bullet* b : inUseBullets) {
-		// If bullet off screen then remove a bullet from in-use container, and insert into ready-to-use container
-		if (b->GetPosition().x < -b->sprite->GetScaleWidth() || b->GetPosition().x > game->GetSettings()->screenWidth) {
-			readyBullets.push_back(b);
-			inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+		if (game->GetInputManager()->IsKeyPressed("Attack")) {
+			sprite->PlayAnim("attack");
+			SpawnBullets();
 		}
 
-		b->Update(game->GetGameTime());
-	}
-
-	for (Bullet* b : inUseBullets) {
-		for (Sprite* s : platforms) {
-			if (b->GetBoundingBox()->CollideWith(s->GetBoundingBox())) {
-				// Reset obstacle position
-				s->SetPosition(game->GetSettings()->screenWidth / 2.15, game->GetSettings()->screenHeight);
-
-				// Remove the bullet from in-use list and return to ready bullets
+		for (Bullet* b : inUseBullets) {
+			// If bullet off screen then remove a bullet from in-use container, and insert into ready-to-use container
+			if (b->GetPosition().x < -b->sprite->GetScaleWidth() || b->GetPosition().x > game->GetSettings()->screenWidth) {
 				readyBullets.push_back(b);
 				inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
-				break;
 			}
+
+			b->Update(game->GetGameTime());
 		}
-	}
+
+		// Bullet behaviour
+
+		//for (Bullet* b : inUseBullets) {
+		//	for (Sprite* s : platforms) {
+		//		if (b->GetBoundingBox()->CollideWith(s->GetBoundingBox())) {
+		//			// Reset obstacle position
+		//			s->SetPosition(game->GetSettings()->screenWidth / 2.15, game->GetSettings()->screenHeight);
+
+		//			// Remove the bullet from in-use list and return to ready bullets
+		//			readyBullets.push_back(b);
+		//			inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+		//			break;
+		//		}
+		//	}
+		//}
 
 #pragma endregion
 
-	MoveLayer(backgrounds, 0.005f);
-	MoveLayer(middlegrounds, 0.03f);
-	MoveLayer(foregrounds, 0.3f);
+		MoveLayer(backgrounds, 0.005f);
+		MoveLayer(middlegrounds, 0.03f);
+		MoveLayer(foregrounds, 0.3f);
+
+	}
+
+
 
 }
 
@@ -483,6 +707,9 @@ void Engine::GameScreen::Draw()
 
 	DrawLayer(foregrounds);
 
+	//Score
+	text->Draw();
+
 
 }
 
@@ -499,6 +726,62 @@ Engine::Sprite* Engine::GameScreen::CreateSprite(Texture* texture)
 		->PlayAnim("spikes")->SetScale(1.5)
 		->SetAnimationDuration(100);
 }
+
+#pragma region Obstacle Spawning
+
+void Engine::GameScreen::SpawnObstacle(float xPosition) 
+{
+
+	Texture* platformTexture = new Texture("meteor.png");
+	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of the screen)
+
+	Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+	platformSprite->SetSize(100,100)->SetPosition(start.x, start.y);
+	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 50);
+
+
+
+	platforms.push_back(platformSprite);  // Add the new obstacle to the list
+}
+
+void Engine::GameScreen::GenerateObstaclePattern() 
+{
+	int emptySection; 
+
+	do 
+	{
+		emptySection = rand() % 3;
+	} while (emptySection == previousEmptySection);
+
+	previousEmptySection = emptySection;
+
+	std::cout << emptySection << std::endl;
+
+	float leftPositionX = (game->GetSettings()->screenWidth / 2.15) - 200;    // Position for the left lane
+	float centerPositionX = game->GetSettings()->screenWidth / 2.15;  // Position for the center lane
+	float rightPositionX = (game->GetSettings()->screenWidth / 2.15) + 200;  // Position for the right lane
+
+	// Spawn obstacle in the left section if it's not empty
+	if (emptySection != 0) 
+	{
+		SpawnObstacle(leftPositionX);
+	}
+
+	// Spawn obstacle in the center section if it's not empty
+	if (emptySection != 1) 
+	{
+		SpawnObstacle(centerPositionX);
+	}
+
+	// Spawn obstacle in the right section if it's not empty
+	if (emptySection != 2) 
+	{
+		SpawnObstacle(rightPositionX);
+	}
+
+}
+
+#pragma endregion
 
 void Engine::GameScreen::SpawnObjects()
 {
@@ -565,7 +848,7 @@ void Engine::GameScreen::AddToLayer(vector<Sprite*>& bg, string name)
 
 void Engine::GameScreen::SpawnBullets()
 {
-	if (timeInterval >= 150) {
+	if (timeInterval >= 100) {
 		if (readyBullets.empty()) {
 			return;
 		}
