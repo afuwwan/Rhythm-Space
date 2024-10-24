@@ -12,7 +12,10 @@ void Engine::MainMenuScreen::Init()
 
 	// Create Sprites
 	Sprite* playSprite = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
-		->SetNumXFrames(6)->SetNumYFrames(1)->AddAnimation("normal", 5, 5)->AddAnimation("hover", 3, 4)
+		->SetNumXFrames(6)
+		->SetNumYFrames(1)
+		->AddAnimation("normal", 5, 5)
+		->AddAnimation("hover", 3, 4)
 		->AddAnimation("press", 3, 4)->SetAnimationDuration(400);
 
 	Sprite* exitSprite = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))

@@ -37,7 +37,7 @@ void Engine::Turtle::Update(float deltaTime)
 	}
 
 	y -= yVelocity * deltaTime;
-	sprite->SetPosition(x, y);
+	sprite->SetPosition(x, y);//sets the y value
 	sprite->Update(deltaTime);
 }
 

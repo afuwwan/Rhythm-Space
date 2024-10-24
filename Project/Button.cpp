@@ -57,3 +57,8 @@ vec2 Engine::Button::GetPosition()
 {
 	return sprite->GetPosition();
 }
+
+Engine::Sprite* Engine::Button::GetSprite() {
+	return this->sprite;  // Return the associated sprite
+}
+

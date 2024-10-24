@@ -59,6 +59,9 @@ namespace Engine {
 
 		Sound* hit = NULL;
 
+		Music* music2 = NULL;
+
+
 		//Sound* metronome = NULL;
 
 		float duration;
@@ -97,6 +100,8 @@ namespace Engine {
 
 		void SpawnBullets();
 
+		void ResetBullets();
+
 
 
 		//////////Obstacle///////////
@@ -106,11 +111,21 @@ namespace Engine {
 
 		void GenerateObstaclePattern();
 
+		void ResetObstacleGeneration();
+
 		int previousEmptySection = -1;
 
 
 		//////////Enemies////////////
+		vector<Sprite*> enemies;
 
+		void SpawnEnemies(float xPosition);
+
+		void GenerateEnemyPattern();
+
+		void ResetEnemyGeneration();
+
+		bool enemySpawned = false;
 
 
 		////////////Others////////////

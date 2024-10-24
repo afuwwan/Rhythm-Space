@@ -7,17 +7,28 @@ Engine::MenuScreen::MenuScreen()
 
 void Engine::MenuScreen::Init()
 {
+	
 	// Create a Texture
-	Texture* texture = new Texture("buttons.png");
+	Texture* texture = new Texture("buttonRhythmSpace.png");
 
 	// Create Sprites
 	Sprite* playSprite = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
-		->SetNumXFrames(6)->SetNumYFrames(1)->AddAnimation("normal", 5, 5)->AddAnimation("hover", 3, 4)
-		->AddAnimation("press", 3, 4)->SetAnimationDuration(400);
+		->SetNumXFrames(2)
+		->SetNumYFrames(4)
+		->SetScale(5)
+		->AddAnimation("normal", 0, 0)
+		->AddAnimation("hover", 4, 5)
+		->AddAnimation("press", 4, 5)
+		->SetAnimationDuration(400);
 
 	Sprite* exitSprite = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
-		->SetNumXFrames(6)->SetNumYFrames(1)->AddAnimation("normal", 2, 2)->AddAnimation("hover", 0, 1)
-		->AddAnimation("press", 0, 1)->SetAnimationDuration(400);
+		->SetNumXFrames(2)
+		->SetNumYFrames(4)
+		->SetScale(5)
+		->AddAnimation("normal", 2, 2)
+		->AddAnimation("hover", 6, 7)
+		->AddAnimation("press", 6, 7)
+		->SetAnimationDuration(400);
 
 	//Create Buttons
 	Button* playButton = new Button(playSprite, "play");
@@ -36,12 +47,26 @@ void Engine::MenuScreen::Init()
 
 	// Create Text
 	text = (new Text("8-bit Arcade In.ttf", 100, game->GetDefaultTextShader()))
-		->SetText("The Spawning Turtle")->SetPosition(game->GetSettings()->screenWidth * 0.5f - 500, game->GetSettings()->screenHeight - 100.0f)->SetColor(235, 229, 52);
+		->SetText("Rhythm Space")->SetPosition((game->GetSettings()->screenWidth/2) - 270, game->GetSettings()->screenHeight - 100)->SetColor(235, 229, 52);
 
 	// Add input mappings
 	game->GetInputManager()->AddInputMapping("next", SDLK_DOWN)
 		->AddInputMapping("prev", SDLK_UP)
 		->AddInputMapping("press", SDLK_RETURN);
+
+	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(30)->Play(true);
+
+	for (int i = 0; i <= 2; i++) {
+		AddToLayer(backgrounds, "spc0" + to_string(i) + ".png");
+	}
+	for (int i = 3; i <= 4; i++) {
+		AddToLayer(middlegrounds, "spc0" + to_string(i) + ".png");
+	}
+	for (int i = 5; i <= 5; i++) {
+		AddToLayer(foregrounds, "spc0" + to_string(i) + ".png");
+	}
+
+	offset = 2;
 
 }
 
@@ -73,9 +98,13 @@ void Engine::MenuScreen::Update()
 		// Set current button to press state
 		Button* b = buttons[currentButtonIndex];
 		b->SetButtonState(Engine::ButtonState::PRESS);
+		
+		b->GetSprite()->PlayAnim("press");
+
 		// If play button then go to InGame, exit button then exit
 		if ("play" == b->GetButtonName()) {
 			ScreenManager::GetInstance(game)->SetCurrentScreen("ingame");
+			music2->Stop();
 		}
 		else if ("exit" == b->GetButtonName()) {
 			game->SetState(Engine::State::EXIT);
@@ -87,10 +116,18 @@ void Engine::MenuScreen::Update()
 		b->Update(game->GetGameTime());
 	}
 
+	MoveLayer(backgrounds, 0.005f);
+	MoveLayer(middlegrounds, 0.03f);
+	MoveLayer(foregrounds, 0.3f);
+
 }
 
 void Engine::MenuScreen::Draw()
 {
+	//Draw parallax background
+	DrawLayer(backgrounds);
+	DrawLayer(middlegrounds);
+	
 	// Render all buttons
 	for (Button* b : buttons) {
 		b->Draw();
@@ -98,3 +135,38 @@ void Engine::MenuScreen::Draw()
 	// Render title 
 	text->Draw();
 }
+
+#pragma region Parallax Functions
+
+void Engine::MenuScreen::MoveLayer(vector<Sprite*>& bg, float speed)
+{
+	for (Sprite* s : bg) {
+		if (s->GetPosition().y < -game->GetSettings()->screenHeight + offset) {
+			s->SetPosition(0, game->GetSettings()->screenHeight + offset - 1);
+		}
+		s->SetPosition(s->GetPosition().x, s->GetPosition().y - speed * game->GetGameTime());
+		s->Update(game->GetGameTime());
+	}
+}
+
+void Engine::MenuScreen::DrawLayer(vector<Sprite*>& bg)
+{
+	for (Sprite* s : bg) {
+		s->Draw();
+	}
+}
+
+void Engine::MenuScreen::AddToLayer(vector<Sprite*>& bg, string name)
+{
+	Texture* texture = new Texture(name);
+
+	Sprite* s = new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+	s->SetSize(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight + offset);
+	bg.push_back(s);
+
+	Sprite* s2 = new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+	s2->SetSize(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight + offset)->SetPosition(0, game->GetSettings()->screenHeight + offset - 1);
+	bg.push_back(s2);
+}
+
+#pragma endregion

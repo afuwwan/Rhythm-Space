@@ -8,6 +8,8 @@
 #include "Sprite.h"
 #include "Button.h"
 #include "Text.h"
+#include "Music.h"
+#include "Sound.h"
 #include <vector>
 #include "ScreenManager.h"
 
@@ -24,6 +26,15 @@ namespace Engine {
 		vector<Button*> buttons;
 		Text* text;
 		int currentButtonIndex = 0;
+		Music* music = NULL;
+		Music* music2 = NULL;
+
+		vector<Sprite*> backgrounds, middlegrounds, foregrounds;
+		void MoveLayer(vector<Sprite*>& bg, float speed);
+		void DrawLayer(vector<Sprite*>& bg);
+		void AddToLayer(vector<Sprite*>& bg, string name);
+		float offset = 1;
+
 	};
 }
 

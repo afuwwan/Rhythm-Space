@@ -88,10 +88,10 @@
 
 
 	- Enemies (11 Nov - 24 Nov)
-	 - add bounding box
+	 - add bounding box (24 Nov) Done
 	 - follow player position
 	 - death and alive state
-	 - when hit player score -25
+	 - when hit player score -25 
 
 	- Obstacle (28 Oct - 10 Nov)
 	 - spawns on 3 section where sprite moves (Done) (19 Oct)
@@ -105,6 +105,9 @@
 	- Gameplay
 	 - add a feature Divide into 2 screen (17 Oct)
 	 - Main Menu
+	  - When hit play go to ingame but when press exit 
+	    reset all states of the game so when press play
+		game starts at 0
 	  - Customize Buttons and Titles
 		- SFX and Sprite
 	 - In game
@@ -117,12 +120,14 @@
 	 - Add Beat Counter (Done)
 	 - Add SCoring sistem (begins with 1000)
 	   - if hit obstacle -10 (Done) (21 Oct)
-	   - if kill enemies +25
-	   - if score is zero game over
+	   - if kill enemies +25 (24 Nov
+	   - if score is zero game over (22 Oct
+	- bug
+	   - try escaping to main menu and go back to play and see what happens (done) (previous bps was not initiated)
 
-	- Start State
-	- Over State
-	- Finish State
+	- Running State (21 Oct
+	- Over State (21 Oct
+	- Finish State (21 Oct
 	- Exit State
 
 */
@@ -137,22 +142,6 @@ Engine::GameScreen::GameScreen()
 
 void Engine::GameScreen::Init()
 {
-	// Spawn setting
-	maxSpawnTime = 300;
-	numObjectPerSpawn = 1;
-	numObjectsInPool = 50;
-
-	// Load a texture
-	Texture* texture = new Texture("turtles.png");
-	for (int i = 0; i < numObjectsInPool; i++) {
-		Turtle* o = new Turtle(CreateSprite(texture));
-		objects.push_back(o);
-	}
-
-	// Add input mappings
-	game->GetInputManager()->AddInputMapping("mainmenu", SDLK_ESCAPE);
-
-	////////////
 
 #pragma region Sprite and Background
 
@@ -184,10 +173,10 @@ void Engine::GameScreen::Init()
 
 #pragma endregion
 
-
 #pragma region Music and Sound init
 
 	music = (new Music("Shirobon-On-The-Run.ogg"))->SetVolume(45)/*->Play(false)*/;
+	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(45)/*->Play(false)*/;
 
 	//metronome = (new Sound("beep.ogg"))->SetVolume(70)->Play(true);
 
@@ -240,14 +229,14 @@ void Engine::GameScreen::Init()
 
 	//Add bullets
 	bulletTexture = new Texture("projectiles.png");
-	int bulletNum = 100000;
+	int bulletNum = 10000;
 	for (int i = 0; i < bulletNum; i++) {
 		Sprite* bs = (new Sprite(bulletTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))->SetNumXFrames(3)
 																										->SetNumYFrames(2)
 																										->SetScale(0.07)
 																										->SetBoundingBoxSize((0.7 * 1) / 1, (0.7 * 1) / 1)
 																										->AddAnimation("idle", 1,1)
-																										->PlayAnim("idle");
+																					->PlayAnim("idle");
 		readyBullets.push_back(new Bullet(bs));
 	}
 
@@ -257,49 +246,65 @@ void Engine::GameScreen::Init()
 
 void Engine::GameScreen::Update()
 {
-	// Back to main menu
-	if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
-		ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
-	}
-
-	// Set background
-	game->SetBackgroundColor(235, 229, 52);
-
-	// Time to spawn objects
-	if (spawnDuration >= maxSpawnTime) {
-		SpawnObjects();
-		spawnDuration = 0;
-	}
-	// Update all objects
-	for (Turtle* o : objects) {
-		o->Update((game->GetGameTime()));
-	}
-	// Count spawn duration
-	spawnDuration += (game->GetGameTime());
-
-	////////////////
 
 	if (gstate == GameState::RUNNING)
 	{
+		
+		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
+			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+			music->Stop();
+			
+			score = 1000;
+			bps = 0;
+			duration = 0;
+			previousBps = 0;
+			ResetObstacleGeneration();
+			ResetBullets();
+
+		}
 
 #pragma region Score Handling
 
 		text->SetText("Score: " + std::to_string(score))
 			->SetPosition(100, 900);
 
+		if (score == 0)
+		{
+			music->Stop();
+			gstate == GameState::GAME_OVER;
+			return;
+		}
+
 #pragma endregion
 
-
 #pragma region Music Handling
+		std::cout << "duration : " << duration / 1000 << std::endl;
 
-		if (duration / 1000 > 1.8) //add slight delay to make sound match obstacle spawning
+
+		if (duration / 1000 >= 1.8) //add slight delay to make sound match obstacle spawning
 		{
 			if (music->IsPlaying() == false)
 			{
-				music->Play(false);
+				music->Play(true);
 				music->IsPlaying() == true;
-
 			}
+		}
+		
+		//if game time exceeds 259 seconds game state is at finish
+		if (duration / 1000 >= 259.0f)
+		{
+			music->Stop();
+			gstate == GameState::FINISH;
+			return;
+		}
+
+
+
+		if (game->GetInputManager()->IsKeyReleased("mainmenu")) 
+		{
+			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+			music->Stop();
+			music2->Play(true);
 		}
 
 #pragma endregion
@@ -383,7 +388,7 @@ void Engine::GameScreen::Update()
 
 #pragma endregion
 
-#pragma region Obstacle handling
+#pragma region Obstacle and Enemies Mapping
 
 		//float duration;
 		duration += game->GetGameTime();
@@ -400,7 +405,13 @@ void Engine::GameScreen::Update()
 
 				// Check if the beat count is the equivalent of 4
 				if (previousBps % 4 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+					
+					GenerateObstaclePattern(); 
+
+					if (previousBps % 8 == 0)
+					{
+						GenerateEnemyPattern();  
+					}
 				}
 
 			}
@@ -557,8 +568,12 @@ void Engine::GameScreen::Update()
 		}
 		std::cout << "Beats : " << bps << std::endl;
 
+#pragma endregion
+
+#pragma region Obstacle Handling
+
 		//Obstacle behaviour
-		for (auto it = platforms.begin(); it != platforms.end();) \
+		for (auto it = platforms.begin(); it != platforms.end();)
 		{
 
 			Sprite* obstacle = *it;
@@ -613,7 +628,7 @@ void Engine::GameScreen::Update()
 		timeInterval += game->GetGameTime();
 
 		if (game->GetInputManager()->IsKeyPressed("Attack")) {
-			sprite->PlayAnim("attack");
+			//sprite->PlayAnim("attack");
 			SpawnBullets();
 		}
 
@@ -629,40 +644,141 @@ void Engine::GameScreen::Update()
 
 		// Bullet behaviour
 
-		//for (Bullet* b : inUseBullets) {
-		//	for (Sprite* s : platforms) {
-		//		if (b->GetBoundingBox()->CollideWith(s->GetBoundingBox())) {
-		//			// Reset obstacle position
-		//			s->SetPosition(game->GetSettings()->screenWidth / 2.15, game->GetSettings()->screenHeight);
+		for (Bullet* b : inUseBullets) {
+			for (auto it = enemies.begin(); it != enemies.end();) {
+				Sprite* enemy = *it;
 
-		//			// Remove the bullet from in-use list and return to ready bullets
-		//			readyBullets.push_back(b);
-		//			inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
-		//			break;
-		//		}
-		//	}
-		//}
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) {
+					// Increase score when enemy is hit by bullet
+					score += 5;
+					text->SetText("Score: " + std::to_string(score));
+
+					// Erase the enemy after collision
+					it = enemies.erase(it);
+
+					// Remove the bullet from in-use list and return to ready bullets
+					readyBullets.push_back(b);
+					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+					break;  // Exit the loop after handling the collision
+				}
+				else {
+					++it;  // Continue iterating if no collision
+				}
+			}
+		}
 
 #pragma endregion
+
+#pragma region Enemies Handling
+
+		for (auto it = enemies.begin(); it != enemies.end();) {
+			Sprite* enemy = *it;
+
+			float y_2 = enemy->GetPosition().y;
+			y_2 -= 0.25f * game->GetGameTime();  // Move the enemy down
+			enemy->SetPosition(enemy->GetPosition().x, y_2)->Update(game->GetGameTime());
+
+			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
+				it = enemies.erase(it);  // Remove enemy when colliding with player
+				std::cout << "Player hit enemy!" << std::endl;
+				score -= 10;
+				text->SetText("Score: " + std::to_string(score));
+			}
+			else if (y_2 <= -300) {
+				it = enemies.erase(it);  // Remove enemy when off-screen
+			}
+			else {
+				++it;
+			}
+		}
+
+#pragma endregion
+
 
 		MoveLayer(backgrounds, 0.005f);
 		MoveLayer(middlegrounds, 0.03f);
 		MoveLayer(foregrounds, 0.3f);
 
+
+
 	}
+	else if (gstate == GameState::FINISH)
+	{
+		//music->Stop();
+		
+		MoveLayer(backgrounds, 0.0f);
+		MoveLayer(middlegrounds, 0.0f);
+		MoveLayer(foregrounds, 0.0f);
 
+		//escape untuk ke menu screen
 
+		//reset semua variabel
+
+		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
+			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+			music->Stop();
+			score = 1000;
+			bps = 0;
+			duration = 0;
+			previousBps = 0;
+			ResetObstacleGeneration();
+			ResetBullets();
+			ResetEnemyGeneration();
+		}
+
+		
+		
+		std::cout << "Game state is at finish" << std::endl;
+	}
+	else if (gstate == GameState::GAME_OVER)
+	{
+		if (game->GetInputManager()->IsKeyReleased("mainmenu"))
+		{
+			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+			music->Stop();
+			
+			score = 1000;
+			bps = 0;
+			duration = 0;
+			previousBps = 0;
+			ResetObstacleGeneration();
+			ResetBullets();
+			ResetEnemyGeneration();
+
+			music2->Play(true);
+		}
+		
+		MoveLayer(backgrounds, 0.0f);
+		MoveLayer(middlegrounds, 0.0f);
+		MoveLayer(foregrounds, 0.0f);
+
+		//escape untuk ke menuscreen
+
+		//jika restart reset semua variabel
+		//gstate == GameState::RESET;
+		
+		
+		std::cout << "Game state is at game over" << std::endl;
+	}
+	else if (gstate == GameState::RESET)
+	{
+		score = 1000;
+		bps = 0;
+		duration = 0;
+		previousBps = 0;
+		ResetObstacleGeneration();
+		ResetBullets();
+		ResetEnemyGeneration();
+		
+		std::cout << "Game resets" << std::endl;
+	
+		//gstate == GameState::RUNNING;
+	}
 
 }
 
 void Engine::GameScreen::Draw()
 {
-	// Render all objects
-	//for (Turtle* o : objects) {
-	//	o->Draw();
-	//}
-
-	/////////////
 
 #pragma region Camera Render
 
@@ -688,22 +804,27 @@ void Engine::GameScreen::Draw()
 	DrawLayer(middlegrounds);
 
 	//Obstacle
-	for (Sprite* s : platforms) {
+	for (Sprite* s : platforms) 
+	{
 		s->Draw();
+		std::cout << "obstacle sprite is drawn" << std::endl;
+
 	}
 
 	//Bullets
-	for (Bullet* b : inUseBullets) {
+	for (Bullet* b : inUseBullets) 
+	{
 		b->Draw();
 	}
 	
 	//Draw Note Sprite
 	sprite->Draw();
 
-
-	//for (Turtle* o : objects) {
-	//	o->Draw();
-	//}
+	for (Sprite* e : enemies) 
+	{
+		e->Draw();
+		std::cout << "enemy sprite is drawn" << std::endl;
+	}
 
 	DrawLayer(foregrounds);
 
@@ -711,20 +832,6 @@ void Engine::GameScreen::Draw()
 	text->Draw();
 
 
-}
-
-Engine::Sprite* Engine::GameScreen::CreateSprite(Texture* texture)
-{
-	return (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
-		->SetNumXFrames(14)
-		->SetNumYFrames(4)
-		->AddAnimation("hit", 2, 4)
-		->AddAnimation("spikes", 5, 12)
-		->AddAnimation("idle-1", 14, 27)
-		->AddAnimation("idle-2", 28, 41)
-		->AddAnimation("spikes-out", 42, 49)
-		->PlayAnim("spikes")->SetScale(1.5)
-		->SetAnimationDuration(100);
 }
 
 #pragma region Obstacle Spawning
@@ -781,31 +888,41 @@ void Engine::GameScreen::GenerateObstaclePattern()
 
 }
 
-#pragma endregion
-
-void Engine::GameScreen::SpawnObjects()
+void Engine::GameScreen::ResetObstacleGeneration() 
 {
-	//Find Die object to reuse for spawning
-	int spawnCount = 0;
-	for (Turtle* o : objects) {
-		if (spawnCount == numObjectPerSpawn) {
-			break;
-		}
-		if (o->IsDie()) {
-			// Set state to spawn
+	platforms.clear();
+	duration = 0; 
+	previousBps = 0;
 
-			// Random spawn position
-			int min = 0;
-			int max = (int)(game->GetSettings()->screenWidth - o->GetWidth());
-			float x = (float)(rand() % (max - min + 1) + min);
-			float y = (game->GetSettings()->screenHeight - 200) + o->GetHeight();
-			o->SetSpawn()->SetPosition(x, y);
-			spawnCount++;
-		}
-	}
 }
 
+
+#pragma endregion
+
 #pragma region Enemies (EvilShip) Handling
+
+void Engine::GameScreen::SpawnEnemies(float xPosition) {
+	Texture* enemyTexture = new Texture("evilShip.png");
+	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
+
+	Sprite* enemySprite = new Sprite(enemyTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+	enemySprite->SetSize(100, 100)->SetPosition(start.x, start.y);
+	enemySprite->SetBoundingBoxSize(enemySprite->GetScaleWidth() - (3.5 * enemySprite->GetScale()), enemySprite->GetScaleHeight() - 50);
+
+	enemies.push_back(enemySprite);  // Add enemy ship to the list
+}
+
+void Engine::GameScreen::GenerateEnemyPattern() {
+	float randomX = rand() % (int)((game->GetSettings()->screenWidth)/2);  // Random X position
+	SpawnEnemies(randomX);  // Spawn an enemy at the random X position
+}
+
+void Engine::GameScreen::ResetEnemyGeneration()
+{
+	enemies.clear();
+	duration = 0;
+	previousBps = 0;
+}
 
 #pragma endregion
 
@@ -912,6 +1029,16 @@ void Engine::GameScreen::SpawnBullets()
 
 	}
 
+}
+
+void Engine::GameScreen::ResetBullets()
+{
+	for (Bullet* b : inUseBullets) 
+	{
+		inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+
+		b->Update(game->GetGameTime());
+	}
 }
 
 #pragma endregion

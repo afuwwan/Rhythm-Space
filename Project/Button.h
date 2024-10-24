@@ -17,6 +17,7 @@ namespace Engine {
 		void Update(float deltaTime);
 		void Draw();
 		void SetPosition(float x, float y);
+		Sprite* GetSprite();
 		vec2 GetPosition();
 		ButtonState GetButtonState();
 		void SetButtonState(ButtonState state);
