@@ -119,6 +119,8 @@ namespace Engine {
 
 		int previousEmptySection = -1;
 
+		//float y_;
+
 
 		//////////Enemies////////////
 		vector<Sprite*> enemies;

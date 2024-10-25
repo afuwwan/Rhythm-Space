@@ -143,7 +143,7 @@
 Engine::GameScreen::GameScreen()
 {
 	delete texture_N1;
-	//delete sprite;
+	delete sprite;
 }
 
 void Engine::GameScreen::Init()
@@ -158,8 +158,8 @@ void Engine::GameScreen::Init()
 	texture_bg = new Texture("Space.png");
 	bg = (new Sprite(texture_bg, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))->SetSize((float)game->GetSettings()->screenWidth, (float)game->GetSettings()->screenHeight);
 
-	sprite->SetScale(0.30)
-		->SetPosition(game->GetSettings()->screenWidth / 2.15, (game->GetSettings()->screenHeight / 12) - 50)
+	sprite->SetScale(0.3f)
+		->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f)
 		->SetBoundingBoxSize(65,65);
 
 	texture2 = new Texture("RotationPoint.png");
@@ -424,7 +424,7 @@ void Engine::GameScreen::Update()
 
 				}
 
-				if (previousBps % 1 == 0)
+				if (previousBps % 3 == 0)
 				{
 					GenerateEnemyPattern();
 				}
@@ -599,47 +599,53 @@ void Engine::GameScreen::Update()
 
 			Sprite* obstacle = *it;
 
-			float y_ = obstacle->GetPosition().y;
-
-			y_ -= 1.5f * game->GetGameTime();  // Adjust obstacle speed as needed
-
-			obstacle->SetPosition(obstacle->GetPosition().x, y_)->Update(game->GetGameTime());
-
-			if (obstacle->GetBoundingBox()->CollideWith(sprite->GetBoundingBox()))
+			//
+			if (obstacle)
 			{
-				//gstate = GameState::GAME_OVER;
-				//return;
-				it = platforms.erase(it);
-				std::cout << "Player hit Obstacle!" << std::endl;
-				score -= 100;
-				//text->SetText("Score: " + std::to_string(score));
+				float y_ = obstacle->GetPosition().y;
 
-				//NULL;
-			}
+				y_ -= 1.0f * game->GetGameTime();  // Adjust obstacle speed as needed
 
-			if (y_ <= -300)
-			{
-				it = platforms.erase(it);  // Remove obstacle when it's off-screen
+				obstacle->SetPosition(obstacle->GetPosition().x, y_)->Update(game->GetGameTime());
+
+				if (obstacle->GetBoundingBox()->CollideWith(sprite->GetBoundingBox()))
+				{
+					//gstate = GameState::GAME_OVER;
+					//return;
+					it = platforms.erase(it); // Remove obstacle on collision
+					score -= 50;
+					//text->SetText("Score: " + std::to_string(score));
+				}
+				else if (y_ <= -300)
+				{
+					it = platforms.erase(it);  // Remove obstacle when it's off-screen
+				}
+				else
+				{
+					++it; // Only increment iterator if obstacle isn't erased
+				}
+
+				// Hide obstacle when it reaches the defined screen height
+				if (y_ == (game->GetSettings()->screenHeight * 0) + 300)
+				{
+					obstacle->SetBoundingBoxSize(0, 0);
+				}
+
+				// Rotate meteor
+				int spinT = duration / 70;
+
+				if (spinT == 360)
+				{
+					spinT = 0;
+				}
+
+				obstacle->SetRotation(spinT);
 			}
 			else
 			{
-				++it;
+				// If obstacle is null, erase it and move to the next
+				it = platforms.erase(it);
 			}
-
-			if (y_ == (game->GetSettings()->screenHeight * 0) + 300)
-			{
-				obstacle->SetBoundingBoxSize(0, 0);
-			}
-
-			//rotates meteor
-			int spinT = duration / 70;
-
-			if (spinT == 360)
-			{
-				spinT = 0;
-			}
-
-			obstacle->SetRotation(spinT);
 		}
 
 #pragma endregion
