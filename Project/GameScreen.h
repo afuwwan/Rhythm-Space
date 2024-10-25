@@ -37,12 +37,6 @@ namespace Engine {
 		void Draw();
 
 	private:
-	////////////////////
-		Engine::Sprite* CreateSprite(Texture* texture);
-		void SpawnObjects();
-		vector<Turtle*> objects;
-		float spawnDuration = 0, maxSpawnTime = 0, numObjectsInPool = 0, numObjectPerSpawn = 0;
-	////////////////////
 
 		////////////Sprites////////////
 		Engine::Texture* texture_N1 = NULL;
@@ -52,6 +46,10 @@ namespace Engine {
 		Engine::Texture* texture_bg = NULL;
 
 		Engine::Sprite* bg = NULL;
+
+		Engine::Texture* texture2 = NULL;
+
+		Engine::Sprite* sprite2 = NULL;
 
 
 		////////////Music & Sound////////////
@@ -69,6 +67,12 @@ namespace Engine {
 		int bps;
 
 		int previousBps;
+
+		float duration2;
+
+		int bps2;
+
+		int previousBps2;
 
 
 		////////////Parallax////////////
@@ -130,7 +134,7 @@ namespace Engine {
 
 		////////////Others////////////
 		int score = 1000;
-		Text* text = NULL;
+		Text* text1 = NULL;
 
 	};
 }

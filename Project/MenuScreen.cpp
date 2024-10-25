@@ -8,6 +8,13 @@ Engine::MenuScreen::MenuScreen()
 void Engine::MenuScreen::Init()
 {
 	
+	logoTexture = new Texture("RhythmSpace2.png");
+	logo = new Sprite(logoTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+
+	logo->SetScale(3.5)
+		->SetPosition((game->GetSettings()->screenWidth / 2) - 270, game->GetSettings()->screenHeight - 410);
+
+	
 	// Create a Texture
 	Texture* texture = new Texture("buttonRhythmSpace.png");
 
@@ -17,8 +24,8 @@ void Engine::MenuScreen::Init()
 		->SetNumYFrames(4)
 		->SetScale(5)
 		->AddAnimation("normal", 0, 0)
-		->AddAnimation("hover", 4, 5)
-		->AddAnimation("press", 4, 5)
+		->AddAnimation("hover", 0, 1)
+		->AddAnimation("press", 0, 1)
 		->SetAnimationDuration(400);
 
 	Sprite* exitSprite = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
@@ -26,8 +33,8 @@ void Engine::MenuScreen::Init()
 		->SetNumYFrames(4)
 		->SetScale(5)
 		->AddAnimation("normal", 2, 2)
-		->AddAnimation("hover", 6, 7)
-		->AddAnimation("press", 6, 7)
+		->AddAnimation("hover", 2, 3)
+		->AddAnimation("press", 2, 3)
 		->SetAnimationDuration(400);
 
 	//Create Buttons
@@ -47,7 +54,7 @@ void Engine::MenuScreen::Init()
 
 	// Create Text
 	text = (new Text("8-bit Arcade In.ttf", 100, game->GetDefaultTextShader()))
-		->SetText("Rhythm Space")->SetPosition((game->GetSettings()->screenWidth/2) - 270, game->GetSettings()->screenHeight - 100)->SetColor(235, 229, 52);
+		->SetText("Rhythm Space")->SetPosition((game->GetSettings()->screenWidth/2) - 500, game->GetSettings()->screenHeight - 100)->SetColor(235, 229, 52);
 
 	// Add input mappings
 	game->GetInputManager()->AddInputMapping("next", SDLK_DOWN)
@@ -73,6 +80,32 @@ void Engine::MenuScreen::Init()
 
 void Engine::MenuScreen::Update()
 {
+		
+	duration1 += game->GetGameTime();
+	// Increment duration with deltaTime
+	duration2 += game->GetGameTime();
+
+	// Calculate beats per second (bps)
+	bps2 = (duration2 / 1000) * 1.500;
+
+	if (bps2 >= 1) {
+		// Get the fractional part of the beat to control smooth scaling during the beat
+		fractionalBeat = fmod(bps2, 1.0f);
+
+		// Check if we are in the first half (scale down) or second half (scale up) of the beat
+		if (fractionalBeat < 0.9f) {
+			// Scale down first
+			currentScale = maxScale - (maxScale - originalScale) * (fractionalBeat / 0.9f); // Scale down over first half
+		}
+		else {
+			// Scale up next
+			currentScale = originalScale + (maxScale - originalScale) * ((fractionalBeat - 0.9f) / 0.1f); // Scale up over second half
+		}
+
+		// Apply the current scale to the logo sprite
+		logo->SetScale(currentScale);
+	}
+	
 	// Set background
 	game->SetBackgroundColor(52, 155, 235);
 
@@ -94,17 +127,21 @@ void Engine::MenuScreen::Update()
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
 	}
 
+	
+
+
 	if (game->GetInputManager()->IsKeyReleased("press")) {
 		// Set current button to press state
 		Button* b = buttons[currentButtonIndex];
 		b->SetButtonState(Engine::ButtonState::PRESS);
-		
-		b->GetSprite()->PlayAnim("press");
 
 		// If play button then go to InGame, exit button then exit
 		if ("play" == b->GetButtonName()) {
 			ScreenManager::GetInstance(game)->SetCurrentScreen("ingame");
 			music2->Stop();
+			duration2 = 0;
+			bps2 = 0;
+			fractionalBeat = 0;
 		}
 		else if ("exit" == b->GetButtonName()) {
 			game->SetState(Engine::State::EXIT);
@@ -133,7 +170,9 @@ void Engine::MenuScreen::Draw()
 		b->Draw();
 	}
 	// Render title 
-	text->Draw();
+	//text->Draw();
+
+	logo->Draw();
 }
 
 #pragma region Parallax Functions

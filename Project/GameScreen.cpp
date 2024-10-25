@@ -88,10 +88,11 @@
 
 
 	- Enemies (11 Nov - 24 Nov)
-	 - add bounding box (24 Nov) Done
-	 - follow player position
-	 - death and alive state
+	 - add bounding box (24 Oct) Done
+	 - follow player position (25 Oc) Done
+	 - death and alive state 
 	 - when hit player score -25 
+	 - enemie pattern (25 Oct
 
 	- Obstacle (28 Oct - 10 Nov)
 	 - spawns on 3 section where sprite moves (Done) (19 Oct)
@@ -130,6 +131,11 @@
 	- Finish State (21 Oct
 	- Exit State
 
+	Difficulty
+	Easy = obstacle (speed 0.5 cost 25 score if hit) 
+	Medium = obstacle (speed 0.8 cost 75 score if hit)
+	Hard = obstacle (speed 1.5 cost 100 score if hit)
+
 */
 
 #pragma endregion
@@ -156,6 +162,13 @@ void Engine::GameScreen::Init()
 		->SetPosition(game->GetSettings()->screenWidth / 2.15, (game->GetSettings()->screenHeight / 12) - 50)
 		->SetBoundingBoxSize(65,65);
 
+	texture2 = new Texture("RotationPoint.png");
+	sprite2 = new Sprite(texture2, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+
+	sprite2->SetPosition((game->GetSettings()->screenWidth / 2) - 12, (game->GetSettings()->screenHeight / 2) - 12)
+		   ->SetSize(25,25);
+
+
 
 #pragma endregion
 
@@ -167,8 +180,9 @@ void Engine::GameScreen::Init()
 
 #pragma region Score init
 
-	text = new Text("lucon.ttf", 24, game->GetDefaultTextShader());
-	text->SetScale(1.0f)->SetColor(255, 255, 255)->SetPosition(0, game->GetSettings()->screenHeight - (text->GetFontSize() * text->GetScale()));
+	text1 = new Text("homespun.ttf", 100, game->GetDefaultTextShader());
+	text1->SetScale(1)->SetColor(255, 255, 255)
+		 ->SetPosition((game->GetSettings()->screenWidth/4) * 3.25, ((game->GetSettings()->screenHeight/4) - 50) - (text1->GetFontSize() * text1->GetScale()));
 
 
 #pragma endregion
@@ -191,8 +205,8 @@ void Engine::GameScreen::Init()
 		->AddInputMapping("Move Center", SDLK_s)
 		->AddInputMapping("Attack", SDL_BUTTON_LEFT)
 		->AddInputMapping("Avoid", SDLK_SPACE)
-		->AddInputMapping("Quit", SDLK_ESCAPE)
-		->AddInputMapping("Quit", SDL_CONTROLLER_BUTTON_Y);
+		->AddInputMapping("mainmenu", SDLK_ESCAPE)
+		->AddInputMapping("mainmenu", SDL_CONTROLLER_BUTTON_Y);
 
 #pragma endregion
 
@@ -254,6 +268,7 @@ void Engine::GameScreen::Update()
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
 			
+			//ResetVariables();
 			score = 1000;
 			bps = 0;
 			duration = 0;
@@ -265,8 +280,7 @@ void Engine::GameScreen::Update()
 
 #pragma region Score Handling
 
-		text->SetText("Score: " + std::to_string(score))
-			->SetPosition(100, 900);
+		text1->SetText(std::to_string(score));
 
 		if (score == 0)
 		{
@@ -408,10 +422,11 @@ void Engine::GameScreen::Update()
 					
 					GenerateObstaclePattern(); 
 
-					if (previousBps % 8 == 0)
-					{
-						GenerateEnemyPattern();  
-					}
+				}
+
+				if (previousBps % 1 == 0)
+				{
+					GenerateEnemyPattern();
 				}
 
 			}
@@ -426,6 +441,12 @@ void Engine::GameScreen::Update()
 				// Check if the beat count is the equivalent of 2
 				if (previousBps % 2 == 0) {
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+					
+					if (previousBps % 4 == 0)
+					{
+						GenerateEnemyPattern();
+					}
+				
 				}
 
 			}
@@ -580,7 +601,7 @@ void Engine::GameScreen::Update()
 
 			float y_ = obstacle->GetPosition().y;
 
-			y_ -= 0.5f * game->GetGameTime();  // Adjust obstacle speed as needed
+			y_ -= 1.5f * game->GetGameTime();  // Adjust obstacle speed as needed
 
 			obstacle->SetPosition(obstacle->GetPosition().x, y_)->Update(game->GetGameTime());
 
@@ -590,8 +611,8 @@ void Engine::GameScreen::Update()
 				//return;
 				it = platforms.erase(it);
 				std::cout << "Player hit Obstacle!" << std::endl;
-				score -= 10;
-				text->SetText("Score: " + std::to_string(score));
+				score -= 100;
+				//text->SetText("Score: " + std::to_string(score));
 
 				//NULL;
 			}
@@ -651,7 +672,7 @@ void Engine::GameScreen::Update()
 				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) {
 					// Increase score when enemy is hit by bullet
 					score += 5;
-					text->SetText("Score: " + std::to_string(score));
+					//text->SetText("Score: " + std::to_string(score));
 
 					// Erase the enemy after collision
 					it = enemies.erase(it);
@@ -671,21 +692,80 @@ void Engine::GameScreen::Update()
 
 #pragma region Enemies Handling
 
+		//for (auto it = enemies.begin(); it != enemies.end();) {
+		//	Sprite* enemy = *it;
+
+		//	float y_2 = enemy->GetPosition().y;
+		//	y_2 -= 0.25f * game->GetGameTime();  // Move the enemy down
+		//	enemy->SetPosition(enemy->GetPosition().x, y_2)->Update(game->GetGameTime());
+
+		//	if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
+		//		it = enemies.erase(it);  // Remove enemy when colliding with player
+		//		std::cout << "Player hit enemy!" << std::endl;
+		//		score -= 10;
+		//		//text->SetText("Score: " + std::to_string(score));
+		//	}
+		//	else if (y_2 <= -300) {
+		//		it = enemies.erase(it);  // Remove enemy when off-screen
+		//	}
+		//	else {
+		//		++it;
+		//	}
+		//}
+
 		for (auto it = enemies.begin(); it != enemies.end();) {
 			Sprite* enemy = *it;
 
-			float y_2 = enemy->GetPosition().y;
-			y_2 -= 0.25f * game->GetGameTime();  // Move the enemy down
-			enemy->SetPosition(enemy->GetPosition().x, y_2)->Update(game->GetGameTime());
+			float enemyX = enemy->GetPosition().x;
+			float enemyY = enemy->GetPosition().y;
+			float y_2 = enemyY;
+
+			// Check if the enemy should speed up or move toward the sprite
+			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200)) {
+
+				// Get sprite position
+				float spriteX = sprite->GetPosition().x;
+				float spriteY = sprite->GetPosition().y;
+
+				// Calculate direction vector to the sprite
+				float dirX = spriteX - enemyX;
+				float dirY = spriteY - enemyY;
+
+				// Normalize direction
+				float length = sqrt(dirX * dirX + dirY * dirY);
+				if (length != 0) {
+					dirX /= length;
+					dirY /= length;
+				}
+
+				// Move enemy toward sprite while decrementing y_2 for normal falling
+				float speed = 1.0f; // Adjust this speed
+				enemyX += dirX * speed * game->GetGameTime();
+				enemyY += dirY * speed * game->GetGameTime();
+
+				// Set new position and continue moving downward
+				y_2 -= 1.0f * game->GetGameTime(); // Keep falling
+				enemy->SetPosition(enemyX, y_2);
+
+				// Set enemy rotation to face sprite
+				float angle = atan2(dirY, dirX) * (180 / M_PI) + 90;
+				enemy->SetRotation(angle);
+
+			}
+			else {
+				// Regular downward movement before reaching the threshold
+				y_2 -= 0.5f * game->GetGameTime();
+				enemy->SetPosition(enemyX, y_2);
+			}
+
+			enemy->Update(game->GetGameTime());
 
 			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
-				it = enemies.erase(it);  // Remove enemy when colliding with player
-				std::cout << "Player hit enemy!" << std::endl;
+				it = enemies.erase(it); // Handle collision
 				score -= 10;
-				text->SetText("Score: " + std::to_string(score));
 			}
 			else if (y_2 <= -300) {
-				it = enemies.erase(it);  // Remove enemy when off-screen
+				it = enemies.erase(it); // Remove enemy if off-screen
 			}
 			else {
 				++it;
@@ -829,7 +909,10 @@ void Engine::GameScreen::Draw()
 	DrawLayer(foregrounds);
 
 	//Score
-	text->Draw();
+	text1->Draw();
+
+	//Draw Rotation Point
+	sprite2->Draw();
 
 
 }
@@ -901,19 +984,21 @@ void Engine::GameScreen::ResetObstacleGeneration()
 
 #pragma region Enemies (EvilShip) Handling
 
+// add so that the sprite is facing down and points to the sprite angle and attacks it
+
 void Engine::GameScreen::SpawnEnemies(float xPosition) {
 	Texture* enemyTexture = new Texture("evilShip.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
 	Sprite* enemySprite = new Sprite(enemyTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	enemySprite->SetSize(100, 100)->SetPosition(start.x, start.y);
+	enemySprite->SetSize(100, 100)->SetPosition(start.x, start.y)->SetFlipVertical(true);
 	enemySprite->SetBoundingBoxSize(enemySprite->GetScaleWidth() - (3.5 * enemySprite->GetScale()), enemySprite->GetScaleHeight() - 50);
 
 	enemies.push_back(enemySprite);  // Add enemy ship to the list
 }
 
 void Engine::GameScreen::GenerateEnemyPattern() {
-	float randomX = rand() % (int)((game->GetSettings()->screenWidth)/2);  // Random X position
+	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
 	SpawnEnemies(randomX);  // Spawn an enemy at the random X position
 }
 
@@ -965,7 +1050,7 @@ void Engine::GameScreen::AddToLayer(vector<Sprite*>& bg, string name)
 
 void Engine::GameScreen::SpawnBullets()
 {
-	if (timeInterval >= 100) {
+	if (timeInterval >= 250) {
 		if (readyBullets.empty()) {
 			return;
 		}
