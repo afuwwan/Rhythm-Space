@@ -268,13 +268,7 @@ void Engine::GameScreen::Update()
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
 			
-			//ResetVariables();
-			score = 1000;
-			bps = 0;
-			duration = 0;
-			previousBps = 0;
-			ResetObstacleGeneration();
-			ResetBullets();
+			ResetVariables();
 
 		}
 
@@ -282,7 +276,8 @@ void Engine::GameScreen::Update()
 
 		text1->SetText(std::to_string(score));
 
-		if (score == 0)
+		//if score below 0 game is over
+		if (score <= 0)
 		{
 			music->Stop();
 			gstate == GameState::GAME_OVER;
@@ -604,7 +599,7 @@ void Engine::GameScreen::Update()
 			{
 				float y_ = obstacle->GetPosition().y;
 
-				y_ -= 1.0f * game->GetGameTime();  // Adjust obstacle speed as needed
+				y_ -= 1.5f * game->GetGameTime();  // Adjust obstacle speed as needed
 
 				obstacle->SetPosition(obstacle->GetPosition().x, y_)->Update(game->GetGameTime());
 
@@ -698,27 +693,6 @@ void Engine::GameScreen::Update()
 
 #pragma region Enemies Handling
 
-		//for (auto it = enemies.begin(); it != enemies.end();) {
-		//	Sprite* enemy = *it;
-
-		//	float y_2 = enemy->GetPosition().y;
-		//	y_2 -= 0.25f * game->GetGameTime();  // Move the enemy down
-		//	enemy->SetPosition(enemy->GetPosition().x, y_2)->Update(game->GetGameTime());
-
-		//	if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
-		//		it = enemies.erase(it);  // Remove enemy when colliding with player
-		//		std::cout << "Player hit enemy!" << std::endl;
-		//		score -= 10;
-		//		//text->SetText("Score: " + std::to_string(score));
-		//	}
-		//	else if (y_2 <= -300) {
-		//		it = enemies.erase(it);  // Remove enemy when off-screen
-		//	}
-		//	else {
-		//		++it;
-		//	}
-		//}
-
 		for (auto it = enemies.begin(); it != enemies.end();) {
 			Sprite* enemy = *it;
 
@@ -726,6 +700,7 @@ void Engine::GameScreen::Update()
 			float enemyY = enemy->GetPosition().y;
 			float y_2 = enemyY;
 
+			
 			// Check if the enemy should speed up or move toward the sprite
 			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200)) {
 
@@ -776,9 +751,11 @@ void Engine::GameScreen::Update()
 			else {
 				++it;
 			}
+			
 		}
 
 #pragma endregion
+
 
 
 		MoveLayer(backgrounds, 0.005f);
@@ -803,13 +780,7 @@ void Engine::GameScreen::Update()
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
-			score = 1000;
-			bps = 0;
-			duration = 0;
-			previousBps = 0;
-			ResetObstacleGeneration();
-			ResetBullets();
-			ResetEnemyGeneration();
+			ResetVariables();
 		}
 
 		
@@ -820,20 +791,16 @@ void Engine::GameScreen::Update()
 	{
 		if (game->GetInputManager()->IsKeyReleased("mainmenu"))
 		{
-			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
 			
-			score = 1000;
-			bps = 0;
-			duration = 0;
-			previousBps = 0;
-			ResetObstacleGeneration();
-			ResetBullets();
-			ResetEnemyGeneration();
+			ResetVariables();
 
+			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music2->Play(true);
+
+
 		}
-		
+
 		MoveLayer(backgrounds, 0.0f);
 		MoveLayer(middlegrounds, 0.0f);
 		MoveLayer(foregrounds, 0.0f);
@@ -848,13 +815,7 @@ void Engine::GameScreen::Update()
 	}
 	else if (gstate == GameState::RESET)
 	{
-		score = 1000;
-		bps = 0;
-		duration = 0;
-		previousBps = 0;
-		ResetObstacleGeneration();
-		ResetBullets();
-		ResetEnemyGeneration();
+		ResetVariables();
 		
 		std::cout << "Game resets" << std::endl;
 	
@@ -923,6 +884,24 @@ void Engine::GameScreen::Draw()
 
 }
 
+void Engine::GameScreen::ResetVariables()
+{
+	for (Bullet* b : inUseBullets)
+	{
+		inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+
+		b->Update(game->GetGameTime());
+	}
+
+	platforms.clear();
+	enemies.clear();
+	score = 500;
+	duration = 0;
+	previousBps = 0;
+	bps = 0;
+
+}
+
 #pragma region Obstacle Spawning
 
 void Engine::GameScreen::SpawnObstacle(float xPosition) 
@@ -977,13 +956,7 @@ void Engine::GameScreen::GenerateObstaclePattern()
 
 }
 
-void Engine::GameScreen::ResetObstacleGeneration() 
-{
-	platforms.clear();
-	duration = 0; 
-	previousBps = 0;
 
-}
 
 
 #pragma endregion
@@ -1006,13 +979,6 @@ void Engine::GameScreen::SpawnEnemies(float xPosition) {
 void Engine::GameScreen::GenerateEnemyPattern() {
 	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
 	SpawnEnemies(randomX);  // Spawn an enemy at the random X position
-}
-
-void Engine::GameScreen::ResetEnemyGeneration()
-{
-	enemies.clear();
-	duration = 0;
-	previousBps = 0;
 }
 
 #pragma endregion
@@ -1120,16 +1086,6 @@ void Engine::GameScreen::SpawnBullets()
 
 	}
 
-}
-
-void Engine::GameScreen::ResetBullets()
-{
-	for (Bullet* b : inUseBullets) 
-	{
-		inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
-
-		b->Update(game->GetGameTime());
-	}
 }
 
 #pragma endregion

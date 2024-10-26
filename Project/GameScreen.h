@@ -104,9 +104,6 @@ namespace Engine {
 
 		void SpawnBullets();
 
-		void ResetBullets();
-
-
 
 		//////////Obstacle///////////
 		vector<Sprite*> platforms;
@@ -114,8 +111,6 @@ namespace Engine {
 		void SpawnObstacle(float xPosition);
 
 		void GenerateObstaclePattern();
-
-		void ResetObstacleGeneration();
 
 		int previousEmptySection = -1;
 
@@ -129,14 +124,14 @@ namespace Engine {
 
 		void GenerateEnemyPattern();
 
-		void ResetEnemyGeneration();
-
 		bool enemySpawned = false;
 
 
 		////////////Others////////////
-		int score = 1000;
+		int score = 500;
 		Text* text1 = NULL;
+
+		void ResetVariables();
 
 	};
 }
