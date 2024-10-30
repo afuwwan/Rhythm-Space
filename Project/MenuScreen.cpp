@@ -135,10 +135,10 @@ void Engine::MenuScreen::Update()
 		Button* b = buttons[currentButtonIndex];
 		b->SetButtonState(Engine::ButtonState::PRESS);
 
-		// If play button then go to InGame, exit button then exit
+		// If play button then go to Song List, exit button then exit
 		if ("play" == b->GetButtonName()) {
-			ScreenManager::GetInstance(game)->SetCurrentScreen("ingame");
-			music2->Stop();
+			ScreenManager::GetInstance(game)->SetCurrentScreen("songlist");
+			//music2->Stop();
 			duration2 = 0;
 			bps2 = 0;
 			fractionalBeat = 0;

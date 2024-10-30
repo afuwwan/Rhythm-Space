@@ -12,7 +12,10 @@ Engine::RhythmSpace::~RhythmSpace()
 void Engine::RhythmSpace::Init()
 {
 	Engine::ScreenManager::GetInstance(this)->AddScreen("ingame", new GameScreen())
-		->AddScreen("mainmenu", new MenuScreen())->SetCurrentScreen("mainmenu");
+		->AddScreen("ingame2", new GameScreen2())
+		->AddScreen("mainmenu", new MenuScreen())
+		->AddScreen("songlist", new SongListScreen())
+		->SetCurrentScreen("mainmenu");
 
 }
 

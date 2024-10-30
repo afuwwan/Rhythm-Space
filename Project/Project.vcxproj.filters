@@ -164,6 +164,9 @@
     <ClInclude Include="SongListScreen.h">
       <Filter>Demo Files\Rhythm Space</Filter>
     </ClInclude>
+    <ClInclude Include="GameScreen2.h">
+      <Filter>Demo Files\Rhythm Space</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shader.cpp">
@@ -293,6 +296,9 @@
       <Filter>Demo Files\Rhythm Space</Filter>
     </ClCompile>
     <ClCompile Include="SongListScreen.cpp">
+      <Filter>Demo Files\Rhythm Space</Filter>
+    </ClCompile>
+    <ClCompile Include="GameScreen2.cpp">
       <Filter>Demo Files\Rhythm Space</Filter>
     </ClCompile>
   </ItemGroup>

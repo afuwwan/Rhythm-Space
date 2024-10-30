@@ -1,5 +1,5 @@
-#ifndef GAMESCREEN_H
-#define GAMESCREEN_H
+#ifndef GAMESCREEN2_H
+#define GAMESCREEN2_H
 
 #include "Screen.h"
 #include "Turtle.h"
@@ -18,7 +18,7 @@
 #include <GLFW/glfw3.h>
 
 namespace Engine {
-	class GameScreen :
+	class GameScreen2 :
 		public Engine::Screen
 	{
 	public:
@@ -31,7 +31,7 @@ namespace Engine {
 		};
 		GameState gstate;
 
-		GameScreen();
+		GameScreen2();
 		void Init();
 		void Update();
 		void Draw();

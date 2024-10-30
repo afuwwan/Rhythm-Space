@@ -1,169 +1,13 @@
-#include "GameScreen.h"
-
-#pragma region TO DO
-/*
-//////// Gameplay Explanation /////////
-
-   - sprite can move to left center and right
-   - movement limited with 3 section
-   - sprite rotates according mousepos
-   - sprite shoot bullets
-   - enemies follow player pos
-   - enemie dead in one shot with bullets
-   - obstacle spawns randomly on any of the 3 section
-   - obstacle spawns following (beat-ish) making player
-	 has to semi avoid obstacle according to beat
-
-///////////// Screens ////////////////
-
-	- Main Menu
-	  - Every Button Has SFX
-	  - Use FNF Intro Music for BGM
-	  - Buttons :
-		- Play
-		- Controls
-		- Exit
-
-	- Controls Screen
-	  - Displays Controls Text
-
-	- In Game Screen
-
-///////////////////////////////////////
-
-//////////// Game Play ////////////////
-
-	- Create a class to handle the spaceship and move the functions to there
-
-	- In Game State
-	  - Has 3 Section for sprite to move (Done) (9 - 10 Oct)
-
-	  - Avoid enenmies according to the beat (you can like make it semi according to beat)
-
-	  - Map notes with rhythm plus based on the time mapped (Done) (9 - 12 Oct)
-	  - Add a bps counter (doesnt really need to but Done) (9 - 12 Oct)
-	  - Add Song Bacgkround (9 - 12 Oct)
-	  - Add MousePos follow sprite angle (9 - 12 Oct)
-
-	- Gameplay
-	  - Move Left and Right and Center (Done) (9 - 12 Oct)
-
-	  - When Space button pressed
-		1. Plays a jumping or zooming in animation
-		2. make the sprite hides its bounding box
-
-	  - Sprite angle follows mouse pos (Done) (13 - 14 Oct)
-
-	  - Player can shoot bullets (Add Bounding Box to kill enemies)
-
-	- Obstacles (when shot at nothing happens, when hit you ded)
-	  - Try implementing obejct pooling
-	  - 3 objects spawns according to beat
-	  - if not just do it manually but not recommend
-
-	- Enemies (when you kill it you get 25 score if not then -10) (create a class for this)
-	  - Randomly Spawn and automatically aims to the main sprite
-	   or same like obstacle
-	   so its spawns accordingly to the beat replacing some obstacles
-
-	- Bullets
-	  - Add Bullets spawning (Done) (9 - 12 Oct)
-	  - Bullet follows Sprite Angle and mouse pos (13 - 14 Oct)
-	  - Add Bullets BoundingBox
-
-	- Finish State
-	  - when the song ends
-
-///////////////////////////////////////
-
-	- Song List Screen
-	 - List of music
-
-	- Menu Screen
-	 - Button Play
-	 - Button Exit
-	 - Logo zoom in zoom out along with beat
-	
-	- Game Screen
-	- Sprite (14 Oct - 27 Oct) 
-	 - movement on 3 section (Done) 9 - 12 Oct
-	 - move angle follow mousepos (Done) 13 -14 Oct 
-	 - add bullets (Done)
-		- add bounding box (Done 15 Oct)
-		- follow sprite angle (Done)
-		- bullet sprite also rotates when ship sprite rotates (19 Oct)
-	 - add bounding box (Done 15 Oct)
-	 - When kill enemy score + 20
+#include "GameScreen2.h"
 
 
-	- Enemies (11 Nov - 24 Nov)
-	 - add bounding box (24 Oct) Done
-	 - follow player position (25 Oc) Done
-	 - death and alive state 
-	 - when hit player score -25 
-	 - enemie pattern (25 Oct
-
-	- Obstacle (28 Oct - 10 Nov)
-	 - spawns on 3 section where sprite moves (Done) (19 Oct)
-	 - spawns according to the beat (beat-ish) (Done) (19 Oct)
-	 - When hit score -10 (Done) (21 Oct) 
-	 - on a certain time the "4" changes to 2 or 1  (21 Oct) (Done)   
-		if (previousBps % 4 == 0) {
-            GenerateObstaclePattern();  // Spawn obstacle pattern every 4 beats
-        }
-
-	- Gameplay
-	 - add a feature Divide into 2 screen (17 Oct)
-	 - Main Menu
-	  - When hit play go to ingame but when press exit 
-	    reset all states of the game so when press play
-		game starts at 0
-	  - Customize Buttons and Titles
-		- SFX and Sprite
-	 - In game
-	  - Sprite Enemies Obstacle
-	 - Quit
-
-	 - Parallax Background (Done) (10 Oct)
-	 - Add Music (Done) (10 Oct)
-	 - Add Sfx
-	 - Add Beat Counter (Done)
-	 - Add SCoring sistem (begins with 1000)
-	   - if hit obstacle -10 (Done) (21 Oct)
-	   - if kill enemies +25 (24 Nov
-	   - if score is zero game over (22 Oct
-	- bug
-	   - try escaping to main menu and go back to play and see what happens (done) (previous bps was not initiated)
-
-	- Running State (21 Oct
-	- Over State (21 Oct
-	- Finish State (21 Oct
-	- Exit State
-
-	Add a harder boss which takes more bullets to kill
-	logic:
-	just add a number for the ship like 100
-	if bullet hits it itll decrease by like 50 or sumn 
-	then if it reaches <= 0 itll erased and when it erased our point goes up
-
-	small -25
-	mid -30
-	large -35
-
-	add it in phases so our bullets also goes faster (the time interval)
-
-
-*/
-
-#pragma endregion
-
-Engine::GameScreen::GameScreen()
+Engine::GameScreen2::GameScreen2()
 {
 	delete texture_N1;
 	delete sprite;
 }
 
-void Engine::GameScreen::Init()
+void Engine::GameScreen2::Init()
 {
 
 #pragma region Sprite and Background
@@ -177,13 +21,13 @@ void Engine::GameScreen::Init()
 
 	sprite->SetScale(0.3f)
 		->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f)
-		->SetBoundingBoxSize(65,65);
+		->SetBoundingBoxSize(65, 65);
 
 	texture2 = new Texture("RotationPoint.png");
 	sprite2 = new Sprite(texture2, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
 
 	sprite2->SetPosition((game->GetSettings()->screenWidth / 2) - 12, (game->GetSettings()->screenHeight / 2) - 12)
-		   ->SetSize(25,25);
+		->SetSize(25, 25);
 
 
 
@@ -199,14 +43,14 @@ void Engine::GameScreen::Init()
 
 	text1 = new Text("homespun.ttf", 100, game->GetDefaultTextShader());
 	text1->SetScale(1)->SetColor(255, 255, 255)
-		 ->SetPosition((game->GetSettings()->screenWidth/4) * 3.25, ((game->GetSettings()->screenHeight/4) - 50) - (text1->GetFontSize() * text1->GetScale()));
+		->SetPosition((game->GetSettings()->screenWidth / 4) * 3.25, ((game->GetSettings()->screenHeight / 4) - 50) - (text1->GetFontSize() * text1->GetScale()));
 
 
 #pragma endregion
 
 #pragma region Music and Sound init
 
-	music = (new Music("Shirobon-On-The-Run.ogg"))->SetVolume(45)/*->Play(false)*/;
+	music = (new Music("Bossfight-Milky-Ways.ogg"))->SetVolume(45)/*->Play(false)*/;
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(45)/*->Play(false)*/;
 
 	//metronome = (new Sound("beep.ogg"))->SetVolume(70)->Play(true);
@@ -263,11 +107,11 @@ void Engine::GameScreen::Init()
 	int bulletNum = 10000;
 	for (int i = 0; i < bulletNum; i++) {
 		Sprite* bs = (new Sprite(bulletTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))->SetNumXFrames(3)
-																										->SetNumYFrames(2)
-																										->SetScale(0.07)
-																										->SetBoundingBoxSize((0.7 * 1) / 1, (0.7 * 1) / 1)
-																										->AddAnimation("idle", 1,1)
-																					->PlayAnim("idle");
+			->SetNumYFrames(2)
+			->SetScale(0.07)
+			->SetBoundingBoxSize((0.7 * 1) / 1, (0.7 * 1) / 1)
+			->AddAnimation("idle", 1, 1)
+			->PlayAnim("idle");
 		readyBullets.push_back(new Bullet(bs));
 	}
 
@@ -275,16 +119,16 @@ void Engine::GameScreen::Init()
 
 }
 
-void Engine::GameScreen::Update()
+void Engine::GameScreen2::Update()
 {
 
 	if (gstate == GameState::RUNNING)
 	{
-		
+
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
-			
+
 			ResetVariables();
 
 		}
@@ -294,13 +138,13 @@ void Engine::GameScreen::Update()
 		text1->SetText(std::to_string(score));
 
 		//if score below 0 game is over
-		//if (score <= 0)
-		//{
-		//	score = 0;
-		//	music->Stop();
-		//	gstate == GameState::GAME_OVER;
-		//	return;
-		//}
+		if (score <= 0)
+		{
+			score = 0;
+			music->Stop();
+			gstate == GameState::GAME_OVER;
+			return;
+		}
 
 #pragma endregion
 
@@ -316,7 +160,7 @@ void Engine::GameScreen::Update()
 				music->IsPlaying() == true;
 			}
 		}
-		
+
 		//if game time exceeds 259 seconds game state is at finish
 		if (duration / 1000 >= 259.0f)
 		{
@@ -327,7 +171,7 @@ void Engine::GameScreen::Update()
 
 
 
-		if (game->GetInputManager()->IsKeyReleased("mainmenu")) 
+		if (game->GetInputManager()->IsKeyReleased("mainmenu"))
 		{
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
@@ -432,8 +276,8 @@ void Engine::GameScreen::Update()
 
 				// Check if the beat count is the equivalent of 4
 				if (previousBps % 4 == 0) {
-					
-					GenerateObstaclePattern(); 
+
+					GenerateObstaclePattern();
 
 				}
 
@@ -454,12 +298,12 @@ void Engine::GameScreen::Update()
 				// Check if the beat count is the equivalent of 2
 				if (previousBps % 2 == 0) {
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-					
+
 					if (previousBps % 4 == 0)
 					{
 						GenerateEnemyPattern();
 					}
-				
+
 				}
 
 			}
@@ -718,7 +562,7 @@ void Engine::GameScreen::Update()
 			float enemyY = enemy->GetPosition().y;
 			float y_2 = enemyY;
 
-			
+
 			// Check if the enemy should speed up or move toward the sprite
 			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200)) {
 
@@ -769,16 +613,16 @@ void Engine::GameScreen::Update()
 			else {
 				++it;
 			}
-			
+
 		}
 
 #pragma endregion
 
 
 
-		MoveLayer(backgrounds, 0.005f);
-		MoveLayer(middlegrounds, 0.03f);
-		MoveLayer(foregrounds, 0.3f);
+		MoveLayer(backgrounds, 0.01f);
+		MoveLayer(middlegrounds, 0.06f);
+		MoveLayer(foregrounds, 0.6f);
 
 
 
@@ -786,7 +630,7 @@ void Engine::GameScreen::Update()
 	else if (gstate == GameState::FINISH)
 	{
 		//music->Stop();
-		
+
 		MoveLayer(backgrounds, 0.0f);
 		MoveLayer(middlegrounds, 0.0f);
 		MoveLayer(foregrounds, 0.0f);
@@ -801,8 +645,8 @@ void Engine::GameScreen::Update()
 			ResetVariables();
 		}
 
-		
-		
+
+
 		std::cout << "Game state is at finish" << std::endl;
 	}
 	else if (gstate == GameState::GAME_OVER)
@@ -810,7 +654,7 @@ void Engine::GameScreen::Update()
 		if (game->GetInputManager()->IsKeyReleased("mainmenu"))
 		{
 			music->Stop();
-			
+
 			ResetVariables();
 
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
@@ -822,21 +666,27 @@ void Engine::GameScreen::Update()
 		MoveLayer(backgrounds, 0.0f);
 		MoveLayer(middlegrounds, 0.0f);
 		MoveLayer(foregrounds, 0.0f);
-		
+
+		//escape untuk ke menuscreen
+
+		//jika restart reset semua variabel
+		//gstate == GameState::RESET;
+
+
 		std::cout << "Game state is at game over" << std::endl;
 	}
 	else if (gstate == GameState::RESET)
 	{
 		ResetVariables();
-		
+
 		std::cout << "Game resets" << std::endl;
-	
+
 		//gstate == GameState::RUNNING;
 	}
 
 }
 
-void Engine::GameScreen::Draw()
+void Engine::GameScreen2::Draw()
 {
 
 #pragma region Camera Render
@@ -863,7 +713,7 @@ void Engine::GameScreen::Draw()
 	DrawLayer(middlegrounds);
 
 	//Obstacle
-	for (Sprite* s : platforms) 
+	for (Sprite* s : platforms)
 	{
 		s->Draw();
 		std::cout << "obstacle sprite is drawn" << std::endl;
@@ -871,15 +721,15 @@ void Engine::GameScreen::Draw()
 	}
 
 	//Bullets
-	for (Bullet* b : inUseBullets) 
+	for (Bullet* b : inUseBullets)
 	{
 		b->Draw();
 	}
-	
+
 	//Draw Note Sprite
 	sprite->Draw();
 
-	for (Sprite* e : enemies) 
+	for (Sprite* e : enemies)
 	{
 		e->Draw();
 		std::cout << "enemy sprite is drawn" << std::endl;
@@ -896,7 +746,7 @@ void Engine::GameScreen::Draw()
 
 }
 
-void Engine::GameScreen::ResetVariables()
+void Engine::GameScreen2::ResetVariables()
 {
 
 	inUseBullets.clear();
@@ -911,14 +761,14 @@ void Engine::GameScreen::ResetVariables()
 
 #pragma region Obstacle Spawning
 
-void Engine::GameScreen::SpawnObstacle(float xPosition) 
+void Engine::GameScreen2::SpawnObstacle(float xPosition)
 {
 
 	Texture* platformTexture = new Texture("meteor.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of the screen)
 
 	Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	platformSprite->SetSize(100,100)->SetPosition(start.x, start.y);
+	platformSprite->SetSize(100, 100)->SetPosition(start.x, start.y);
 	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 50);
 
 
@@ -926,11 +776,11 @@ void Engine::GameScreen::SpawnObstacle(float xPosition)
 	platforms.push_back(platformSprite);  // Add the new obstacle to the list
 }
 
-void Engine::GameScreen::GenerateObstaclePattern() 
+void Engine::GameScreen2::GenerateObstaclePattern()
 {
-	int emptySection; 
+	int emptySection;
 
-	do 
+	do
 	{
 		emptySection = rand() % 3;
 	} while (emptySection == previousEmptySection);
@@ -944,19 +794,19 @@ void Engine::GameScreen::GenerateObstaclePattern()
 	float rightPositionX = (game->GetSettings()->screenWidth / 2.15) + 200;  // Position for the right lane
 
 	// Spawn obstacle in the left section if it's not empty
-	if (emptySection != 0) 
+	if (emptySection != 0)
 	{
 		SpawnObstacle(leftPositionX);
 	}
 
 	// Spawn obstacle in the center section if it's not empty
-	if (emptySection != 1) 
+	if (emptySection != 1)
 	{
 		SpawnObstacle(centerPositionX);
 	}
 
 	// Spawn obstacle in the right section if it's not empty
-	if (emptySection != 2) 
+	if (emptySection != 2)
 	{
 		SpawnObstacle(rightPositionX);
 	}
@@ -971,7 +821,7 @@ void Engine::GameScreen::GenerateObstaclePattern()
 #pragma region Enemies (EvilShip) Handling
 
 //Small EvilShip
-void Engine::GameScreen::SpawnEnemies(float xPosition) {
+void Engine::GameScreen2::SpawnEnemies(float xPosition) {
 	Texture* enemyTexture = new Texture("evilShip.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
@@ -982,13 +832,13 @@ void Engine::GameScreen::SpawnEnemies(float xPosition) {
 	enemies.push_back(enemySprite);  // Add enemy ship to the list
 }
 
-void Engine::GameScreen::GenerateEnemyPattern() {
+void Engine::GameScreen2::GenerateEnemyPattern() {
 	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
 	SpawnEnemies(randomX);  // Spawn an enemy at the random X position
 }
 
 //Mid EvilShip
-void Engine::GameScreen::SpawnEnemieslv2(float xPosition) {
+void Engine::GameScreen2::SpawnEnemieslv2(float xPosition) {
 	Texture* enemyTexture2 = new Texture("evilShip.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
@@ -999,13 +849,13 @@ void Engine::GameScreen::SpawnEnemieslv2(float xPosition) {
 	enemies2.push_back(enemySprite2);  // Add enemy ship to the list
 }
 
-void Engine::GameScreen::GenerateEnemylv2Pattern() {
+void Engine::GameScreen2::GenerateEnemylv2Pattern() {
 	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
 	SpawnEnemieslv2(randomX);  // Spawn an enemy at the random X position
 }
 
 //Large Evil Ship
-void Engine::GameScreen::SpawnEnemieslv3(float xPosition) {
+void Engine::GameScreen2::SpawnEnemieslv3(float xPosition) {
 	Texture* enemyTexture3 = new Texture("evilShip.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
@@ -1016,7 +866,7 @@ void Engine::GameScreen::SpawnEnemieslv3(float xPosition) {
 	enemies3.push_back(enemySprite3);  // Add enemy ship to the list
 }
 
-void Engine::GameScreen::GenerateEnemylv3Pattern() {
+void Engine::GameScreen2::GenerateEnemylv3Pattern() {
 	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
 	SpawnEnemieslv3(randomX);  // Spawn an enemy at the random X position
 }
@@ -1027,7 +877,7 @@ void Engine::GameScreen::GenerateEnemylv3Pattern() {
 
 #pragma region Parallax Functions
 
-void Engine::GameScreen::MoveLayer(vector<Sprite*>& bg, float speed)
+void Engine::GameScreen2::MoveLayer(vector<Sprite*>& bg, float speed)
 {
 	for (Sprite* s : bg) {
 		if (s->GetPosition().y < -game->GetSettings()->screenHeight + offset) {
@@ -1038,14 +888,14 @@ void Engine::GameScreen::MoveLayer(vector<Sprite*>& bg, float speed)
 	}
 }
 
-void Engine::GameScreen::DrawLayer(vector<Sprite*>& bg)
+void Engine::GameScreen2::DrawLayer(vector<Sprite*>& bg)
 {
 	for (Sprite* s : bg) {
 		s->Draw();
 	}
 }
 
-void Engine::GameScreen::AddToLayer(vector<Sprite*>& bg, string name)
+void Engine::GameScreen2::AddToLayer(vector<Sprite*>& bg, string name)
 {
 	Texture* texture = new Texture(name);
 
@@ -1062,7 +912,7 @@ void Engine::GameScreen::AddToLayer(vector<Sprite*>& bg, string name)
 
 #pragma region Bullet Spawn
 
-void Engine::GameScreen::SpawnBullets()
+void Engine::GameScreen2::SpawnBullets()
 {
 	if (timeInterval >= 250) {
 		if (readyBullets.empty()) {

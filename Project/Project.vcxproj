@@ -152,6 +152,7 @@
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EvilShip.h" />
     <ClInclude Include="GameScreen.h" />
+    <ClInclude Include="GameScreen2.h" />
     <ClInclude Include="Lesson11_ParallaxScrolling.h" />
     <ClInclude Include="LessonAI01_SteeringBehaviors.h" />
     <ClInclude Include="LessonAI02_NPCWave.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EvilShip.cpp" />
     <ClCompile Include="GameScreen.cpp" />
+    <ClCompile Include="GameScreen2.cpp" />
     <ClCompile Include="Lesson11_ParallaxScrolling.cpp" />
     <ClCompile Include="LessonAI01_SteeringBehaviors.cpp" />
     <ClCompile Include="LessonAI02_NPCWave.cpp" />
