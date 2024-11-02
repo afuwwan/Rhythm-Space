@@ -8,11 +8,15 @@ Engine::MenuScreen::MenuScreen()
 void Engine::MenuScreen::Init()
 {
 	
+	// Initialize camera properties (position, zoom)
+	camera.position = glm::vec2(0,0);
+	camera.zoom = 1.0f;  // Default zoom level
+
 	logoTexture = new Texture("RhythmSpace2.png");
 	logo = new Sprite(logoTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
 
 	logo->SetScale(3.5)
-		->SetPosition((game->GetSettings()->screenWidth / 2) - 270, game->GetSettings()->screenHeight - 410);
+		->SetPosition((game->GetSettings()->screenWidth / 2) - 270, (game->GetSettings()->screenHeight)/2 - 110);
 
 	
 	// Create a Texture
@@ -59,7 +63,9 @@ void Engine::MenuScreen::Init()
 	// Add input mappings
 	game->GetInputManager()->AddInputMapping("next", SDLK_DOWN)
 		->AddInputMapping("prev", SDLK_UP)
-		->AddInputMapping("press", SDLK_RETURN);
+		->AddInputMapping("press", SDLK_RETURN)
+		->AddInputMapping("Zoom In", SDLK_i)
+		->AddInputMapping("Zoom Out", SDLK_o);
 
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(30)->Play(true);
 
@@ -157,18 +163,41 @@ void Engine::MenuScreen::Update()
 	MoveLayer(middlegrounds, 0.03f);
 	MoveLayer(foregrounds, 0.3f);
 
+	//camera.Follow(sprite->GetPosition());
+
+	// Optional: Zoom control with key input
+	if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
+		camera.SetZoom(camera.zoom + 0.007f);
+	}
+	if (game->GetInputManager()->IsKeyPressed("Zoom Out")) {
+		camera.SetZoom(camera.zoom - 0.007f);
+	}
+
+	// Update the shader's view matrix uniform
+	glUseProgram(game->GetDefaultSpriteShader()->GetId());
+	glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth,game->GetSettings()->screenHeight);
+	glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+
+
 }
 
 void Engine::MenuScreen::Draw()
 {
+	glUseProgram(game->GetDefaultSpriteShader()->GetId());
+
+	// Set the camera's view matrix
+	glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
+	glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+	
 	//Draw parallax background
 	DrawLayer(backgrounds);
 	DrawLayer(middlegrounds);
 	
 	// Render all buttons
-	for (Button* b : buttons) {
-		b->Draw();
-	}
+	//for (Button* b : buttons) {
+	//	b->Draw();
+	//}
 	// Render title 
 	//text->Draw();
 

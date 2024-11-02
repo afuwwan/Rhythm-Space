@@ -149,6 +149,7 @@
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="BaseCharacter.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Enemy.h" />
     <ClInclude Include="EvilShip.h" />
     <ClInclude Include="GameScreen.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Lesson07_GUI.h" />
     <ClInclude Include="Lesson08_Rotation.h" />
     <ClInclude Include="Lesson09_Bullet.h" />
+    <ClInclude Include="LessonCamera.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="Music.h" />
@@ -194,6 +196,7 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="BaseCharacter.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="EvilShip.cpp" />
     <ClCompile Include="GameScreen.cpp" />
@@ -216,6 +219,7 @@
     <ClCompile Include="Lesson07_GUI.cpp" />
     <ClCompile Include="Lesson08_Rotation.cpp" />
     <ClCompile Include="Lesson09_Bullet.cpp" />
+    <ClCompile Include="LessonCamera.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
     <ClCompile Include="Music.cpp" />

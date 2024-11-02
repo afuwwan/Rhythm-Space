@@ -126,7 +126,7 @@
 
 	 - Parallax Background (Done) (10 Oct)
 	 - Add Music (Done) (10 Oct)
-	 - Add Sfx
+	 - Add Sfx (buttons, sprite hits, game over)
 	 - Add Beat Counter (Done)
 	 - Add SCoring sistem (begins with 1000)
 	   - if hit obstacle -10 (Done) (21 Oct)
@@ -175,6 +175,7 @@ void Engine::GameScreen::Init()
 	texture_bg = new Texture("Space.png");
 	bg = (new Sprite(texture_bg, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))->SetSize((float)game->GetSettings()->screenWidth, (float)game->GetSettings()->screenHeight);
 
+	//spaceship
 	sprite->SetScale(0.3f)
 		->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f)
 		->SetBoundingBoxSize(65,65);
@@ -185,7 +186,16 @@ void Engine::GameScreen::Init()
 	sprite2->SetPosition((game->GetSettings()->screenWidth / 2) - 12, (game->GetSettings()->screenHeight / 2) - 12)
 		   ->SetSize(25,25);
 
+	texture_gov = new Texture("GameOver.png");
+	gov = (new Sprite(texture_gov, game->GetDefaultSpriteShader(), game->GetDefaultQuad()));
 
+	gov->SetScale(3.0f)
+		->SetNumXFrames(6)
+		->SetNumYFrames(1)
+		->AddAnimation("idle", 0, 5)
+		->PlayAnim("idle")
+		->SetPosition((game->GetSettings()->screenWidth)*2, (game->GetSettings()->screenWidth)*2)
+		->SetAnimationDuration(200);
 
 #pragma endregion
 
@@ -278,6 +288,7 @@ void Engine::GameScreen::Init()
 void Engine::GameScreen::Update()
 {
 
+
 	if (gstate == GameState::RUNNING)
 	{
 		
@@ -291,16 +302,27 @@ void Engine::GameScreen::Update()
 
 #pragma region Score Handling
 
-		text1->SetText(std::to_string(score));
+		text1->SetText(std::to_string(score))
+			 ->SetPosition((game->GetSettings()->screenWidth / 4) * 3.25, ((game->GetSettings()->screenHeight / 4) - 50) - (text1->GetFontSize() * text1->GetScale()));
 
 		//if score below 0 game is over
-		//if (score <= 0)
-		//{
-		//	score = 0;
-		//	music->Stop();
-		//	gstate == GameState::GAME_OVER;
-		//	return;
-		//}
+		if (score < 0)
+		{
+			score = 0;
+			music->Stop();
+			gstate = GameState::GAME_OVER;
+			return;
+		}
+
+		//if game time exceeds 259 seconds game state is at finish
+		if (duration / 1000 >= 259.0f)
+		{
+			music->Stop();
+			gstate = GameState::FINISH;
+			return;
+		}
+
+
 
 #pragma endregion
 
@@ -316,15 +338,6 @@ void Engine::GameScreen::Update()
 				music->IsPlaying() == true;
 			}
 		}
-		
-		//if game time exceeds 259 seconds game state is at finish
-		if (duration / 1000 >= 259.0f)
-		{
-			music->Stop();
-			gstate == GameState::FINISH;
-			return;
-		}
-
 
 
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) 
@@ -387,31 +400,41 @@ void Engine::GameScreen::Update()
 #pragma region sprite angle according to mouse pos
 
 		int mouseX, mouseY;
+
+		//Get the current mouse position on the screen using SDL
 		SDL_GetMouseState(&mouseX, &mouseY);
 
 		//float dx = mouseX - note1->GetPosition().x;
 		//float dy = mouseY - note1->GetPosition().y;
-
 		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
 
+		//Store the mouse position in a glm::vec2 for easier calculations
 		glm::vec2 mousePos = { mouseX, mouseY };
 
-		glm::vec2 screenCenter(game->GetSettings()->screenWidth / 2.0f, game->GetSettings()->screenHeight / 2.0f);
+		//Determine the center of the screen
+		glm::vec2 screenCenter(game->GetSettings()->screenWidth / 2.0f, game->GetSettings()->screenHeight);
 
+		//Calculate the direction vector from the screen center to the mouse position
 		glm::vec2 mouseDirection = mousePos - screenCenter;
 
+		//Avoid division by zero: if the mouse is exactly at the screen center, set a default direction
 		if (glm::length(mouseDirection) == 0.f)
 		{
-			mouseDirection = { 1,0 };
+			mouseDirection = { 1,0 }; // Default direction if mouse is at center
 		}
 		else
 		{
+			//Normalize the direction vector to get a unit vector pointing towards the mouse position
 			mouseDirection = normalize(mouseDirection);
 		}
 
+		//Calculate the angle in degrees from the X-axis to the mouse direction vector
 		float angle = atan2(mouseDirection.y, -mouseDirection.x) * (180 / M_PI) + 90;
 
+		//Set the sprite’s rotation based on the calculated angle
 		sprite->SetRotation(angle);
+
+
 
 #pragma endregion
 
@@ -423,7 +446,7 @@ void Engine::GameScreen::Update()
 		//1 beat = 1 / 2.6 of a second
 		bps = (duration / 1000) * 2.6;
 
-		// Obstacle pattern
+		// Obstacle pattern every phase of the song based on seconds
 		if (duration / 1000 < 36)
 		{
 			if (floor(bps) > previousBps) {
@@ -434,10 +457,9 @@ void Engine::GameScreen::Update()
 				if (previousBps % 4 == 0) {
 					
 					GenerateObstaclePattern(); 
-
 				}
 
-				if (previousBps % 3 == 0)
+				if (previousBps % 2 == 0)
 				{
 					GenerateEnemyPattern();
 				}
@@ -454,12 +476,17 @@ void Engine::GameScreen::Update()
 				// Check if the beat count is the equivalent of 2
 				if (previousBps % 2 == 0) {
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-					
-					if (previousBps % 4 == 0)
-					{
-						GenerateEnemyPattern();
-					}
 				
+				}
+
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+				
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
 				}
 
 			}
@@ -475,6 +502,16 @@ void Engine::GameScreen::Update()
 				// Check if the beat count is the equivalent of 3
 				if (previousBps % 3 == 0) {
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				}
+
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+				
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
 				}
 
 			}
@@ -507,6 +544,17 @@ void Engine::GameScreen::Update()
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
 				}
 
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
+
 			}
 
 		}
@@ -537,6 +585,17 @@ void Engine::GameScreen::Update()
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
 				}
 
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
+
 			}
 
 		}
@@ -551,6 +610,17 @@ void Engine::GameScreen::Update()
 				if (previousBps % 2 == 0) {
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
 				}
+
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
 
 			}
 
@@ -582,6 +652,17 @@ void Engine::GameScreen::Update()
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
 				}
 
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
+
 			}
 
 		}
@@ -597,9 +678,15 @@ void Engine::GameScreen::Update()
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
 				}
 
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
 			}
 
 		}
+
 		std::cout << "Beats : " << bps << std::endl;
 
 #pragma endregion
@@ -705,6 +792,36 @@ void Engine::GameScreen::Update()
 					++it;  // Continue iterating if no collision
 				}
 			}
+
+			//bullet behaviour for lv2 evilship
+			for (auto it = enemies2.begin(); it != enemies2.end();) {
+				Sprite* enemy = *it;
+
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) {
+					// Increase score when enemy is hit by bullet
+					enemielv2health -= 10;
+					//text->SetText("Score: " + std::to_string(score));
+
+					//If bullet hits 3 time lv2 enemie is dead
+					if (enemielv2health <= 0)
+					{
+						//if enemy die score added by 15
+						score += 15;
+
+						// Erase the enemy after collision
+						it = enemies2.erase(it);
+
+					}
+
+					// Remove the bullet from in-use list and return to ready bullets
+					readyBullets.push_back(b);
+					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+					break;  // Exit the loop after handling the collision
+				}
+				else {
+					++it;  // Continue iterating if no collision
+				}
+			}
 		}
 
 #pragma endregion
@@ -772,10 +889,73 @@ void Engine::GameScreen::Update()
 			
 		}
 
+		//level2 enemy
+		for (auto it = enemies2.begin(); it != enemies2.end();) {
+			Sprite* enemy = *it;
+
+			float enemyX = enemy->GetPosition().x;
+			float enemyY = enemy->GetPosition().y;
+			float y_2 = enemyY;
+
+
+			// Check if the enemy should speed up or move toward the sprite
+			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200)) {
+
+				// Get sprite position
+				float spriteX = sprite->GetPosition().x;
+				float spriteY = sprite->GetPosition().y;
+
+				// Calculate direction vector to the sprite
+				float dirX = spriteX - enemyX;
+				float dirY = spriteY - enemyY;
+
+				// Normalize direction
+				float length = sqrt(dirX * dirX + dirY * dirY);
+				if (length != 0) {
+					dirX /= length;
+					dirY /= length;
+				}
+
+				// Move enemy toward sprite while decrementing y_2 for normal falling
+				float speed = 0.7f; // Adjust this speed
+				enemyX += dirX * speed * game->GetGameTime();
+				enemyY += dirY * speed * game->GetGameTime();
+
+				// Set new position and continue moving downward
+				y_2 -= 0.7f * game->GetGameTime(); // Keep falling
+				enemy->SetPosition(enemyX, y_2);
+
+				// Set enemy rotation to face sprite
+				float angle = atan2(dirY, dirX) * (180 / M_PI) + 90;
+				enemy->SetRotation(angle);
+
+			}
+			else 
+			{
+				// Regular downward movement before reaching the threshold
+				y_2 -= 0.3f * game->GetGameTime();
+				enemy->SetPosition(enemyX, y_2);
+			}
+
+			enemy->Update(game->GetGameTime());
+
+			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
+				it = enemies2.erase(it); // Handle collision
+				score -= 75;
+			}
+			else if (y_2 <= -300) {
+				it = enemies2.erase(it); // Remove enemy if off-screen
+			}
+			else {
+				++it;
+			}
+
+		}
+
 #pragma endregion
 
 
-
+		//sets parallax speed
 		MoveLayer(backgrounds, 0.005f);
 		MoveLayer(middlegrounds, 0.03f);
 		MoveLayer(foregrounds, 0.3f);
@@ -785,45 +965,76 @@ void Engine::GameScreen::Update()
 	}
 	else if (gstate == GameState::FINISH)
 	{
-		//music->Stop();
-		
-		MoveLayer(backgrounds, 0.0f);
-		MoveLayer(middlegrounds, 0.0f);
-		MoveLayer(foregrounds, 0.0f);
+		//increases parallax speed
+		MoveLayer(backgrounds, 0.02f);
+		MoveLayer(middlegrounds, 0.12f);
+		MoveLayer(foregrounds, 1.2f);
 
-		//escape untuk ke menu screen
-
-		//reset semua variabel
-
+		//switch to main menu
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
-			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+						
 			music->Stop();
 			ResetVariables();
+			gstate = GameState::RUNNING;
+			music2->Play(true);
+
+			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+
 		}
 
-		
+		//set text to the middle of the screen
+		text1->SetText(std::to_string(score))->SetPosition((game->GetSettings()->screenWidth) / 2, (game->GetSettings()->screenHeight) / 3);
+
+		//spaceship goes upward
+		int y_2 = sprite->GetPosition().y;
+		y_2 += 5;
+
+		//sets sprite y value and sets angle to face upward
+		sprite->SetPosition(sprite->GetPosition().x,y_2)
+			  ->SetRotation(2);
+
+
+		//add a reset button
 		
 		std::cout << "Game state is at finish" << std::endl;
 	}
 	else if (gstate == GameState::GAME_OVER)
 	{
+		std::cout << "Game state is at game over" << std::endl;
+
+		//make sure score value doesnt pass below 0
+		if (score <= 0)
+		{
+			score = 0;
+		}
+		
+		//set game over sprite to the screen view
+		gov->SetPosition((game->GetSettings()->screenWidth) / 3, (game->GetSettings()->screenHeight) / 2);
+
+		//updates the game over sprite
+		gov->Update(game->GetGameTime());
+		
+		//plays the animation 
+		gov->PlayAnim("idle");
+
+		//stops the parallax speed
+		MoveLayer(backgrounds, 0.0f);
+		MoveLayer(middlegrounds, 0.0f);
+		MoveLayer(foregrounds, 0.0f);
+		
+		//swtich to main menu if key is "pressed"
 		if (game->GetInputManager()->IsKeyReleased("mainmenu"))
 		{
 			music->Stop();
 			
 			ResetVariables();
 
+			gstate = GameState::RUNNING;
+
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music2->Play(true);
 
-
 		}
-
-		MoveLayer(backgrounds, 0.0f);
-		MoveLayer(middlegrounds, 0.0f);
-		MoveLayer(foregrounds, 0.0f);
-		
-		std::cout << "Game state is at game over" << std::endl;
 	}
 	else if (gstate == GameState::RESET)
 	{
@@ -866,7 +1077,7 @@ void Engine::GameScreen::Draw()
 	for (Sprite* s : platforms) 
 	{
 		s->Draw();
-		std::cout << "obstacle sprite is drawn" << std::endl;
+		//std::cout << "obstacle sprite is drawn" << std::endl;
 
 	}
 
@@ -882,7 +1093,13 @@ void Engine::GameScreen::Draw()
 	for (Sprite* e : enemies) 
 	{
 		e->Draw();
-		std::cout << "enemy sprite is drawn" << std::endl;
+		//std::cout << "enemy sprite is drawn" << std::endl;
+	}
+
+	for (Sprite* e : enemies2)
+	{
+		e->Draw();
+		//std::cout << "enemy lv2 sprite is drawn" << std::endl;
 	}
 
 	DrawLayer(foregrounds);
@@ -892,20 +1109,39 @@ void Engine::GameScreen::Draw()
 
 	//Draw Rotation Point
 	sprite2->Draw();
+	
+	//doesnt work
+	if (gstate == GameState::GAME_OVER)
+	{
+		//Draw game over sprite
+		gov->Draw();
+		//std::cout << "game over sprite is drawn" << std::endl;
+	}
 
-
+	
 }
 
 void Engine::GameScreen::ResetVariables()
 {
-
+	//resets bullets
 	inUseBullets.clear();
+	
+	//resets meteor
 	platforms.clear();
+	
+	//resets enemies
 	enemies.clear();
+	enemies2.clear();
+	//enemielv2health = 30;
+	
+	//resets other variables
 	score = 500;
 	duration = 0;
 	previousBps = 0;
 	bps = 0;
+
+	//resets sprite position
+	sprite->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f);
 
 }
 
@@ -989,28 +1225,34 @@ void Engine::GameScreen::GenerateEnemyPattern() {
 
 //Mid EvilShip
 void Engine::GameScreen::SpawnEnemieslv2(float xPosition) {
-	Texture* enemyTexture2 = new Texture("evilShip.png");
+	Texture* enemyTexture2 = new Texture("evilShip2.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
 	Sprite* enemySprite2 = new Sprite(enemyTexture2, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	enemySprite2->SetSize(100, 100)->SetPosition(start.x, start.y)->SetFlipVertical(true);
+	enemySprite2->SetSize(1000, 1000)->SetPosition(start.x, start.y)->SetFlipVertical(true);
 	enemySprite2->SetBoundingBoxSize(enemySprite2->GetScaleWidth() - (3.5 * enemySprite2->GetScale()), enemySprite2->GetScaleHeight() - 50);
 
 	enemies2.push_back(enemySprite2);  // Add enemy ship to the list
+
+	enemielv2health = 60;
 }
 
 void Engine::GameScreen::GenerateEnemylv2Pattern() {
-	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
+	
+	float minX = game->GetSettings()->screenWidth / 3;
+	float maxX = (game->GetSettings()->screenWidth / 3) * 2;
+	float randomX = minX + (rand() % (int)(maxX - minX + 1));  // Random X between minX and maxX
+	
 	SpawnEnemieslv2(randomX);  // Spawn an enemy at the random X position
 }
 
 //Large Evil Ship
 void Engine::GameScreen::SpawnEnemieslv3(float xPosition) {
-	Texture* enemyTexture3 = new Texture("evilShip.png");
+	Texture* enemyTexture3 = new Texture("evilShip3.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
 	Sprite* enemySprite3 = new Sprite(enemyTexture3, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	enemySprite3->SetSize(100, 100)->SetPosition(start.x, start.y)->SetFlipVertical(true);
+	enemySprite3->SetSize(300, 300)->SetPosition(start.x, start.y)->SetFlipVertical(true);
 	enemySprite3->SetBoundingBoxSize(enemySprite3->GetScaleWidth() - (3.5 * enemySprite3->GetScale()), enemySprite3->GetScaleHeight() - 50);
 
 	enemies3.push_back(enemySprite3);  // Add enemy ship to the list
@@ -1064,7 +1306,7 @@ void Engine::GameScreen::AddToLayer(vector<Sprite*>& bg, string name)
 
 void Engine::GameScreen::SpawnBullets()
 {
-	if (timeInterval >= 250) {
+	if (timeInterval >= 150) {
 		if (readyBullets.empty()) {
 			return;
 		}
@@ -1097,7 +1339,7 @@ void Engine::GameScreen::SpawnBullets()
 
 		glm::vec2 mousePos = { mouseX, mouseY };
 
-		glm::vec2 screenCenter(game->GetSettings()->screenWidth / 2.0f, game->GetSettings()->screenHeight / 2.0f);
+		glm::vec2 screenCenter(game->GetSettings()->screenWidth / 2.0f, game->GetSettings()->screenHeight);
 
 		glm::vec2 mouseDirection = mousePos - screenCenter;
 

@@ -12,6 +12,7 @@
 #include "Sound.h"
 #include <vector>
 #include "ScreenManager.h"
+#include "Camera.h"
 
 namespace Engine {
 	class MenuScreen :
@@ -23,6 +24,9 @@ namespace Engine {
 		void Update();
 		void Draw();
 	private:
+		
+		Camera camera;
+		
 		vector<Button*> buttons;
 		Text* text;
 		int currentButtonIndex = 0;

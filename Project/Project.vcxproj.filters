@@ -167,6 +167,12 @@
     <ClInclude Include="GameScreen2.h">
       <Filter>Demo Files\Rhythm Space</Filter>
     </ClInclude>
+    <ClInclude Include="LessonCamera.h">
+      <Filter>Demo Files\Course</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shader.cpp">
@@ -300,6 +306,12 @@
     </ClCompile>
     <ClCompile Include="GameScreen2.cpp">
       <Filter>Demo Files\Rhythm Space</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LessonCamera.cpp">
+      <Filter>Demo Files\Course</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

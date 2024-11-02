@@ -2,6 +2,7 @@
 #define SCREEN_H
 
 #include "Game.h"
+//#include "Camera.h"
 
 namespace Engine {
 	class Screen
@@ -13,6 +14,7 @@ namespace Engine {
 		void SetGame(Game* engine);
 	protected:
 		Game* game = nullptr;
+		//Camera* camera = nullptr;
 	};
 }
 #endif

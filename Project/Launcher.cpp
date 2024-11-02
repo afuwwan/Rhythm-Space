@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 	Engine::Setting* setting = new Engine::Setting();
 	setting->screenWidth = 1600;
 	setting->screenHeight = 1000;
-	setting->windowFlag = Engine::WindowFlag::FULLSCREEN;
+	setting->windowFlag = Engine::WindowFlag::WINDOWED;
 	setting->vsync = false;
 	setting->targetFrameRate = 75;
 	Engine::Game* game = new Engine::RhythmSpace(setting);

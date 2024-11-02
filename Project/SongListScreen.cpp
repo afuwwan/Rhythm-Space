@@ -15,7 +15,7 @@ void Engine::SongListScreen::Init()
 	Sprite* song1 = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
 		->SetNumXFrames(2)
 		->SetNumYFrames(2)
-		->SetScale(5)
+		->SetScale(3)
 		->AddAnimation("normal", 0, 0)
 		->AddAnimation("hover", 0, 1)
 		->AddAnimation("press", 1, 1)
@@ -24,7 +24,7 @@ void Engine::SongListScreen::Init()
 	Sprite* song2 = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
 		->SetNumXFrames(2)
 		->SetNumYFrames(2)
-		->SetScale(5)
+		->SetScale(3)
 		->AddAnimation("normal", 2, 2)
 		->AddAnimation("hover", 2, 3)
 		->AddAnimation("press", 3, 3)
@@ -33,12 +33,12 @@ void Engine::SongListScreen::Init()
 	//Create Buttons
 	Button* song1Button = new Button(song1, "song1");
 	song1Button->SetPosition((game->GetSettings()->screenWidth / 2) - (song1->GetScaleWidth() / 2),
-		400);
+		700);
 	buttons.push_back(song1Button);
 
 	Button* song2Button = new Button(song2, "song2");
 	song2Button->SetPosition((game->GetSettings()->screenWidth / 2) - (song2->GetScaleWidth() / 2),
-		250);
+		560);
 	buttons.push_back(song2Button);
 
 	// Set play button into active button
@@ -46,8 +46,8 @@ void Engine::SongListScreen::Init()
 	buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
 
 	// Create Text
-	text = (new Text("8-bit Arcade In.ttf", 100, game->GetDefaultTextShader()))
-		->SetText("Song List")->SetPosition((game->GetSettings()->screenWidth / 2) - 270, game->GetSettings()->screenHeight - 100)->SetColor(235, 229, 52);
+	text = (new Text("homespun.ttf", 100, game->GetDefaultTextShader()))
+		->SetText("PICK YOUR SONG!")->SetPosition((game->GetSettings()->screenWidth / 2) - 350, game->GetSettings()->screenHeight - 100)->SetColor(235, 229, 52);
 
 	// Add input mappings
 	game->GetInputManager()->AddInputMapping("next", SDLK_DOWN)

@@ -49,7 +49,11 @@ namespace Engine {
 
 		Engine::Texture* texture2 = NULL;
 
-		Engine::Sprite* sprite2 = NULL;
+		Engine::Sprite* sprite2 = NULL;		
+		
+		Engine::Texture* texture_gov = NULL;
+
+		Engine::Sprite* gov = NULL;
 
 
 		////////////Music & Sound////////////
@@ -129,6 +133,8 @@ namespace Engine {
 		void SpawnEnemieslv2(float xPosition);
 
 		void GenerateEnemylv2Pattern();
+
+		int enemielv2health;
 
 		vector<Sprite*> enemies3;
 

@@ -9,6 +9,8 @@
 #include "Shader.h"
 #include "Quad.h"
 #include "Input.h"
+//#include "Camera.h"//
+//#include "Screen.h"//
 #include <map>
 #include <GLM/gtc/matrix_transform.hpp>
 
@@ -62,6 +64,8 @@ namespace Engine {
 		void GameLoop(SDL_Window* window);
 		void CalcDeltaTimeAndFramerate();
 		void PollInput();
+
+		//Camera* camera;
 	};
 }
 

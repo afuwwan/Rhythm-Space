@@ -22,14 +22,14 @@ namespace Engine {
 		public Engine::Screen
 	{
 	public:
-		enum class GameState
+		enum class GameState2
 		{
 			RUNNING,
 			RESET,
 			GAME_OVER,
 			FINISH
 		};
-		GameState gstate;
+		GameState2 gstate2;
 
 		GameScreen2();
 		void Init();
