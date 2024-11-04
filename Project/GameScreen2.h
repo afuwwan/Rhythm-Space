@@ -22,14 +22,14 @@ namespace Engine {
 		public Engine::Screen
 	{
 	public:
-		enum class GameState2
+		enum class GameState
 		{
 			RUNNING,
 			RESET,
 			GAME_OVER,
 			FINISH
 		};
-		GameState2 gstate2;
+		GameState gstate;
 
 		GameScreen2();
 		void Init();
@@ -51,6 +51,18 @@ namespace Engine {
 
 		Engine::Sprite* sprite2 = NULL;
 
+		Engine::Texture* texture_gov = NULL;
+
+		Engine::Sprite* gov = NULL;
+
+		Engine::Texture* texture_you = NULL;
+
+		Engine::Sprite* you = NULL;
+
+		Engine::Texture* texture_survived = NULL;
+
+		Engine::Sprite* survived = NULL;
+
 
 		////////////Music & Sound////////////
 		Music* music = NULL;
@@ -59,6 +71,9 @@ namespace Engine {
 
 		Music* music2 = NULL;
 
+		Music* finish_music = NULL;
+
+		Music* gov_music = NULL;
 
 		//Sound* metronome = NULL;
 
@@ -73,6 +88,8 @@ namespace Engine {
 		int bps2;
 
 		int previousBps2;
+
+		float finish_duration;
 
 
 		////////////Parallax////////////
@@ -130,6 +147,8 @@ namespace Engine {
 
 		void GenerateEnemylv2Pattern();
 
+		int enemielv2health;
+
 		vector<Sprite*> enemies3;
 
 		void SpawnEnemieslv3(float xPosition);
@@ -141,7 +160,16 @@ namespace Engine {
 
 		////////////Others////////////
 		int score = 500;
+
 		Text* text1 = NULL;
+
+		Text* score_finish = NULL;
+
+		Text* back_txt = NULL;
+
+		Text* reset_txt = NULL;
+
+		float x_score;
 
 		void ResetVariables();
 

@@ -1,5 +1,6 @@
 #include "Setting.h"
 #include "Game.h"
+#include "Input.h"
 
 #include "Lesson01_BgColor.h"
 #include "Lesson02_Lerp.h"
@@ -22,7 +23,7 @@ int main(int argc, char** argv) {
 	Engine::Setting* setting = new Engine::Setting();
 	setting->screenWidth = 1600;
 	setting->screenHeight = 1000;
-	setting->windowFlag = Engine::WindowFlag::WINDOWED;
+	setting->windowFlag = Engine::WindowFlag::FULLSCREEN;
 	setting->vsync = false;
 	setting->targetFrameRate = 75;
 	Engine::Game* game = new Engine::RhythmSpace(setting);

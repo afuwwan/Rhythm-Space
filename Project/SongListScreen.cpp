@@ -33,12 +33,12 @@ void Engine::SongListScreen::Init()
 	//Create Buttons
 	Button* song1Button = new Button(song1, "song1");
 	song1Button->SetPosition((game->GetSettings()->screenWidth / 2) - (song1->GetScaleWidth() / 2),
-		700);
+		600);
 	buttons.push_back(song1Button);
 
 	Button* song2Button = new Button(song2, "song2");
 	song2Button->SetPosition((game->GetSettings()->screenWidth / 2) - (song2->GetScaleWidth() / 2),
-		560);
+		460);
 	buttons.push_back(song2Button);
 
 	// Set play button into active button
@@ -47,7 +47,13 @@ void Engine::SongListScreen::Init()
 
 	// Create Text
 	text = (new Text("homespun.ttf", 100, game->GetDefaultTextShader()))
-		->SetText("PICK YOUR SONG!")->SetPosition((game->GetSettings()->screenWidth / 2) - 350, game->GetSettings()->screenHeight - 100)->SetColor(235, 229, 52);
+		->SetText("PICK A SONG!")->SetPosition((game->GetSettings()->screenWidth / 2) / 1.4f, ((game->GetSettings()->screenHeight) / 5) * 4.2f)->SetColor(235, 229, 52);
+
+	//displays score in running state
+	pick_song = new Text("homespun.ttf", 40, game->GetDefaultTextShader());
+	pick_song->SetScale(1)->SetColor(255, 255, 255)->SetText("PRESS UP AND DOWN TO CHOOSE")
+		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.41f, ((game->GetSettings()->screenHeight) / 5) / 2.0f);
+
 
 	// Add input mappings
 	game->GetInputManager()->AddInputMapping("next", SDLK_DOWN)
@@ -136,6 +142,7 @@ void Engine::SongListScreen::Draw()
 	}
 	// Render title 
 	text->Draw();
+	pick_song->Draw();
 }
 
 #pragma region Parallax Functions

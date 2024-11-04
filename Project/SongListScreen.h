@@ -25,6 +25,7 @@ namespace Engine {
 	private:
 		vector<Button*> buttons;
 		Text* text;
+		Text* pick_song;
 		int currentButtonIndex = 0;
 		Music* music = NULL;
 		Music* music2 = NULL;

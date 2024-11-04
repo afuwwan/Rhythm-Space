@@ -26,6 +26,12 @@ Engine::Text* Engine::Text::SetPosition(float x, float y)
 	return this;
 }
 
+//added
+vec2 Engine::Text::GetPosition()
+{
+	return position;
+}
+
 Engine::Text* Engine::Text::SetText(string text)
 {
 	this->text = text;

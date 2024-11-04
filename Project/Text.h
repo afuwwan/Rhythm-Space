@@ -32,6 +32,8 @@ namespace Engine {
 		void Draw();
 		uint GetFontSize();
 		float GetScale();
+		//added
+		vec2 GetPosition();
 	private:
 		void Init();
 		map<GLchar, TextCharacter> TextCharacters;

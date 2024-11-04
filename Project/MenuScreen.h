@@ -29,6 +29,7 @@ namespace Engine {
 		
 		vector<Button*> buttons;
 		Text* text;
+		Text* enter_to_play;
 		int currentButtonIndex = 0;
 		Music* music = NULL;
 		Music* music2 = NULL;

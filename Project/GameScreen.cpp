@@ -183,9 +183,11 @@ void Engine::GameScreen::Init()
 	texture2 = new Texture("RotationPoint.png");
 	sprite2 = new Sprite(texture2, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
 
+	//rotation point
 	sprite2->SetPosition((game->GetSettings()->screenWidth / 2) - 12, (game->GetSettings()->screenHeight / 2) - 12)
 		   ->SetSize(25,25);
 
+	//gameover sprite
 	texture_gov = new Texture("GameOver.png");
 	gov = (new Sprite(texture_gov, game->GetDefaultSpriteShader(), game->GetDefaultQuad()));
 
@@ -194,23 +196,58 @@ void Engine::GameScreen::Init()
 		->SetNumYFrames(1)
 		->AddAnimation("idle", 0, 5)
 		->PlayAnim("idle")
-		->SetPosition((game->GetSettings()->screenWidth)*2, (game->GetSettings()->screenWidth)*2)
+		->SetPosition((game->GetSettings()->screenWidth)*2, (game->GetSettings()->screenHeight)*1.5f)
 		->SetAnimationDuration(200);
+
+
+	texture_you = new Texture("You.png");
+	you = (new Sprite(texture_you, game->GetDefaultSpriteShader(), game->GetDefaultQuad()));
+
+	texture_survived = new Texture("Survived.png");
+	survived = (new Sprite(texture_survived, game->GetDefaultSpriteShader(), game->GetDefaultQuad()));
+
+	you->SetScale(2.5f)
+		->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 2);
+
+	survived->SetScale(2.5f)
+		->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 3);
+
+#pragma endregion
+
+#pragma region Text init
+
+	//displays score in running state
+	reset_txt = new Text("homespun.ttf", 40, game->GetDefaultTextShader());
+	reset_txt->SetScale(1)->SetColor(255, 255, 255)->SetText("PRESS R TO PLAY AGAIN")
+		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.25f, ((game->GetSettings()->screenHeight) / 5) / 1.25f);
+
+	//displays score in running state
+	back_txt = new Text("homespun.ttf", 40, game->GetDefaultTextShader());
+	back_txt->SetScale(1)->SetColor(255, 0, 0)->SetText("PRESS Esc TO EXIT")
+		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.2f, ((game->GetSettings()->screenHeight) / 5) / 2);
+
+
 
 #pragma endregion
 
 #pragma region Camera init
 
-	//cam_follow = new Game(defaultProjection);
+	// Initialize camera properties (position, zoom)
+	camera.position = glm::vec2(0, 0);
+	camera.zoom = 1.0228f;  // Default zoom level
 
 #pragma endregion
 
 #pragma region Score init
 
+	//displays score in running state
 	text1 = new Text("homespun.ttf", 100, game->GetDefaultTextShader());
 	text1->SetScale(1)->SetColor(255, 255, 255)
 		 ->SetPosition((game->GetSettings()->screenWidth/4) * 3.25, ((game->GetSettings()->screenHeight/4) - 50) - (text1->GetFontSize() * text1->GetScale()));
 
+	score_finish = new Text("homespun.ttf", 100, game->GetDefaultTextShader());
+	score_finish->SetScale(1)->SetColor(255, 255, 255)
+		->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), ((game->GetSettings()->screenHeight) / 4) * 1.3f);
 
 #pragma endregion
 
@@ -219,9 +256,13 @@ void Engine::GameScreen::Init()
 	music = (new Music("Shirobon-On-The-Run.ogg"))->SetVolume(45)/*->Play(false)*/;
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(45)/*->Play(false)*/;
 
+	finish_music = (new Music("PIXL-Sugar-Rush-Challenge-Loop.ogg"))->SetVolume(45);
+
+	gov_music = (new Music("Kubbi - Formed by Glaciers (Game Over Theme).ogg"))->SetVolume(60);
+
 	//metronome = (new Sound("beep.ogg"))->SetVolume(70)->Play(true);
 
-	//hit = (new Sound(""))->SetVolume(70);
+	hit = (new Sound("explode.wav"))->SetVolume(70);
 
 #pragma endregion
 
@@ -233,7 +274,12 @@ void Engine::GameScreen::Init()
 		->AddInputMapping("Attack", SDL_BUTTON_LEFT)
 		->AddInputMapping("Avoid", SDLK_SPACE)
 		->AddInputMapping("mainmenu", SDLK_ESCAPE)
-		->AddInputMapping("mainmenu", SDL_CONTROLLER_BUTTON_Y);
+		->AddInputMapping("mainmenu", SDL_CONTROLLER_BUTTON_Y)
+		->AddInputMapping("Reset", SDLK_r)
+		->AddInputMapping("Finish", SDLK_f)
+		->AddInputMapping("GameOver", SDLK_g)
+		->AddInputMapping("Zoom In", SDLK_i)
+		->AddInputMapping("Zoom Out", SDLK_o);
 
 #pragma endregion
 
@@ -287,6 +333,23 @@ void Engine::GameScreen::Init()
 
 void Engine::GameScreen::Update()
 {
+#pragma region State Debugging
+
+	if (game->GetInputManager()->IsKeyPressed("Finish")) 
+	{
+		music->Stop();
+		gov_music->Stop();
+		gstate = GameState::FINISH;
+	}
+
+	if (game->GetInputManager()->IsKeyPressed("GameOver")) 
+	{
+		music->Stop();
+		finish_music->Stop();
+		gstate = GameState::GAME_OVER;
+	}
+
+#pragma endregion
 
 
 	if (gstate == GameState::RUNNING)
@@ -306,16 +369,17 @@ void Engine::GameScreen::Update()
 			 ->SetPosition((game->GetSettings()->screenWidth / 4) * 3.25, ((game->GetSettings()->screenHeight / 4) - 50) - (text1->GetFontSize() * text1->GetScale()));
 
 		//if score below 0 game is over
-		if (score < 0)
+		if (score <= 0)
 		{
 			score = 0;
 			music->Stop();
+			hit->Play(false);
 			gstate = GameState::GAME_OVER;
 			return;
 		}
 
-		//if game time exceeds 259 seconds game state is at finish
-		if (duration / 1000 >= 259.0f)
+		//if game time exceeds 258 seconds game state is at finish
+		if (duration / 1000 >= 258.0f)
 		{
 			music->Stop();
 			gstate = GameState::FINISH;
@@ -351,20 +415,18 @@ void Engine::GameScreen::Update()
 
 #pragma region Camera Handling
 
-		//glm::mat4 view = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		//glm::mat4 projection = glm::perspective(45.0f, (GLfloat)this->screenWidth / (GLfloat)this->screenHeight, 0.1f, 100.0f);
-		//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(setting->screenWidth), 0.0f, static_cast<GLfloat>(setting->screenHeight), -1.0f, 1.0f);
+		// Optional: Zoom control with key input
+		//if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
+		//	camera.SetZoom(camera.zoom + 0.007f);
+		//}
+		//if (game->GetInputManager()->IsKeyPressed("Zoom Out")) {
+		//	camera.SetZoom(camera.zoom - 0.007f);
+		//}
 
-		//vec2 notePosition = note1->GetPosition();
-
-		// Define camera view matrix to follow note1's position
-		//glm::vec3 cameraPosition(notePosition.x, notePosition.y, 0.0f); // Camera positioned behind the scene
-		//view = glm::lookAt(cameraPosition, glm::vec3(notePosition.x, notePosition.y, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		// Update the shader with the view matrix to apply the camera
-		//shader->setMat4(view, "view");
-
-		//std::cout << "Camera Position: " << cameraPosition.x << ", " << cameraPosition.y << ", " << cameraPosition.z << std::endl;
+		// Update the shader's view matrix uniform
+		glUseProgram(game->GetDefaultSpriteShader()->GetId());
+		glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
+		glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 #pragma endregion
 
@@ -374,21 +436,20 @@ void Engine::GameScreen::Update()
 		float x = oldMonsterPos.x, y = oldMonsterPos.y;
 		if (game->GetInputManager()->IsKeyPressed("Move Right")) {
 			x = (game->GetSettings()->screenWidth / 2.15) + 200;
-			//note1->PlayAnim("walk")->SetFlipHorizontal(false)->SetRotation(0);
+			targetCameraPos = glm::vec2(22.0f, 0.0f);
 		}
 		if (game->GetInputManager()->IsKeyPressed("Move Left")) {
 			x = (game->GetSettings()->screenWidth / 2.15) - 200;
-			//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
+			targetCameraPos = glm::vec2(-22.0f, 0.0f);
+
 		}
 		if (game->GetInputManager()->IsKeyPressed("Move Center")) {
 			x = game->GetSettings()->screenWidth / 2.15;
-			//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
+			targetCameraPos = glm::vec2(0.0f, 0.0f);
+
 		}
-		if (game->GetInputManager()->IsKeyPressed("Avoid")) {
-			x = game->GetSettings()->screenWidth / 2.15;
-			// Remove Bounding Box
-			// Plays Jumping Animation
-		}
+
+		camera.SmoothFollow(targetCameraPos, 0.005f, game->GetGameTime());
 
 		sprite->Update(game->GetGameTime());
 		sprite->PlayAnim("idle");
@@ -806,7 +867,7 @@ void Engine::GameScreen::Update()
 					if (enemielv2health <= 0)
 					{
 						//if enemy die score added by 15
-						score += 15;
+						score += 35;
 
 						// Erase the enemy after collision
 						it = enemies2.erase(it);
@@ -941,7 +1002,7 @@ void Engine::GameScreen::Update()
 
 			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
 				it = enemies2.erase(it); // Handle collision
-				score -= 75;
+				score -= 55;
 			}
 			else if (y_2 <= -300) {
 				it = enemies2.erase(it); // Remove enemy if off-screen
@@ -960,11 +1021,22 @@ void Engine::GameScreen::Update()
 		MoveLayer(middlegrounds, 0.03f);
 		MoveLayer(foregrounds, 0.3f);
 
-
-
 	}
 	else if (gstate == GameState::FINISH)
 	{
+		inUseBullets.clear();
+
+		camera.position = glm::vec2(0, 0);
+
+		finish_duration += game->GetGameTime();
+
+		//finish music
+		if (finish_music->IsPlaying() == false)
+		{
+			finish_music->Play(true);
+			finish_music->IsPlaying() == true;
+		}		
+
 		//increases parallax speed
 		MoveLayer(backgrounds, 0.02f);
 		MoveLayer(middlegrounds, 0.12f);
@@ -974,42 +1046,149 @@ void Engine::GameScreen::Update()
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
 						
 			music->Stop();
+
+			finish_music->Stop();
+
+			finish_duration = 0;
+
+			you->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 2);
+
+			survived->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 3);
+
+			score_finish->SetText(std::to_string(score))->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), score_finish->GetPosition().y);
+
 			ResetVariables();
+
 			gstate = GameState::RUNNING;
+
 			music2->Play(true);
 
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
-
 		}
-
-		//set text to the middle of the screen
-		text1->SetText(std::to_string(score))->SetPosition((game->GetSettings()->screenWidth) / 2, (game->GetSettings()->screenHeight) / 3);
 
 		//spaceship goes upward
 		int y_2 = sprite->GetPosition().y;
-		y_2 += 5;
+		y_2 += 4;
 
 		//sets sprite y value and sets angle to face upward
 		sprite->SetPosition(sprite->GetPosition().x,y_2)
 			  ->SetRotation(2);
 
-
 		//add a reset button
-		
+		if (game->GetInputManager()->IsKeyReleased("Reset")) {
+
+			finish_duration = 0;
+
+			you->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 2);
+
+			survived->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 3);
+
+			score_finish->SetText(std::to_string(score))->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), score_finish->GetPosition().y);
+
+			gstate = GameState::RESET;
+		}
+
+		//finish sprite goes from left to middle of the screen
+		float x_2y = you->GetPosition().x;
+		float x_2s = survived->GetPosition().x;
+
+		//logic for "you" sprite goes from left to right
+		if (x_2y < ((game->GetSettings()->screenWidth / 3) / 1.1f))
+		{
+			x_2y += 4.0f * (game->GetGameTime());
+		}
+		else
+		{
+			x_2y = (game->GetSettings()->screenWidth / 3) / 1.1f;
+		}
+
+		//logic for "survived" sprite goes from left to right and a slight delay
+		if ((finish_duration / 1000) >= 1)
+		{
+			if (x_2s < ((game->GetSettings()->screenWidth / 3) / 1.1f))
+			{
+				x_2s += 4.0f * (game->GetGameTime());
+			}
+			else
+			{
+				x_2s = (game->GetSettings()->screenWidth / 3) / 1.1f;
+			}
+		}
+
+		you->SetPosition(x_2y, game->GetSettings()->screenHeight / 2);
+		survived->SetPosition(x_2s, game->GetSettings()->screenHeight / 3);
+
+		you->Update(game->GetGameTime());
+		survived->Update(game->GetGameTime());
+
+		text1->SetText(" ");
+
+		// Get current x position of the score text
+		x_score = score_finish->GetPosition().x;
+
+		// Logic for score text movement with delay, stops at center screen
+		if ((finish_duration / 1000) >= 1)
+		{
+			// Set initial position
+			score_finish->SetText(std::to_string(score))->SetPosition(1,score_finish->GetPosition().y);
+
+			// Move the score text to the right if it hasn't reached the center
+			if (x_score < (game->GetSettings()->screenWidth / 2.15f))
+			{
+				x_score += 5 * game->GetGameTime();  // Adjust the speed as needed
+			}
+			else
+			{
+				x_score = (game->GetSettings()->screenWidth / 2.15f); // Stop at center
+			}
+
+			// Update position
+			score_finish->SetPosition(x_score, score_finish->GetPosition().y);
+
+			// Debugging print
+			std::cout << x_score << std::endl;
+		}
+
 		std::cout << "Game state is at finish" << std::endl;
 	}
 	else if (gstate == GameState::GAME_OVER)
 	{
 		std::cout << "Game state is at game over" << std::endl;
 
+		camera.position = glm::vec2(0, 0);
+
+		//gameover music
+		if (gov_music->IsPlaying() == false)
+		{
+			gov_music->Play(true);
+			gov_music->IsPlaying() == true;
+		}
+
 		//make sure score value doesnt pass below 0
 		if (score <= 0)
 		{
 			score = 0;
+
+			text1->SetText(std::to_string(score));
+		}
+
+		std::cout << std::to_string(score) << std::endl;
+		
+		//game over sprite slowly goes down to player screen
+		float y_2 = gov->GetPosition().y;
+
+		if(y_2 >= (((game->GetSettings()->screenHeight) / 4) * 1.5f))
+		{
+			y_2 -= 3.0f * (game->GetGameTime());
 		}
 		
+		if (y_2 <= (((game->GetSettings()->screenHeight) / 4) * 1.5f))
+		{
+			y_2 = gov->GetPosition().y;
+		}
+
 		//set game over sprite to the screen view
-		gov->SetPosition((game->GetSettings()->screenWidth) / 3, (game->GetSettings()->screenHeight) / 2);
+		gov->SetPosition((((game->GetSettings()->screenWidth) / 3) * 1.19f), y_2);
 
 		//updates the game over sprite
 		gov->Update(game->GetGameTime());
@@ -1027,22 +1206,38 @@ void Engine::GameScreen::Update()
 		{
 			music->Stop();
 			
+			gov_music->Stop();
+
 			ResetVariables();
+
+			gov->SetPosition((((game->GetSettings()->screenWidth) / 3) * 1.19f), (game->GetSettings()->screenHeight) * 1.5f);
 
 			gstate = GameState::RUNNING;
 
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+
 			music2->Play(true);
 
+		}
+
+		//reset button
+		if (game->GetInputManager()->IsKeyReleased("Reset")) {
+
+			gov->SetPosition((((game->GetSettings()->screenWidth) / 3) * 1.19f), (game->GetSettings()->screenHeight) * 1.5f);
+			gstate = GameState::RESET;
 		}
 	}
 	else if (gstate == GameState::RESET)
 	{
-		ResetVariables();
-		
 		std::cout << "Game resets" << std::endl;
-	
-		//gstate == GameState::RUNNING;
+		
+		ResetVariables();
+
+		finish_music->Stop();
+
+		gov_music->Stop();
+
+		gstate = GameState::RUNNING;
 	}
 
 }
@@ -1052,17 +1247,11 @@ void Engine::GameScreen::Draw()
 
 #pragma region Camera Render
 
-	//vec2 notePosition = note1->GetPosition();
+	glUseProgram(game->GetDefaultSpriteShader()->GetId());
 
-	//glm::vec3 cameraPosition(notePosition.x, notePosition.y, 1.0f); // Camera positioned behind the scene
-	//glm::mat4 view = glm::lookAt(cameraPosition, glm::vec3(notePosition.x, notePosition.y, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	//shader->Use();
-	//shader->setMat4(view, "view");
-
-	//glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(note1->GetPosition().x), 0.0f, static_cast<GLfloat>(note1->GetPosition().y), -1.0f, 1.0f);
-	//glm::mat4 view = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	//glm::mat4 projection = glm::perspective(45.0f, (GLfloat)this->screenWidth / (GLfloat)this->screenHeight, 0.1f, 100.0f);
+	// Set the camera's view matrix
+	glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
+	glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 #pragma endregion
 
@@ -1108,7 +1297,7 @@ void Engine::GameScreen::Draw()
 	text1->Draw();
 
 	//Draw Rotation Point
-	sprite2->Draw();
+	//sprite2->Draw();
 	
 	//doesnt work
 	if (gstate == GameState::GAME_OVER)
@@ -1116,8 +1305,20 @@ void Engine::GameScreen::Draw()
 		//Draw game over sprite
 		gov->Draw();
 		//std::cout << "game over sprite is drawn" << std::endl;
+
+		reset_txt->Draw();
+		back_txt->Draw();
 	}
 
+	if (gstate == GameState::FINISH)
+	{
+		you->Draw();
+		survived->Draw();
+		score_finish->Draw();
+
+		reset_txt->Draw();
+		back_txt->Draw();
+	}
 	
 }
 
@@ -1142,6 +1343,8 @@ void Engine::GameScreen::ResetVariables()
 
 	//resets sprite position
 	sprite->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f);
+
+	camera.position = glm::vec2(0, 0);
 
 }
 
@@ -1199,9 +1402,6 @@ void Engine::GameScreen::GenerateObstaclePattern()
 
 }
 
-
-
-
 #pragma endregion
 
 #pragma region Enemies (EvilShip) Handling
@@ -1229,12 +1429,12 @@ void Engine::GameScreen::SpawnEnemieslv2(float xPosition) {
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
 	Sprite* enemySprite2 = new Sprite(enemyTexture2, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	enemySprite2->SetSize(1000, 1000)->SetPosition(start.x, start.y)->SetFlipVertical(true);
+	enemySprite2->SetSize(200, 200)->SetPosition(start.x, start.y)->SetFlipVertical(true);
 	enemySprite2->SetBoundingBoxSize(enemySprite2->GetScaleWidth() - (3.5 * enemySprite2->GetScale()), enemySprite2->GetScaleHeight() - 50);
 
 	enemies2.push_back(enemySprite2);  // Add enemy ship to the list
 
-	enemielv2health = 60;
+	enemielv2health = 50;
 }
 
 void Engine::GameScreen::GenerateEnemylv2Pattern() {

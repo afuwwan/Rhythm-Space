@@ -15,6 +15,7 @@ public:
     glm::mat4 GetViewMatrix(float screenWidth, float screenHeight) const;  // Method to get the view matrix
     void Follow(const glm::vec2& target);  // Method to set camera position
     void SetZoom(float newZoom);  // Method to set the zoom level
+    void SmoothFollow(const glm::vec2& targetPos, float speed, float deltaTime);
 private:
 
 

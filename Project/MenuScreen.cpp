@@ -47,23 +47,16 @@ void Engine::MenuScreen::Init()
 		400);
 	buttons.push_back(playButton);
 
-	Button* exitButton = new Button(exitSprite, "exit");
-	exitButton->SetPosition((game->GetSettings()->screenWidth / 2) - (exitSprite->GetScaleWidth() / 2),
-		250);
-	buttons.push_back(exitButton);
-
 	// Set play button into active button
 	currentButtonIndex = 0;
 	buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
 
-	// Create Text
-	text = (new Text("8-bit Arcade In.ttf", 100, game->GetDefaultTextShader()))
-		->SetText("Rhythm Space")->SetPosition((game->GetSettings()->screenWidth/2) - 500, game->GetSettings()->screenHeight - 100)->SetColor(235, 229, 52);
 
 	// Add input mappings
 	game->GetInputManager()->AddInputMapping("next", SDLK_DOWN)
 		->AddInputMapping("prev", SDLK_UP)
 		->AddInputMapping("press", SDLK_RETURN)
+		->AddInputMapping("exit", SDLK_BACKSPACE)
 		->AddInputMapping("Zoom In", SDLK_i)
 		->AddInputMapping("Zoom Out", SDLK_o);
 
@@ -80,6 +73,16 @@ void Engine::MenuScreen::Init()
 	}
 
 	offset = 2;
+
+	//displays score in running state
+	enter_to_play = new Text("homespun.ttf", 50, game->GetDefaultTextShader());
+	enter_to_play->SetScale(1)->SetColor(255, 255, 255)->SetText("PRESS ENTER TO PLAY")
+		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.34f, ((game->GetSettings()->screenHeight) / 5)/1.25f);
+	
+	// Create Text
+	text = (new Text("homespun.ttf", 50, game->GetDefaultTextShader()))
+		->SetText("BACKSPACE TO EXIT")->SetPosition(((game->GetSettings()->screenWidth) / 2)/1.3f, ((game->GetSettings()->screenHeight) / 5) / 2)->SetColor(255, 0, 0);
+
 
 }
 
@@ -133,9 +136,6 @@ void Engine::MenuScreen::Update()
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
 	}
 
-	
-
-
 	if (game->GetInputManager()->IsKeyReleased("press")) {
 		// Set current button to press state
 		Button* b = buttons[currentButtonIndex];
@@ -152,6 +152,10 @@ void Engine::MenuScreen::Update()
 		else if ("exit" == b->GetButtonName()) {
 			game->SetState(Engine::State::EXIT);
 		}
+	}
+
+	if (game->GetInputManager()->IsKeyReleased("exit")) {
+		game->SetState(Engine::State::EXIT);
 	}
 
 	// Update All buttons
@@ -178,8 +182,6 @@ void Engine::MenuScreen::Update()
 	glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth,game->GetSettings()->screenHeight);
 	glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-
-
 }
 
 void Engine::MenuScreen::Draw()
@@ -198,8 +200,11 @@ void Engine::MenuScreen::Draw()
 	//for (Button* b : buttons) {
 	//	b->Draw();
 	//}
-	// Render title 
-	//text->Draw();
+
+	
+	text->Draw();
+
+	enter_to_play->Draw();
 
 	logo->Draw();
 }
