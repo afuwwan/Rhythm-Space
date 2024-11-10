@@ -49,9 +49,9 @@ void Camera::Follow(const glm::vec2& target)
 void Camera::SetZoom(float newZoom) 
 {
     zoom = newZoom;
-
 }
 
-void Camera::SmoothFollow(const glm::vec2& targetPos, float speed, float deltaTime) {
+void Camera::SmoothFollow(const glm::vec2& targetPos, float speed, float deltaTime) 
+{
     position += (targetPos - position) * speed * deltaTime;
 }

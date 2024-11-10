@@ -17,6 +17,8 @@
 //#include "Shader.h"
 #include <vector>
 #include <GLFW/glfw3.h>
+#include <fstream>
+#include <string>
 
 namespace Engine {
 	class GameScreen :
@@ -80,7 +82,7 @@ namespace Engine {
 
 		float duration;
 
-		int bps;
+		float bps;
 
 		int previousBps;
 
@@ -178,6 +180,7 @@ namespace Engine {
 		float x_score;
 
 		void ResetVariables();
+
 
 	};
 }

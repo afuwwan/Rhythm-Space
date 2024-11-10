@@ -18,7 +18,7 @@ void Engine::SongListScreen::Init()
 		->SetScale(3)
 		->AddAnimation("normal", 0, 0)
 		->AddAnimation("hover", 0, 1)
-		->AddAnimation("press", 1, 1)
+		->AddAnimation("press", 0, 0)
 		->SetAnimationDuration(400);
 
 	Sprite* song2 = (new Sprite(texture, game->GetDefaultSpriteShader(), game->GetDefaultQuad()))
@@ -27,7 +27,7 @@ void Engine::SongListScreen::Init()
 		->SetScale(3)
 		->AddAnimation("normal", 2, 2)
 		->AddAnimation("hover", 2, 3)
-		->AddAnimation("press", 3, 3)
+		->AddAnimation("press", 2, 2)
 		->SetAnimationDuration(400);
 
 	//Create Buttons
@@ -62,6 +62,12 @@ void Engine::SongListScreen::Init()
 
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(30)->Play(true);
 
+	music = (new Music("Shirobon-On-The-Run-(Preview).ogg"))->SetVolume(45)/*->Play(false)*/;
+	music3 = (new Music("Bossfight-Milky-Ways-(Preview).ogg"))->SetVolume(45)/*->Play(false)*/;
+
+
+
+
 	for (int i = 0; i <= 2; i++) {
 		AddToLayer(backgrounds, "spc0" + to_string(i) + ".png");
 	}
@@ -89,6 +95,29 @@ void Engine::SongListScreen::Update()
 		currentButtonIndex = (currentButtonIndex < (int)buttons.size() - 1) ? currentButtonIndex + 1 : currentButtonIndex;
 		// Set current button to hover state
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
+
+		if (currentButtonIndex == 0)
+		{
+			music2->Stop();
+
+			if (!music->IsPlaying()) {  // Check if music is not playing before calling Play
+				music3->Stop();
+				music->Play(true);
+				std::cout << "Playing Song 1" << std::endl;
+			}
+		}
+		else if (currentButtonIndex == 1)
+		{
+			music2->Stop();
+
+			if (!music3->IsPlaying()) {  // Check if music3 is not playing before calling Play
+				music->Stop();
+				music3->Play(true);
+				std::cout << "Playing Song 2" << std::endl;
+			}
+		}
+
+
 	}
 
 	if (game->GetInputManager()->IsKeyReleased("prev")) {
@@ -98,7 +127,33 @@ void Engine::SongListScreen::Update()
 		currentButtonIndex = currentButtonIndex > 0 ? currentButtonIndex - 1 : currentButtonIndex;
 		// Set current button to hover state
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
+
+		if (currentButtonIndex == 0)
+		{
+			music2->Stop();
+
+			if (!music->IsPlaying()) {  // Check if music is not playing before calling Play
+				music3->Stop();
+				music->Play(true);
+				std::cout << "Playing Song 1" << std::endl;
+			}
+		}
+		else if (currentButtonIndex == 1)
+		{
+			music2->Stop();
+
+			if (!music3->IsPlaying()) {  // Check if music3 is not playing before calling Play
+				music->Stop();
+				music3->Play(true);
+				std::cout << "Playing Song 2" << std::endl;
+			}
+		}
+
 	}
+
+
+
+
 
 	if (game->GetInputManager()->IsKeyReleased("press")) {
 		// Set current button to press state
@@ -118,6 +173,8 @@ void Engine::SongListScreen::Update()
 
 		}
 	}
+
+
 
 	// Update All buttons
 	for (Button* b : buttons) {

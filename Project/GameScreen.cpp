@@ -1,5 +1,6 @@
 #include "GameScreen.h"
 
+
 #pragma region TO DO
 /*
 //////// Gameplay Explanation /////////
@@ -323,7 +324,7 @@ void Engine::GameScreen::Init()
 																										->SetScale(0.07)
 																										->SetBoundingBoxSize((0.7 * 1) / 1, (0.7 * 1) / 1)
 																										->AddAnimation("idle", 1,1)
-																					->PlayAnim("idle");
+																					                    ->PlayAnim("idle");
 		readyBullets.push_back(new Bullet(bs));
 	}
 
@@ -505,18 +506,19 @@ void Engine::GameScreen::Update()
 		duration += game->GetGameTime();
 
 		//1 beat = 1 / 2.6 of a second
-		bps = (duration / 1000) * 2.6;
+		bps = (duration / 1000) * 2.6f;
 
 		// Obstacle pattern every phase of the song based on seconds
 		if (duration / 1000 < 36)
 		{
-			if (floor(bps) > previousBps) {
+			if (floor(bps) > previousBps) 
+			{
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
 				// Check if the beat count is the equivalent of 4
-				if (previousBps % 4 == 0) {
-					
+				if (previousBps % 4 == 0) 
+				{
 					GenerateObstaclePattern(); 
 				}
 
@@ -561,7 +563,7 @@ void Engine::GameScreen::Update()
 				//SpawnBullets();
 
 				// Check if the beat count is the equivalent of 3
-				if (previousBps % 3 == 0) {
+				if (previousBps % 2 == 0) {
 					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
 				}
 
@@ -748,6 +750,7 @@ void Engine::GameScreen::Update()
 
 		}
 
+
 		std::cout << "Beats : " << bps << std::endl;
 
 #pragma endregion
@@ -831,7 +834,6 @@ void Engine::GameScreen::Update()
 		}
 
 		// Bullet behaviour
-
 		for (Bullet* b : inUseBullets) {
 			for (auto it = enemies.begin(); it != enemies.end();) {
 				Sprite* enemy = *it;

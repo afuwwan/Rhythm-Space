@@ -26,6 +26,3 @@ void main()
     float y = ((1.0f / ny) * (texCoord.y + frameY)); 
     TexCoord = vec2(x, y);
 }
-
-
-

@@ -1,5 +1,162 @@
 #include "GameScreen2.h"
 
+#pragma region TO DO
+/*
+//////// Gameplay Explanation /////////
+
+   - sprite can move to left center and right
+   - movement limited with 3 section
+   - sprite rotates according mousepos
+   - sprite shoot bullets
+   - enemies follow player pos
+   - enemie dead in one shot with bullets
+   - obstacle spawns randomly on any of the 3 section
+   - obstacle spawns following (beat-ish) making player
+	 has to semi avoid obstacle according to beat
+
+///////////// Screens ////////////////
+
+	- Main Menu
+	  - Every Button Has SFX
+	  - Use FNF Intro Music for BGM
+	  - Buttons :
+		- Play
+		- Controls
+		- Exit
+
+	- Controls Screen
+	  - Displays Controls Text
+
+	- In Game Screen
+
+///////////////////////////////////////
+
+//////////// Game Play ////////////////
+
+	- Create a class to handle the spaceship and move the functions to there
+
+	- In Game State
+	  - Has 3 Section for sprite to move (Done) (9 - 10 Oct)
+
+	  - Avoid enenmies according to the beat (you can like make it semi according to beat)
+
+	  - Map notes with rhythm plus based on the time mapped (Done) (9 - 12 Oct)
+	  - Add a bps counter (doesnt really need to but Done) (9 - 12 Oct)
+	  - Add Song Bacgkround (9 - 12 Oct)
+	  - Add MousePos follow sprite angle (9 - 12 Oct)
+
+	- Gameplay
+	  - Move Left and Right and Center (Done) (9 - 12 Oct)
+
+	  - When Space button pressed
+		1. Plays a jumping or zooming in animation
+		2. make the sprite hides its bounding box
+
+	  - Sprite angle follows mouse pos (Done) (13 - 14 Oct)
+
+	  - Player can shoot bullets (Add Bounding Box to kill enemies)
+
+	- Obstacles (when shot at nothing happens, when hit you ded)
+	  - Try implementing obejct pooling
+	  - 3 objects spawns according to beat
+	  - if not just do it manually but not recommend
+
+	- Enemies (when you kill it you get 25 score if not then -10) (create a class for this)
+	  - Randomly Spawn and automatically aims to the main sprite
+	   or same like obstacle
+	   so its spawns accordingly to the beat replacing some obstacles
+
+	- Bullets
+	  - Add Bullets spawning (Done) (9 - 12 Oct)
+	  - Bullet follows Sprite Angle and mouse pos (13 - 14 Oct)
+	  - Add Bullets BoundingBox
+
+	- Finish State
+	  - when the song ends
+
+///////////////////////////////////////
+
+	- Song List Screen
+	 - List of music
+
+	- Menu Screen
+	 - Button Play
+	 - Button Exit
+	 - Logo zoom in zoom out along with beat
+
+	- Game Screen
+	- Sprite (14 Oct - 27 Oct)
+	 - movement on 3 section (Done) 9 - 12 Oct
+	 - move angle follow mousepos (Done) 13 -14 Oct
+	 - add bullets (Done)
+		- add bounding box (Done 15 Oct)
+		- follow sprite angle (Done)
+		- bullet sprite also rotates when ship sprite rotates (19 Oct)
+	 - add bounding box (Done 15 Oct)
+	 - When kill enemy score + 20
+
+
+	- Enemies (11 Nov - 24 Nov)
+	 - add bounding box (24 Oct) Done
+	 - follow player position (25 Oc) Done
+	 - death and alive state
+	 - when hit player score -25
+	 - enemie pattern (25 Oct
+
+	- Obstacle (28 Oct - 10 Nov)
+	 - spawns on 3 section where sprite moves (Done) (19 Oct)
+	 - spawns according to the beat (beat-ish) (Done) (19 Oct)
+	 - When hit score -10 (Done) (21 Oct)
+	 - on a certain time the "4" changes to 2 or 1  (21 Oct) (Done)
+		if (previousBps % 4 == 0) {
+			GenerateObstaclePattern();  // Spawn obstacle pattern every 4 beats
+		}
+
+	- Gameplay
+	 - add a feature Divide into 2 screen (17 Oct)
+	 - Main Menu
+	  - When hit play go to ingame but when press exit
+		reset all states of the game so when press play
+		game starts at 0
+	  - Customize Buttons and Titles
+		- SFX and Sprite
+	 - In game
+	  - Sprite Enemies Obstacle
+	 - Quit
+
+	 - Parallax Background (Done) (10 Oct)
+	 - Add Music (Done) (10 Oct)
+	 - Add Sfx (buttons, sprite hits, game over)
+	 - Add Beat Counter (Done)
+	 - Add SCoring sistem (begins with 1000)
+	   - if hit obstacle -10 (Done) (21 Oct)
+	   - if kill enemies +25 (24 Nov
+	   - if score is zero game over (22 Oct
+	- bug
+	   - try escaping to main menu and go back to play and see what happens (done) (previous bps was not initiated)
+
+	- Running State (21 Oct
+	- Over State (21 Oct
+	- Finish State (21 Oct
+	- Exit State
+
+	Add a harder boss which takes more bullets to kill
+	logic:
+	just add a number for the ship like 100
+	if bullet hits it itll decrease by like 50 or sumn
+	then if it reaches <= 0 itll erased and when it erased our point goes up
+
+	small -25
+	mid -30
+	large -35
+
+	add it in phases so our bullets also goes faster (the time interval)
+
+
+*/
+
+#pragma endregion
+
 Engine::GameScreen2::GameScreen2()
 {
 	delete texture_N1;
@@ -75,9 +232,9 @@ void Engine::GameScreen2::Init()
 
 #pragma region Camera init
 
-	//// Initialize camera properties (position, zoom)
-	//camera.position = glm::vec2(0, 0);
-	//camera.zoom = 1.0f;  // Default zoom level
+	// Initialize camera properties (position, zoom)
+	camera.position = glm::vec2(0, 0);
+	camera.zoom = 1.0228f;  // Default zoom level
 
 #pragma endregion
 
@@ -101,7 +258,7 @@ void Engine::GameScreen2::Init()
 
 	finish_music = (new Music("PIXL-Sugar-Rush-Challenge-Loop.ogg"))->SetVolume(45);
 
-	gov_music = (new Music("Kubbi - Formed by Glaciers (Game Over Theme).ogg"))->SetVolume(45);
+	gov_music = (new Music("Kubbi - Formed by Glaciers (Game Over Theme).ogg"))->SetVolume(60);
 
 	//metronome = (new Sound("beep.ogg"))->SetVolume(70)->Play(true);
 
@@ -121,8 +278,8 @@ void Engine::GameScreen2::Init()
 		->AddInputMapping("Reset", SDLK_r)
 		->AddInputMapping("Finish", SDLK_f)
 		->AddInputMapping("GameOver", SDLK_g)
-		/*->AddInputMapping("Zoom In", SDLK_i)
-		->AddInputMapping("Zoom Out", SDLK_o)*/;
+		->AddInputMapping("Zoom In", SDLK_i)
+		->AddInputMapping("Zoom Out", SDLK_o);
 
 #pragma endregion
 
@@ -177,7 +334,6 @@ void Engine::GameScreen2::Init()
 void Engine::GameScreen2::Update()
 {
 #pragma region State Debugging
-//uncomment to activate
 
 	if (game->GetInputManager()->IsKeyPressed("Finish"))
 	{
@@ -195,16 +351,13 @@ void Engine::GameScreen2::Update()
 
 #pragma endregion
 
-
 	if (gstate == GameState::RUNNING)
 	{
-
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
 
 			ResetVariables();
-
 		}
 
 #pragma region Score Handling
@@ -223,7 +376,7 @@ void Engine::GameScreen2::Update()
 		}
 
 		//if game time exceeds 258 seconds game state is at finish
-		if (duration / 1000 >= 258.0f)
+		if (duration / 1000 >= 183.0f)
 		{
 			music->Stop();
 			gstate = GameState::FINISH;
@@ -237,17 +390,12 @@ void Engine::GameScreen2::Update()
 #pragma region Music Handling
 		std::cout << "duration : " << duration / 1000 << std::endl;
 
-
-		if (duration / 1000 >= 1.8) //add slight delay to make sound match obstacle spawning
+		if (music->IsPlaying() == false)
 		{
-			if (music->IsPlaying() == false)
-			{
-				music->Play(true);
-				music->IsPlaying() == true;
-			}
+			music->Play(false);
+			music->IsPlaying() == true;
 		}
-
-
+		
 		if (game->GetInputManager()->IsKeyReleased("mainmenu"))
 		{
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
@@ -259,7 +407,7 @@ void Engine::GameScreen2::Update()
 
 #pragma region Camera Handling
 
-		//// Optional: Zoom control with key input
+		// Optional: Zoom control with key input
 		//if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
 		//	camera.SetZoom(camera.zoom + 0.007f);
 		//}
@@ -267,10 +415,10 @@ void Engine::GameScreen2::Update()
 		//	camera.SetZoom(camera.zoom - 0.007f);
 		//}
 
-		//// Update the shader's view matrix uniform
-		//glUseProgram(game->GetDefaultSpriteShader()->GetId());
-		//glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
-		//glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+		// Update the shader's view matrix uniform
+		glUseProgram(game->GetDefaultSpriteShader()->GetId());
+		glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
+		glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 #pragma endregion
 
@@ -280,21 +428,20 @@ void Engine::GameScreen2::Update()
 		float x = oldMonsterPos.x, y = oldMonsterPos.y;
 		if (game->GetInputManager()->IsKeyPressed("Move Right")) {
 			x = (game->GetSettings()->screenWidth / 2.15) + 200;
-			//note1->PlayAnim("walk")->SetFlipHorizontal(false)->SetRotation(0);
+			targetCameraPos = glm::vec2(22.0f, 0.0f);
 		}
 		if (game->GetInputManager()->IsKeyPressed("Move Left")) {
 			x = (game->GetSettings()->screenWidth / 2.15) - 200;
-			//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
+			targetCameraPos = glm::vec2(-22.0f, 0.0f);
+
 		}
 		if (game->GetInputManager()->IsKeyPressed("Move Center")) {
 			x = game->GetSettings()->screenWidth / 2.15;
-			//note1->PlayAnim("walk")->SetFlipHorizontal(true)->SetRotation(0);
+			targetCameraPos = glm::vec2(0.0f, 0.0f);
+
 		}
-		if (game->GetInputManager()->IsKeyPressed("Avoid")) {
-			x = game->GetSettings()->screenWidth / 2.15;
-			// Remove Bounding Box
-			// Plays Jumping Animation
-		}
+
+		camera.SmoothFollow(targetCameraPos, 0.005f, game->GetGameTime());
 
 		sprite->Update(game->GetGameTime());
 		sprite->PlayAnim("idle");
@@ -350,248 +497,190 @@ void Engine::GameScreen2::Update()
 		duration += game->GetGameTime();
 
 		//1 beat = 1 / 2.6 of a second
-		bps = (duration / 1000) * 2.6;
+		bps = (duration / 1000) * 6.1f;
+
+
+		if (duration < 25.0f)
+		{
+			GenerateEnemylv3Pattern();
+
+		}
 
 		// Obstacle pattern every phase of the song based on seconds
-		if (duration / 1000 < 36)
+		if (duration / 1000 >= 16 && duration / 1000 < 37) {
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);
+
+				// Check beat interval using mod and generate patterns if within tolerance
+				float beatInterval = 2.0f; // Adjust interval for each section as needed
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+					GenerateEnemyPattern();
+				}
+			}
+		}
+
+
+		if (duration / 1000 >= 37 && duration / 1000 < 57)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 4
-				if (previousBps % 4 == 0) {
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 1.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+					GenerateEnemyPattern();
+				}
+			}
 
+		}
+
+		if (duration / 1000 >= 58 && duration / 1000 < 68)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 8.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
 					GenerateObstaclePattern();
 				}
-
-				if (previousBps % 2 == 0)
-				{
-					GenerateEnemyPattern();
-				}
-
 			}
+
 		}
 
-		if (duration / 1000 >= 36 && duration / 1000 < 59)
+		if (duration / 1000 >= 68 && duration / 1000 < 79)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 4.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+					GenerateObstaclePattern();
 				}
+			}
 
-				if (previousBps % 2 == 0)
-				{
-					GenerateEnemyPattern();
-				}
+		}
 
-				if (previousBps % 8 == 0)
-				{
+		if (duration / 1000 >= 79 && duration / 1000 < 100)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 8.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+					GenerateObstaclePattern();
 					GenerateEnemylv2Pattern();
+					GenerateEnemyPattern();
 				}
-
 			}
 
 		}
 
-		if (duration / 1000 >= 59 && duration / 1000 < 84)
+		if (duration / 1000 >= 100 && duration / 1000 < 111)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 3
-				if (previousBps % 3 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 8.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+					GenerateObstaclePattern();
 
-				if (previousBps % 2 == 0)
-				{
-					GenerateEnemyPattern();
 				}
+			}
 
-				if (previousBps % 8 == 0)
-				{
+		}
+
+		if (duration / 1000 >= 111 && duration / 1000 < 132)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 8.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
 					GenerateEnemylv2Pattern();
-				}
 
+				}
 			}
 
 		}
 
-		if (duration / 1000 >= 84 && duration / 1000 < 107)
+		if (duration / 1000 >= 138 && duration / 1000 < 147)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 1
-				if (previousBps % 1 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 4.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+					GenerateObstaclePattern();
 				}
-
 			}
 
 		}
 
-		if (duration / 1000 >= 107 && duration / 1000 < 132)
+		if (duration / 1000 >= 147 && duration / 1000 < 159)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-				if (previousBps % 2 == 0)
-				{
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval = 4.0f;
+				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
 					GenerateEnemyPattern();
+					GenerateObstaclePattern();
 				}
+			}
 
-				if (previousBps % 8 == 0)
-				{
+		}
+
+		if (duration / 1000 >= 159 && duration / 1000 < 180)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval1 = 4.0f;
+				if (fabs(fmod(bps, beatInterval1)) < 0.1f) {
+					GenerateObstaclePattern();
+				}				
+				
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval2 = 4.0f;
+				if (fabs(fmod(bps, beatInterval2)) < 0.1f) {
 					GenerateEnemylv2Pattern();
-				}
 
-
-			}
-
-		}
-
-		if (duration / 1000 >= 132 && duration / 1000 < 156)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 1
-				if (previousBps % 1 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-			}
-
-		}
-
-		if (duration / 1000 >= 156 && duration / 1000 < 167)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 4
-				if (previousBps % 4 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-				if (previousBps % 2 == 0)
-				{
+				}				
+				
+				// Use fmod for float comparison and apply tolerance
+				float beatInterval3 = 1.0f;
+				if (fabs(fmod(bps, beatInterval3)) < 0.1f) {
 					GenerateEnemyPattern();
+
 				}
-
-				if (previousBps % 8 == 0)
-				{
-					GenerateEnemylv2Pattern();
-				}
-
-
 			}
 
 		}
 
-		if (duration / 1000 >= 167 && duration / 1000 < 192)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-				if (previousBps % 2 == 0)
-				{
-					GenerateEnemyPattern();
-				}
-
-				if (previousBps % 8 == 0)
-				{
-					GenerateEnemylv2Pattern();
-				}
-
-
-			}
-
-		}
-
-		if (duration / 1000 >= 192 && duration / 1000 < 215)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 1
-				if (previousBps % 1 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-			}
-
-		}
-
-		if (duration / 1000 >= 215 && duration / 1000 < 240)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-				if (previousBps % 2 == 0)
-				{
-					GenerateEnemyPattern();
-				}
-
-				if (previousBps % 8 == 0)
-				{
-					GenerateEnemylv2Pattern();
-				}
-
-
-			}
-
-		}
-
-		if (duration / 1000 >= 240 && duration / 1000 < 254)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 4
-				if (previousBps % 4 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-				if (previousBps % 2 == 0)
-				{
-					GenerateEnemyPattern();
-				}
-
-			}
-
-		}
+		//if (floor(bps) >= previousBps2) {  // Check for significant change
+		//	previousBps2 = floor(bps);
+		//	animationDuration = beatsPerAnimationCycle / (bps * 10);
+		//	frameDelay = animationDuration / 21;  // Divide by frame count
+		//	enemySprite3->SetAnimationDuration(frameDelay);  // Set new delay
+		//}
 
 		std::cout << "Beats : " << bps << std::endl;
 
@@ -610,7 +699,7 @@ void Engine::GameScreen2::Update()
 			{
 				float y_ = obstacle->GetPosition().y;
 
-				y_ -= 1.5f * game->GetGameTime();  // Adjust obstacle speed as needed
+				y_ -= 2.0f * game->GetGameTime();  // Adjust obstacle speed as needed
 
 				obstacle->SetPosition(obstacle->GetPosition().x, y_)->Update(game->GetGameTime());
 
@@ -637,15 +726,7 @@ void Engine::GameScreen2::Update()
 					obstacle->SetBoundingBoxSize(0, 0);
 				}
 
-				// Rotate meteor
-				int spinT = duration / 70;
-
-				if (spinT == 360)
-				{
-					spinT = 0;
-				}
-
-				obstacle->SetRotation(spinT);
+				
 			}
 			else
 			{
@@ -733,6 +814,40 @@ void Engine::GameScreen2::Update()
 #pragma endregion
 
 #pragma region Enemies Handling
+
+		//Boss
+		for (auto it = enemies3.begin(); it != enemies3.end();) {
+			Sprite* enemy = *it;
+
+			float enemyX = enemy->GetPosition().x;
+			float enemyY = enemy->GetPosition().y;
+			float y_2 = enemyY;
+
+			if (y_2 <= ((game->GetSettings()->screenHeight / 3) * 1.9f)) {
+
+				// Get sprite position
+				float enemyX = enemy->GetPosition().x;
+				float enemyY = enemy->GetPosition().y;
+
+				enemy->SetPosition(enemyX, enemyY);
+
+			}
+			else if (y_2 > ((game->GetSettings()->screenHeight / 3) * 1.9f))
+			{
+				
+				y_2 -= 0.025f * game->GetGameTime(); // Keep falling
+				enemy->SetPosition(enemyX, y_2);
+			}
+			if (duration / 1000 >= 180)
+			{
+				y_2 += 0.25f * game->GetGameTime(); // Keep falling
+				enemy->SetPosition(enemyX, y_2);
+			}
+
+			enemy->Update(game->GetGameTime());
+
+			++it;
+		}
 
 		for (auto it = enemies.begin(); it != enemies.end();) {
 			Sprite* enemy = *it;
@@ -823,12 +938,12 @@ void Engine::GameScreen2::Update()
 				}
 
 				// Move enemy toward sprite while decrementing y_2 for normal falling
-				float speed = 0.7f; // Adjust this speed
+				float speed = 0.95f; // Adjust this speed
 				enemyX += dirX * speed * game->GetGameTime();
 				enemyY += dirY * speed * game->GetGameTime();
 
 				// Set new position and continue moving downward
-				y_2 -= 0.7f * game->GetGameTime(); // Keep falling
+				y_2 -= speed * game->GetGameTime(); // Keep falling
 				enemy->SetPosition(enemyX, y_2);
 
 				// Set enemy rotation to face sprite
@@ -839,7 +954,7 @@ void Engine::GameScreen2::Update()
 			else
 			{
 				// Regular downward movement before reaching the threshold
-				y_2 -= 0.3f * game->GetGameTime();
+				y_2 -= 0.5f * game->GetGameTime();
 				enemy->SetPosition(enemyX, y_2);
 			}
 
@@ -858,18 +973,20 @@ void Engine::GameScreen2::Update()
 
 		}
 
+
 #pragma endregion
 
-
 		//sets parallax speed
-		MoveLayer(backgrounds, 0.005f);
-		MoveLayer(middlegrounds, 0.03f);
-		MoveLayer(foregrounds, 0.3f);
+		MoveLayer(backgrounds, 0.01f);
+		MoveLayer(middlegrounds, 0.06f);
+		MoveLayer(foregrounds, 0.6f);
 
 	}
 	else if (gstate == GameState::FINISH)
 	{
 		inUseBullets.clear();
+
+		camera.position = glm::vec2(0, 0);
 
 		finish_duration += game->GetGameTime();
 
@@ -930,9 +1047,6 @@ void Engine::GameScreen2::Update()
 
 			gstate = GameState::RESET;
 		}
-
-		//add a text that say R for reset Escape for mainmenu
-		//...
 
 		//finish sprite goes from left to middle of the screen
 		float x_2y = you->GetPosition().x;
@@ -1001,14 +1115,14 @@ void Engine::GameScreen2::Update()
 	{
 		std::cout << "Game state is at game over" << std::endl;
 
+		camera.position = glm::vec2(0, 0);
+
 		//gameover music
 		if (gov_music->IsPlaying() == false)
 		{
 			gov_music->Play(true);
 			gov_music->IsPlaying() == true;
 		}
-
-		//add a text that says r is the restart key
 
 		//make sure score value doesnt pass below 0
 		if (score <= 0)
@@ -1093,11 +1207,11 @@ void Engine::GameScreen2::Draw()
 
 #pragma region Camera Render
 
-	//glUseProgram(game->GetDefaultSpriteShader()->GetId());
+	glUseProgram(game->GetDefaultSpriteShader()->GetId());
 
-	//// Set the camera's view matrix
-	//glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
-	//glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
+	// Set the camera's view matrix
+	glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
+	glUniformMatrix4fv(glGetUniformLocation(game->GetDefaultSpriteShader()->GetId(), "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 #pragma endregion
 
@@ -1116,6 +1230,9 @@ void Engine::GameScreen2::Draw()
 
 	}
 
+	DrawLayer(foregrounds);
+
+
 	//Bullets
 	for (Bullet* b : inUseBullets)
 	{
@@ -1124,6 +1241,8 @@ void Engine::GameScreen2::Draw()
 
 	//Draw Note Sprite
 	sprite->Draw();
+
+
 
 	for (Sprite* e : enemies)
 	{
@@ -1137,7 +1256,12 @@ void Engine::GameScreen2::Draw()
 		//std::cout << "enemy lv2 sprite is drawn" << std::endl;
 	}
 
-	DrawLayer(foregrounds);
+	for (Sprite* e : enemies3)
+	{
+		e->Draw();
+		//std::cout << "enemy lv2 sprite is drawn" << std::endl;
+	}
+
 
 	//Score
 	text1->Draw();
@@ -1179,6 +1303,7 @@ void Engine::GameScreen2::ResetVariables()
 	//resets enemies
 	enemies.clear();
 	enemies2.clear();
+	enemies3.clear();
 	//enemielv2health = 30;
 
 	//resets other variables
@@ -1190,6 +1315,8 @@ void Engine::GameScreen2::ResetVariables()
 	//resets sprite position
 	sprite->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f);
 
+	camera.position = glm::vec2(0, 0);
+
 }
 
 #pragma region Obstacle Spawning
@@ -1197,12 +1324,13 @@ void Engine::GameScreen2::ResetVariables()
 void Engine::GameScreen2::SpawnObstacle(float xPosition)
 {
 
-	Texture* platformTexture = new Texture("meteor.png");
+	Texture* platformTexture = new Texture("obstacle.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of the screen)
 
 	Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	platformSprite->SetSize(100, 100)->SetPosition(start.x, start.y);
-	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 50);
+	platformSprite->SetSize(1000, 250)->SetPosition(start.x, start.y);
+	platformSprite->SetBoundingBoxSize(250, platformSprite->GetScaleHeight() - 70);
+	platformSprite->SetNumXFrames(8)->SetNumYFrames(1)->AddAnimation("spin", 0,7)->PlayAnim("spin")->SetAnimationDuration(50);
 
 
 
@@ -1246,9 +1374,6 @@ void Engine::GameScreen2::GenerateObstaclePattern()
 
 }
 
-
-
-
 #pragma endregion
 
 #pragma region Enemies (EvilShip) Handling
@@ -1256,7 +1381,7 @@ void Engine::GameScreen2::GenerateObstaclePattern()
 //Small EvilShip
 void Engine::GameScreen2::SpawnEnemies(float xPosition) {
 	Texture* enemyTexture = new Texture("evilShip.png");
-	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
+	vec2 start = vec2(xPosition, (game->GetSettings()->screenHeight) - 50.0f);  // Starting position (top of screen)
 
 	Sprite* enemySprite = new Sprite(enemyTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
 	enemySprite->SetSize(100, 100)->SetPosition(start.x, start.y)->SetFlipVertical(true);
@@ -1266,7 +1391,9 @@ void Engine::GameScreen2::SpawnEnemies(float xPosition) {
 }
 
 void Engine::GameScreen2::GenerateEnemyPattern() {
-	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
+	float minX = game->GetSettings()->screenWidth / 10;
+	float maxX = (game->GetSettings()->screenWidth / 10) * 9;
+	float randomX = minX + (rand() % (int)(maxX - minX + 1));  // Random X between minX and maxX
 	SpawnEnemies(randomX);  // Spawn an enemy at the random X position
 }
 
@@ -1295,18 +1422,36 @@ void Engine::GameScreen2::GenerateEnemylv2Pattern() {
 
 //Large Evil Ship
 void Engine::GameScreen2::SpawnEnemieslv3(float xPosition) {
-	Texture* enemyTexture3 = new Texture("evilShip3.png");
+	
+	//float duration;
+	duration += game->GetGameTime();
+
+	//1 beat = 1 / 2.6 of a second
+	bps = (duration / 1000) * 6.1f;
+
+	enemyTexture3 = new Texture("evilShip3.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
-	Sprite* enemySprite3 = new Sprite(enemyTexture3, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	enemySprite3->SetSize(300, 300)->SetPosition(start.x, start.y)->SetFlipVertical(true);
+	enemySprite3 = new Sprite(enemyTexture3, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+	enemySprite3->SetSize(34000, 750)->SetPosition(start.x, start.y)->SetFlipVertical(false);
 	enemySprite3->SetBoundingBoxSize(enemySprite3->GetScaleWidth() - (3.5 * enemySprite3->GetScale()), enemySprite3->GetScaleHeight() - 50);
+	enemySprite3->SetNumXFrames(27)->SetNumYFrames(1)->AddAnimation("idle", 4, 26)->PlayAnim("idle");
+		
+
+	if (floor(bps) >= previousBps2) {  // Check for significant change
+		previousBps2 = floor(bps);
+		animationDuration = beatsPerAnimationCycle / bps;
+		frameDelay = animationDuration / 21.0f;
+
+		enemySprite3->SetAnimationDuration(3.571428f);
+	}
+	
 
 	enemies3.push_back(enemySprite3);  // Add enemy ship to the list
 }
 
 void Engine::GameScreen2::GenerateEnemylv3Pattern() {
-	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
+	float randomX = ((game->GetSettings()->screenWidth) / 6);  // Random X position
 	SpawnEnemieslv3(randomX);  // Spawn an enemy at the random X position
 }
 
@@ -1353,7 +1498,7 @@ void Engine::GameScreen2::AddToLayer(vector<Sprite*>& bg, string name)
 
 void Engine::GameScreen2::SpawnBullets()
 {
-	if (timeInterval >= 150) {
+	if (timeInterval >= 100) {
 		if (readyBullets.empty()) {
 			return;
 		}

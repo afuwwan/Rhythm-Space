@@ -29,12 +29,16 @@ namespace Engine {
 		int currentButtonIndex = 0;
 		Music* music = NULL;
 		Music* music2 = NULL;
+		Music* music3 = NULL;
 
 		vector<Sprite*> backgrounds, middlegrounds, foregrounds;
 		void MoveLayer(vector<Sprite*>& bg, float speed);
 		void DrawLayer(vector<Sprite*>& bg);
 		void AddToLayer(vector<Sprite*>& bg, string name);
 		float offset = 1;
+
+
+
 
 	};
 }

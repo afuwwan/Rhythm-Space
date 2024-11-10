@@ -62,6 +62,7 @@ void Engine::MenuScreen::Init()
 
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(30)->Play(true);
 
+
 	for (int i = 0; i <= 2; i++) {
 		AddToLayer(backgrounds, "spc0" + to_string(i) + ".png");
 	}
@@ -135,6 +136,8 @@ void Engine::MenuScreen::Update()
 		// Set current button to hover state
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
 	}
+
+
 
 	if (game->GetInputManager()->IsKeyReleased("press")) {
 		// Set current button to press state

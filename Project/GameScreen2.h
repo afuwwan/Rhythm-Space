@@ -13,6 +13,7 @@
 #include "Text.h"
 #include "Input.h"
 #include "Bullet.h"
+#include "Camera.h"
 //#include "Shader.h"
 #include <vector>
 #include <GLFW/glfw3.h>
@@ -79,15 +80,15 @@ namespace Engine {
 
 		float duration;
 
-		int bps;
+		float bps;
 
 		int previousBps;
+
+		float previousBps2;
 
 		float duration2;
 
 		int bps2;
-
-		int previousBps2;
 
 		float finish_duration;
 
@@ -151,15 +152,30 @@ namespace Engine {
 
 		vector<Sprite*> enemies3;
 
+		Engine::Texture* enemyTexture3 = NULL;
+
+		Engine::Sprite* enemySprite3 = NULL;
+
 		void SpawnEnemieslv3(float xPosition);
 
 		void GenerateEnemylv3Pattern();
 
 		bool enemySpawned = false;
 
+		float beatsPerAnimationCycle = 2.0f;  // Animation completes every 2 beats
+		
+		float animationDuration;
+
+		float frameDelay;
+
 
 		////////////Others////////////
-		int score = 500;
+		Camera camera;
+
+		glm::vec2 targetCameraPos;
+
+
+		int score = 100000;
 
 		Text* text1 = NULL;
 
