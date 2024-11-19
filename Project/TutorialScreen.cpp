@@ -1,15 +1,171 @@
-#include "GameScreen2.h"
+#include "TutorialScreen.h"
 
-Engine::GameScreen2::GameScreen2()
+
+#pragma region TO DO
+/*
+//////// Gameplay Explanation /////////
+
+   - sprite can move to left center and right
+   - movement limited with 3 section
+   - sprite rotates according mousepos
+   - sprite shoot bullets
+   - enemies follow player pos
+   - enemie dead in one shot with bullets
+   - obstacle spawns randomly on any of the 3 section
+   - obstacle spawns following (beat-ish) making player
+	 has to semi avoid obstacle according to beat
+
+///////////// Screens ////////////////
+
+	- Main Menu
+	  - Every Button Has SFX
+	  - Use FNF Intro Music for BGM
+	  - Buttons :
+		- Play
+		- Controls
+		- Exit
+
+	- Controls Screen
+	  - Displays Controls Text
+
+	- In Game Screen
+
+///////////////////////////////////////
+
+//////////// Game Play ////////////////
+
+	- Create a class to handle the spaceship and move the functions to there
+
+	- In Game State
+	  - Has 3 Section for sprite to move (Done) (9 - 10 Oct)
+
+	  - Avoid enenmies according to the beat (you can like make it semi according to beat)
+
+	  - Map notes with rhythm plus based on the time mapped (Done) (9 - 12 Oct)
+	  - Add a bps counter (doesnt really need to but Done) (9 - 12 Oct)
+	  - Add Song Bacgkround (9 - 12 Oct)
+	  - Add MousePos follow sprite angle (9 - 12 Oct)
+
+	- Gameplay
+	  - Move Left and Right and Center (Done) (9 - 12 Oct)
+
+	  - When Space button pressed
+		1. Plays a jumping or zooming in animation
+		2. make the sprite hides its bounding box
+
+	  - Sprite angle follows mouse pos (Done) (13 - 14 Oct)
+
+	  - Player can shoot bullets (Add Bounding Box to kill enemies)
+
+	- Obstacles (when shot at nothing happens, when hit you ded)
+	  - Try implementing obejct pooling
+	  - 3 objects spawns according to beat
+	  - if not just do it manually but not recommend
+
+	- Enemies (when you kill it you get 25 score if not then -10) (create a class for this)
+	  - Randomly Spawn and automatically aims to the main sprite
+	   or same like obstacle
+	   so its spawns accordingly to the beat replacing some obstacles
+
+	- Bullets
+	  - Add Bullets spawning (Done) (9 - 12 Oct)
+	  - Bullet follows Sprite Angle and mouse pos (13 - 14 Oct)
+	  - Add Bullets BoundingBox
+
+	- Finish State
+	  - when the song ends
+
+///////////////////////////////////////
+
+	- Song List Screen
+	 - List of music
+
+	- Menu Screen
+	 - Button Play
+	 - Button Exit
+	 - Logo zoom in zoom out along with beat
+
+	- Game Screen
+	- Sprite (14 Oct - 27 Oct)
+	 - movement on 3 section (Done) 9 - 12 Oct
+	 - move angle follow mousepos (Done) 13 -14 Oct
+	 - add bullets (Done)
+		- add bounding box (Done 15 Oct)
+		- follow sprite angle (Done)
+		- bullet sprite also rotates when ship sprite rotates (19 Oct)
+	 - add bounding box (Done 15 Oct)
+	 - When kill enemy score + 20
+
+
+	- Enemies (11 Nov - 24 Nov)
+	 - add bounding box (24 Oct) Done
+	 - follow player position (25 Oc) Done
+	 - death and alive state
+	 - when hit player score -25
+	 - enemie pattern (25 Oct
+
+	- Obstacle (28 Oct - 10 Nov)
+	 - spawns on 3 section where sprite moves (Done) (19 Oct)
+	 - spawns according to the beat (beat-ish) (Done) (19 Oct)
+	 - When hit score -10 (Done) (21 Oct)
+	 - on a certain time the "4" changes to 2 or 1  (21 Oct) (Done)
+		if (previousBps % 4 == 0) {
+			GenerateObstaclePattern();  // Spawn obstacle pattern every 4 beats
+		}
+
+	- Gameplay
+	 - add a feature Divide into 2 screen (17 Oct)
+	 - Main Menu
+	  - When hit play go to ingame but when press exit
+		reset all states of the game so when press play
+		game starts at 0
+	  - Customize Buttons and Titles
+		- SFX and Sprite
+	 - In game
+	  - Sprite Enemies Obstacle
+	 - Quit
+
+	 - Parallax Background (Done) (10 Oct)
+	 - Add Music (Done) (10 Oct)
+	 - Add Sfx (buttons, sprite hits, game over)
+	 - Add Beat Counter (Done)
+	 - Add SCoring sistem (begins with 1000)
+	   - if hit obstacle -10 (Done) (21 Oct)
+	   - if kill enemies +25 (24 Nov
+	   - if score is zero game over (22 Oct
+	- bug
+	   - try escaping to main menu and go back to play and see what happens (done) (previous bps was not initiated)
+
+	- Running State (21 Oct
+	- Over State (21 Oct
+	- Finish State (21 Oct
+	- Exit State
+
+	Add a harder boss which takes more bullets to kill
+	logic:
+	just add a number for the ship like 100
+	if bullet hits it itll decrease by like 50 or sumn
+	then if it reaches <= 0 itll erased and when it erased our point goes up
+
+	small -25
+	mid -30
+	large -35
+
+	add it in phases so our bullets also goes faster (the time interval)
+
+
+*/
+
+#pragma endregion
+
+Engine::TutorialScreen::TutorialScreen()
 {
 	delete texture_N1;
 	delete sprite;
 }
 
-#pragma region File Loader
-
 // Define the LoadTimestamps function
-std::vector<float> Engine::GameScreen2::LoadTimestamps(const std::string& filename) {
+std::vector<float> Engine::TutorialScreen::LoadTimestamps(const std::string& filename) {
 	std::vector<float> timestamps;
 	std::ifstream file(filename);
 	float timestamp;
@@ -25,9 +181,7 @@ std::vector<float> Engine::GameScreen2::LoadTimestamps(const std::string& filena
 	return timestamps;
 }
 
-#pragma endregion
-
-void Engine::GameScreen2::Init()
+void Engine::TutorialScreen::Init()
 {
 
 #pragma region Sprite and Background
@@ -90,6 +244,8 @@ void Engine::GameScreen2::Init()
 	back_txt->SetScale(1)->SetColor(255, 0, 0)->SetText("PRESS Esc TO EXIT")
 		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.2f, ((game->GetSettings()->screenHeight) / 5) / 2);
 
+
+
 #pragma endregion
 
 #pragma region Camera init
@@ -115,17 +271,16 @@ void Engine::GameScreen2::Init()
 
 #pragma region Music and Sound init
 
-	music = (new Music("Bossfight-Milky-Ways.ogg"))->SetVolume(45)/*->Play(false)*/;
-
+	music = (new Music("Shirobon-On-The-Run.ogg"))->SetVolume(45)/*->Play(false)*/;
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(45)/*->Play(false)*/;
 
 	finish_music = (new Music("PIXL-Sugar-Rush-Challenge-Loop.ogg"))->SetVolume(45);
 
 	gov_music = (new Music("Kubbi - Formed by Glaciers (Game Over Theme).ogg"))->SetVolume(150);
 
-	hit = (new Sound("explode.wav"))->SetVolume(70);
+	//metronome = (new Sound("beep.ogg"))->SetVolume(70)->Play(true);
 
-	beat = (new Sound("beat.wav"))->SetVolume(1);
+	hit = (new Sound("explode.wav"))->SetVolume(70);
 
 #pragma endregion
 
@@ -135,14 +290,15 @@ void Engine::GameScreen2::Init()
 		->AddInputMapping("Move Left", SDLK_a)
 		->AddInputMapping("Move Center", SDLK_s)
 		->AddInputMapping("Attack", SDL_BUTTON_LEFT)
+		->AddInputMapping("Null", SDL_BUTTON_RIGHT)
 		->AddInputMapping("Avoid", SDLK_SPACE)
 		->AddInputMapping("mainmenu", SDLK_ESCAPE)
-		->AddInputMapping("mainmenu", SDL_CONTROLLER_BUTTON_Y)
+		->AddInputMapping("mainmenu", SDLK_o)
 		->AddInputMapping("Reset", SDLK_r)
 		->AddInputMapping("Finish", SDLK_f)
 		->AddInputMapping("GameOver", SDLK_g)
-		->AddInputMapping("Zoom Out", SDLK_u)
-		->AddInputMapping("Zoom In", SDLK_i);
+		->AddInputMapping("Zoom In", SDLK_i)
+		->AddInputMapping("Zoom Out", SDLK_o);
 
 #pragma endregion
 
@@ -192,20 +348,15 @@ void Engine::GameScreen2::Init()
 
 #pragma endregion
 
-#pragma region Timestamps Init
-
-	spawnTimestamps = LoadTimestamps("MilkyWay-Bossfight.txt");
+	spawnTimestamps = LoadTimestamps("Shirobon-On-The-Run.txt");
 	currentTimestampIndex = 0; // Start at the first timestamp
 	// Debug: Print all timestamps to confirm loading
 	for (float time : spawnTimestamps) {
 		std::cout << "Loaded timestamp: " << time << std::endl;
 	}
-
-#pragma endregion
-
 }
 
-void Engine::GameScreen2::Update()
+void Engine::TutorialScreen::Update()
 {
 #pragma region State Debugging
 
@@ -225,14 +376,16 @@ void Engine::GameScreen2::Update()
 
 #pragma endregion
 
+
 	if (gstate == GameState::RUNNING)
 	{
+
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
-			music2->Play(true);
 
 			ResetVariables();
+
 		}
 
 #pragma region Score Handling
@@ -250,37 +403,42 @@ void Engine::GameScreen2::Update()
 			return;
 		}
 
-		//if game time exceeds 183 seconds game state is at finish
-		if (duration / 1000 >= 183.0f)
+		//if game time exceeds 258 seconds game state is at finish
+		if (duration / 1000 >= 258.0f)
 		{
 			music->Stop();
 			gstate = GameState::FINISH;
 			return;
 		}
 
+
+
 #pragma endregion
 
 #pragma region Music Handling
-
 		std::cout << "duration : " << duration / 1000 << std::endl;
 
-		if (duration / 1000 >= 0.25f && music->IsPlaying() == false)
+
+		if (duration / 1000 >= 2.0f) //add slight delay to make sound match obstacle spawning
 		{
-			music->Play(false);
-			music->IsPlaying() == true;
+			if (music->IsPlaying() == false)
+			{
+				music->Play(true);
+				music->IsPlaying() == true;
+			}
+		}
+
+
+		if (game->GetInputManager()->IsKeyReleased("mainmenu"))
+		{
+			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
+			music->Stop();
+			music2->Play(true);
 		}
 
 #pragma endregion
 
 #pragma region Camera Handling
-
-		// Optional: Zoom control with key input
-		//if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
-		//	camera.SetZoom(camera.zoom + 0.007f);
-		//}
-		//if (game->GetInputManager()->IsKeyPressed("Zoom Out")) {
-		//	camera.SetZoom(camera.zoom - 0.007f);
-		//}
 
 		// Update the shader's view matrix uniform
 		glUseProgram(game->GetDefaultSpriteShader()->GetId());
@@ -293,31 +451,19 @@ void Engine::GameScreen2::Update()
 
 		vec2 oldMonsterPos = sprite->GetPosition();
 		float x = oldMonsterPos.x, y = oldMonsterPos.y;
-
 		if (game->GetInputManager()->IsKeyPressed("Move Right")) {
 			x = (game->GetSettings()->screenWidth / 2.15) + 200;
 			targetCameraPos = glm::vec2(22.0f, 0.0f);
-
 		}
-
 		if (game->GetInputManager()->IsKeyPressed("Move Left")) {
 			x = (game->GetSettings()->screenWidth / 2.15) - 200;
 			targetCameraPos = glm::vec2(-22.0f, 0.0f);
 
 		}
-
 		if (game->GetInputManager()->IsKeyPressed("Move Center")) {
 			x = game->GetSettings()->screenWidth / 2.15;
 			targetCameraPos = glm::vec2(0.0f, 0.0f);
 
-		}
-
-		// Optional: Zoom control with key input
-		if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
-			camera.SetZoom(camera.zoom + 0.007f);
-		}
-		if (game->GetInputManager()->IsKeyPressed("Zoom Out")) {
-			camera.SetZoom(camera.zoom - 0.007f);
 		}
 
 		camera.SmoothFollow(targetCameraPos, 0.005f, game->GetGameTime());
@@ -329,64 +475,12 @@ void Engine::GameScreen2::Update()
 
 #pragma endregion
 
-#pragma region Beat Sound every sprite movement
-
-		// Define a small tolerance for comparing floating-point positions
-		const float positionTolerance = 1.0f;
-
-		// Define flags to track whether the beat sound has been played at each position
-		static bool beatPlayedRight = false;
-		static bool beatPlayedLeft = false;
-		static bool beatPlayedCenter = false;
-
-		float targetRight = (game->GetSettings()->screenWidth / 2.15) + 200;
-		float targetLeft = (game->GetSettings()->screenWidth / 2.15) - 200;
-		float targetCenter = game->GetSettings()->screenWidth / 2.15;
-
-		// Check if `x` is close to the right position
-		if (std::abs(x - targetRight) < positionTolerance) {
-			if (!beatPlayedRight) {
-				beat->Play(false);
-				beatPlayedRight = true;
-			}
-			// Reset other flags
-			beatPlayedLeft = beatPlayedCenter = false;
-		}
-		// Check if `x` is close to the left position
-		else if (std::abs(x - targetLeft) < positionTolerance) {
-			if (!beatPlayedLeft) {
-				beat->Play(false);
-				beatPlayedLeft = true;
-			}
-			// Reset other flags
-			beatPlayedRight = beatPlayedCenter = false;
-		}
-		// Check if `x` is close to the center position
-		else if (std::abs(x - targetCenter) < positionTolerance) {
-			if (!beatPlayedCenter) {
-				beat->Play(false);
-				beatPlayedCenter = true;
-			}
-			// Reset other flags
-			beatPlayedRight = beatPlayedLeft = false;
-		}
-		else {
-			// Reset all flags if x is not at any of the target positions
-			beatPlayedRight = beatPlayedLeft = beatPlayedCenter = false;
-		}
-
-#pragma endregion
-
 #pragma region sprite angle according to mouse pos
 
 		int mouseX, mouseY;
 
 		//Get the current mouse position on the screen using SDL
 		SDL_GetMouseState(&mouseX, &mouseY);
-
-		//float dx = mouseX - note1->GetPosition().x;
-		//float dy = mouseY - note1->GetPosition().y;
-		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
 
 		//Store the mouse position in a glm::vec2 for easier calculations
 		glm::vec2 mousePos = { mouseX, mouseY };
@@ -423,7 +517,6 @@ void Engine::GameScreen2::Update()
 		//float duration;
 		duration += game->GetGameTime();
 
-		//Obstacle Patterns 
 		// Check if it's time to spawn an obstacle
 		if (currentTimestampIndex < spawnTimestamps.size() &&
 			duration / 1000 >= spawnTimestamps[currentTimestampIndex]) {
@@ -432,110 +525,167 @@ void Engine::GameScreen2::Update()
 			currentTimestampIndex++;    // Move to the next timestamp
 		}
 
+
 		//1 beat = 1 / 2.6 of a second
-		bps = (duration / 1000) * 6.1f;
-
-		//phases based on song timestamps
-		if (duration < 25.0f)
-		{
-			GenerateEnemylv3Pattern();
-
-		}
+		bps = (duration / 1000) * 2.6f;
 
 		// Obstacle pattern every phase of the song based on seconds
-		if (duration / 1000 >= 16 && duration / 1000 < 37) {
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);
+		if (duration / 1000 < 36)
+		{
+			if (floor(bps) > previousBps)
+			{
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
 
-				// Check beat interval using mod and generate patterns if within tolerance
-				float beatInterval = 2.0f; // Adjust interval for each section as needed
-				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+				if (previousBps % 2 == 0)
+				{
 					GenerateEnemyPattern();
 				}
+
 			}
 		}
 
-		if (duration / 1000 >= 37 && duration / 1000 < 57)
+		if (duration / 1000 >= 36 && duration / 1000 < 59)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Use fmod for float comparison and apply tolerance
-				float beatInterval = 1.0f;
-				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+				if (previousBps % 2 == 0)
+				{
 					GenerateEnemyPattern();
 				}
-			}
 
-		}
-
-		if (duration / 1000 >= 79 && duration / 1000 < 100)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Use fmod for float comparison and apply tolerance
-				float beatInterval = 8.0f;
-				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+				if (previousBps % 8 == 0)
+				{
 					GenerateEnemylv2Pattern();
-					GenerateEnemyPattern();
 				}
+
 			}
 
 		}
 
-		if (duration / 1000 >= 111 && duration / 1000 < 132)
+		if (duration / 1000 >= 59 && duration / 1000 < 84)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Use fmod for float comparison and apply tolerance
-				float beatInterval = 8.0f;
-				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
-					GenerateEnemylv2Pattern();
-
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
 				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
 			}
 
 		}
 
-		if (duration / 1000 >= 147 && duration / 1000 < 159)
+		if (duration / 1000 >= 107 && duration / 1000 < 132)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Use fmod for float comparison and apply tolerance
-				float beatInterval = 4.0f;
-				if (fabs(fmod(bps, beatInterval)) < 0.1f) {
+				if (previousBps % 2 == 0)
+				{
 					GenerateEnemyPattern();
 				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
+
 			}
 
 		}
 
-		if (duration / 1000 >= 159 && duration / 1000 < 180)
+		if (duration / 1000 >= 156 && duration / 1000 < 167)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();				
-				
-				// Use fmod for float comparison and apply tolerance
-				float beatInterval2 = 4.0f;
-				if (fabs(fmod(bps, beatInterval2)) < 0.1f) {
-					GenerateEnemylv2Pattern();
+				//SpawnBullets();
 
-				}				
-				
-				// Use fmod for float comparison and apply tolerance
-				float beatInterval3 = 2.0f;
-				if (fabs(fmod(bps, beatInterval3)) < 0.1f) {
+
+				if (previousBps % 2 == 0)
+				{
 					GenerateEnemyPattern();
-
 				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
+
+			}
+
+		}
+
+		if (duration / 1000 >= 167 && duration / 1000 < 192)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+
+
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
+
+			}
+
+		}
+
+
+		if (duration / 1000 >= 215 && duration / 1000 < 240)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
+				if (previousBps % 8 == 0)
+				{
+					GenerateEnemylv2Pattern();
+				}
+
+
+			}
+
+		}
+
+		if (duration / 1000 >= 240 && duration / 1000 < 254)
+		{
+			if (floor(bps) > previousBps) {
+				previousBps = floor(bps);  // Update the previous BPS value
+				//SpawnBullets();
+
+
+
+				if (previousBps % 2 == 0)
+				{
+					GenerateEnemyPattern();
+				}
+
 			}
 
 		}
@@ -558,16 +708,17 @@ void Engine::GameScreen2::Update()
 			{
 				float y_ = obstacle->GetPosition().y;
 
-				y_ -= 1.7f * game->GetGameTime();  // Adjust obstacle speed as needed
+				y_ -= 1.5f * game->GetGameTime();  // Adjust obstacle speed as needed
 
 				obstacle->SetPosition(obstacle->GetPosition().x, y_)->Update(game->GetGameTime());
 
 				if (obstacle->GetBoundingBox()->CollideWith(sprite->GetBoundingBox()))
 				{
-
+					//gstate = GameState::GAME_OVER;
+					//return;
 					it = platforms.erase(it); // Remove obstacle on collision
-					score -= 2;
-
+					score -= 5;
+					//text->SetText("Score: " + std::to_string(score));
 				}
 				else if (y_ <= -300)
 				{
@@ -584,7 +735,15 @@ void Engine::GameScreen2::Update()
 					obstacle->SetBoundingBoxSize(0, 0);
 				}
 
-				
+				// Rotate meteor
+				int spinT = duration / 70;
+
+				if (spinT == 360)
+				{
+					spinT = 0;
+				}
+
+				//obstacle->SetRotation(spinT);
 			}
 			else
 			{
@@ -615,10 +774,9 @@ void Engine::GameScreen2::Update()
 		}
 
 		// Bullet behaviour
-		for (Bullet* b : inUseBullets) 
+		for (Bullet* b : inUseBullets)
 		{
-
-			if (game->GetSettings()->screenWidth <= b->GetPosition().x) 
+			if (game->GetSettings()->screenWidth <= b->GetPosition().x)
 			{
 				// Remove the bullet from in-use list and return to ready bullets
 				readyBullets.push_back(b);
@@ -634,12 +792,11 @@ void Engine::GameScreen2::Update()
 				break;  // Exit the loop after handling the collision
 			}
 
-
-			for (auto it = enemies.begin(); it != enemies.end();) 
+			for (auto it = enemies.begin(); it != enemies.end();)
 			{
 				Sprite* enemy = *it;
 
-				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) 
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox()))
 				{
 					// Increase score when enemy is hit by bullet
 					score += 5;
@@ -653,18 +810,18 @@ void Engine::GameScreen2::Update()
 					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
 					break;  // Exit the loop after handling the collision
 				}
-				else 
+				else
 				{
 					++it;  // Continue iterating if no collision
 				}
 			}
 
 			//bullet behaviour for lv2 evilship
-			for (auto it = enemies2.begin(); it != enemies2.end();) 
+			for (auto it = enemies2.begin(); it != enemies2.end();)
 			{
 				Sprite* enemy = *it;
 
-				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) 
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox()))
 				{
 					// Increase score when enemy is hit by bullet
 					enemielv2health -= 10;
@@ -686,7 +843,7 @@ void Engine::GameScreen2::Update()
 					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
 					break;  // Exit the loop after handling the collision
 				}
-				else 
+				else
 				{
 					++it;  // Continue iterating if no collision
 				}
@@ -697,48 +854,8 @@ void Engine::GameScreen2::Update()
 
 #pragma region Enemies Handling
 
-		//Boss
-		for (auto it = enemies3.begin(); it != enemies3.end();) {
-			Sprite* enemy = *it;
-
-			float enemyX = enemy->GetPosition().x;
-			float enemyY = enemy->GetPosition().y;
-
-			//boss descends into the player's view
-			if (!bossReachedPlayerView) {
-				if (enemyY > ((game->GetSettings()->screenHeight / 3) * 1.9f)) {
-					enemyY -= 0.025f * game->GetGameTime(); // Descend at initial speed
-				}
-				else {
-					bossReachedPlayerView = true;  // Boss has reached the desired height
-				}
-				enemy->SetPosition(enemyX, enemyY);
-			}
-			else {
-				// If within view, apply the smaller figure-8 movement
-				bossMovementTime += game->GetGameTime() * 0.001f;
-
-				// Lemniscate (figure-eight) path: Parametric formula
-				float a = 2.5f; // Scale of the lemniscate path
-				float xOffset = a * (cos(bossMovementTime) / (1 + sin(bossMovementTime) * sin(bossMovementTime)));
-				float yOffset = a * (cos(bossMovementTime) * sin(bossMovementTime) / (1 + sin(bossMovementTime) * sin(bossMovementTime)));
-
-				// Apply position with the offsets
-				enemy->SetPosition(enemyX + xOffset, enemyY + yOffset);
-			}
-
-			// Move up when duration passes a certain point
-			if (duration / 1000 >= 180) {
-				enemyY += 0.25f * game->GetGameTime();
-				enemy->SetPosition(enemyX, enemyY);
-			}
-
-			enemy->Update(game->GetGameTime());
-			++it;
-		}
-
-		//lv1 enemy
-		for (auto it = enemies.begin(); it != enemies.end();) {
+		for (auto it = enemies.begin(); it != enemies.end();)
+		{
 			Sprite* enemy = *it;
 
 			float enemyX = enemy->GetPosition().x;
@@ -747,7 +864,8 @@ void Engine::GameScreen2::Update()
 
 
 			// Check if the enemy should speed up or move toward the sprite
-			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200)) {
+			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200))
+			{
 
 				// Get sprite position
 				float spriteX = sprite->GetPosition().x;
@@ -759,7 +877,8 @@ void Engine::GameScreen2::Update()
 
 				// Normalize direction
 				float length = sqrt(dirX * dirX + dirY * dirY);
-				if (length != 0) {
+				if (length != 0)
+				{
 					dirX /= length;
 					dirY /= length;
 				}
@@ -778,7 +897,8 @@ void Engine::GameScreen2::Update()
 				enemy->SetRotation(angle);
 
 			}
-			else {
+			else
+			{
 				// Regular downward movement before reaching the threshold
 				y_2 -= 0.5f * game->GetGameTime();
 				enemy->SetPosition(enemyX, y_2);
@@ -786,21 +906,25 @@ void Engine::GameScreen2::Update()
 
 			enemy->Update(game->GetGameTime());
 
-			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
+			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox()))
+			{
 				it = enemies.erase(it); // Handle collision
-				score -= 7;
+				score -= 10;
 			}
-			else if (y_2 <= -300) {
+			else if (y_2 <= -300)
+			{
 				it = enemies.erase(it); // Remove enemy if off-screen
 			}
-			else {
+			else
+			{
 				++it;
 			}
 
 		}
 
 		//level2 enemy
-		for (auto it = enemies2.begin(); it != enemies2.end();) {
+		for (auto it = enemies2.begin(); it != enemies2.end();)
+		{
 			Sprite* enemy = *it;
 
 			float enemyX = enemy->GetPosition().x;
@@ -827,12 +951,12 @@ void Engine::GameScreen2::Update()
 				}
 
 				// Move enemy toward sprite while decrementing y_2 for normal falling
-				float speed = 0.95f; // Adjust this speed
+				float speed = 0.7f; // Adjust this speed
 				enemyX += dirX * speed * game->GetGameTime();
 				enemyY += dirY * speed * game->GetGameTime();
 
 				// Set new position and continue moving downward
-				y_2 -= speed * game->GetGameTime(); // Keep falling
+				y_2 -= 0.7f * game->GetGameTime(); // Keep falling
 				enemy->SetPosition(enemyX, y_2);
 
 				// Set enemy rotation to face sprite
@@ -843,7 +967,7 @@ void Engine::GameScreen2::Update()
 			else
 			{
 				// Regular downward movement before reaching the threshold
-				y_2 -= 0.5f * game->GetGameTime();
+				y_2 -= 0.3f * game->GetGameTime();
 				enemy->SetPosition(enemyX, y_2);
 			}
 
@@ -851,7 +975,7 @@ void Engine::GameScreen2::Update()
 
 			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
 				it = enemies2.erase(it); // Handle collision
-				score -= 25;
+				score -= 55;
 			}
 			else if (y_2 <= -300) {
 				it = enemies2.erase(it); // Remove enemy if off-screen
@@ -862,13 +986,13 @@ void Engine::GameScreen2::Update()
 
 		}
 
-
 #pragma endregion
 
+
 		//sets parallax speed
-		MoveLayer(backgrounds, 0.01f);
-		MoveLayer(middlegrounds, 0.06f);
-		MoveLayer(foregrounds, 0.6f);
+		MoveLayer(backgrounds, 0.005f);
+		MoveLayer(middlegrounds, 0.03f);
+		MoveLayer(foregrounds, 0.3f);
 
 	}
 	else if (gstate == GameState::FINISH)
@@ -1091,7 +1215,7 @@ void Engine::GameScreen2::Update()
 
 }
 
-void Engine::GameScreen2::Draw()
+void Engine::TutorialScreen::Draw()
 {
 
 #pragma region Camera Render
@@ -1119,9 +1243,6 @@ void Engine::GameScreen2::Draw()
 
 	}
 
-	DrawLayer(foregrounds);
-
-
 	//Bullets
 	for (Bullet* b : inUseBullets)
 	{
@@ -1130,8 +1251,6 @@ void Engine::GameScreen2::Draw()
 
 	//Draw Note Sprite
 	sprite->Draw();
-
-
 
 	for (Sprite* e : enemies)
 	{
@@ -1145,12 +1264,7 @@ void Engine::GameScreen2::Draw()
 		//std::cout << "enemy lv2 sprite is drawn" << std::endl;
 	}
 
-	for (Sprite* e : enemies3)
-	{
-		e->Draw();
-		//std::cout << "enemy lv2 sprite is drawn" << std::endl;
-	}
-
+	DrawLayer(foregrounds);
 
 	//Score
 	text1->Draw();
@@ -1181,7 +1295,7 @@ void Engine::GameScreen2::Draw()
 
 }
 
-void Engine::GameScreen2::ResetVariables()
+void Engine::TutorialScreen::ResetVariables()
 {
 	//resets bullets
 	inUseBullets.clear();
@@ -1192,7 +1306,6 @@ void Engine::GameScreen2::ResetVariables()
 	//resets enemies
 	enemies.clear();
 	enemies2.clear();
-	enemies3.clear();
 	//enemielv2health = 30;
 
 	//resets other variables
@@ -1204,17 +1317,6 @@ void Engine::GameScreen2::ResetVariables()
 	spawnTimestamps;
 	currentTimestampIndex = 0;
 
-	bossMovementTime = 0.0f;
-
-	bossReachedPlayerView = false;
-
-	// Set initial position for each boss in enemies3 list
-	for (Sprite* enemy : enemies3) {
-		enemy->SetPosition((game->GetSettings()->screenWidth) / 6, game->GetSettings()->screenHeight);  // Position at the starting point
-	}
-
-	
-
 	//resets sprite position
 	sprite->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f);
 
@@ -1224,23 +1326,22 @@ void Engine::GameScreen2::ResetVariables()
 
 #pragma region Obstacle Spawning
 
-void Engine::GameScreen2::SpawnObstacle(float xPosition)
+void Engine::TutorialScreen::SpawnObstacle(float xPosition)
 {
 
-	Texture* platformTexture = new Texture("obstacle.png");
+	Texture* platformTexture = new Texture("meteor.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of the screen)
 
 	Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	platformSprite->SetSize(840, 200)->SetPosition(start.x, start.y);
-	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleHeight()/4, platformSprite->GetScaleHeight() - 80);
-	platformSprite->SetNumXFrames(8)->SetNumYFrames(1)->AddAnimation("spin", 0,7)->PlayAnim("spin")->SetAnimationDuration(50);
+	platformSprite->SetSize(100, 100)->SetPosition(start.x, start.y);
+	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleWidth() - (3.5 * platformSprite->GetScale()), platformSprite->GetScaleHeight() - 50);
 
 
 
 	platforms.push_back(platformSprite);  // Add the new obstacle to the list
 }
 
-void Engine::GameScreen2::GenerateObstaclePattern()
+void Engine::TutorialScreen::GenerateObstaclePattern()
 {
 	int emptySection;
 
@@ -1282,9 +1383,9 @@ void Engine::GameScreen2::GenerateObstaclePattern()
 #pragma region Enemies (EvilShip) Handling
 
 //Small EvilShip
-void Engine::GameScreen2::SpawnEnemies(float xPosition) {
+void Engine::TutorialScreen::SpawnEnemies(float xPosition) {
 	Texture* enemyTexture = new Texture("evilShip.png");
-	vec2 start = vec2(xPosition, (game->GetSettings()->screenHeight) - 50.0f);  // Starting position (top of screen)
+	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
 	Sprite* enemySprite = new Sprite(enemyTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
 	enemySprite->SetSize(100, 100)->SetPosition(start.x, start.y)->SetFlipVertical(true);
@@ -1293,15 +1394,13 @@ void Engine::GameScreen2::SpawnEnemies(float xPosition) {
 	enemies.push_back(enemySprite);  // Add enemy ship to the list
 }
 
-void Engine::GameScreen2::GenerateEnemyPattern() {
-	float minX = game->GetSettings()->screenWidth / 10;
-	float maxX = (game->GetSettings()->screenWidth / 10) * 9;
-	float randomX = minX + (rand() % (int)(maxX - minX + 1));  // Random X between minX and maxX
+void Engine::TutorialScreen::GenerateEnemyPattern() {
+	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
 	SpawnEnemies(randomX);  // Spawn an enemy at the random X position
 }
 
 //Mid EvilShip
-void Engine::GameScreen2::SpawnEnemieslv2(float xPosition) {
+void Engine::TutorialScreen::SpawnEnemieslv2(float xPosition) {
 	Texture* enemyTexture2 = new Texture("evilShip2.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
@@ -1314,60 +1413,29 @@ void Engine::GameScreen2::SpawnEnemieslv2(float xPosition) {
 	enemielv2health = 50;
 }
 
-void Engine::GameScreen2::GenerateEnemylv2Pattern() {
+void Engine::TutorialScreen::GenerateEnemylv2Pattern() {
 
-	float minX1 = (game->GetSettings()->screenWidth - game->GetSettings()->screenWidth) + 100; // Range start near the left side
-	float maxX1 = game->GetSettings()->screenWidth / 3;
+	float minX = game->GetSettings()->screenWidth / 3;
+	float maxX = (game->GetSettings()->screenWidth / 3) * 2;
+	float randomX = minX + (rand() % (int)(maxX - minX + 1));  // Random X between minX and maxX
 
-	float minX2 = (game->GetSettings()->screenWidth / 3) * 2; // Range start near the right side
-	float maxX2 = game->GetSettings()->screenWidth - 100;
-
-	// Randomly choose between the left and right range
-	float randomX;
-	if (rand() % 2 == 0) {
-		// Choose a random position in the left range
-		randomX = minX1 + (rand() % (int)(maxX1 - minX1 + 1));
-	}
-	else {
-		// Choose a random position in the right range
-		randomX = minX2 + (rand() % (int)(maxX2 - minX2 + 1));
-	}
-
-	SpawnEnemieslv2(randomX);  // Spawn an enemy at the chosen X position
+	SpawnEnemieslv2(randomX);  // Spawn an enemy at the random X position
 }
 
 //Large Evil Ship
-void Engine::GameScreen2::SpawnEnemieslv3(float xPosition) {
-	
-	//float duration;
-	duration += game->GetGameTime();
-
-	//1 beat = 1 / 2.6 of a second
-	bps = (duration / 1000) * 6.1f;
-
-	enemyTexture3 = new Texture("evilShip3.png");
+void Engine::TutorialScreen::SpawnEnemieslv3(float xPosition) {
+	Texture* enemyTexture3 = new Texture("evilShip3.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
-	enemySprite3 = new Sprite(enemyTexture3, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
-	enemySprite3->SetSize(34000, 750)->SetPosition(start.x, start.y)->SetFlipVertical(false);
+	Sprite* enemySprite3 = new Sprite(enemyTexture3, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
+	enemySprite3->SetSize(300, 300)->SetPosition(start.x, start.y)->SetFlipVertical(true);
 	enemySprite3->SetBoundingBoxSize(enemySprite3->GetScaleWidth() - (3.5 * enemySprite3->GetScale()), enemySprite3->GetScaleHeight() - 50);
-	enemySprite3->SetNumXFrames(27)->SetNumYFrames(1)->AddAnimation("idle", 4, 26)->PlayAnim("idle");
-		
-
-	if (floor(bps) >= previousBps2) {  // Check for significant change
-		previousBps2 = floor(bps);
-		animationDuration = beatsPerAnimationCycle / bps;
-		frameDelay = animationDuration / 21.0f;
-
-		enemySprite3->SetAnimationDuration(3.571428f);
-	}
-	
 
 	enemies3.push_back(enemySprite3);  // Add enemy ship to the list
 }
 
-void Engine::GameScreen2::GenerateEnemylv3Pattern() {
-	float randomX = ((game->GetSettings()->screenWidth) / 6);  // Random X position
+void Engine::TutorialScreen::GenerateEnemylv3Pattern() {
+	float randomX = rand() % (int)((game->GetSettings()->screenWidth));  // Random X position
 	SpawnEnemieslv3(randomX);  // Spawn an enemy at the random X position
 }
 
@@ -1377,7 +1445,7 @@ void Engine::GameScreen2::GenerateEnemylv3Pattern() {
 
 #pragma region Parallax Functions
 
-void Engine::GameScreen2::MoveLayer(vector<Sprite*>& bg, float speed)
+void Engine::TutorialScreen::MoveLayer(vector<Sprite*>& bg, float speed)
 {
 	for (Sprite* s : bg) {
 		if (s->GetPosition().y < -game->GetSettings()->screenHeight + offset) {
@@ -1388,14 +1456,14 @@ void Engine::GameScreen2::MoveLayer(vector<Sprite*>& bg, float speed)
 	}
 }
 
-void Engine::GameScreen2::DrawLayer(vector<Sprite*>& bg)
+void Engine::TutorialScreen::DrawLayer(vector<Sprite*>& bg)
 {
 	for (Sprite* s : bg) {
 		s->Draw();
 	}
 }
 
-void Engine::GameScreen2::AddToLayer(vector<Sprite*>& bg, string name)
+void Engine::TutorialScreen::AddToLayer(vector<Sprite*>& bg, string name)
 {
 	Texture* texture = new Texture(name);
 
@@ -1412,9 +1480,9 @@ void Engine::GameScreen2::AddToLayer(vector<Sprite*>& bg, string name)
 
 #pragma region Bullet Spawn
 
-void Engine::GameScreen2::SpawnBullets()
+void Engine::TutorialScreen::SpawnBullets()
 {
-	if (timeInterval >= 100) {
+	if (timeInterval >= 150) {
 		if (readyBullets.empty()) {
 			return;
 		}
@@ -1481,5 +1549,3 @@ void Engine::GameScreen2::SpawnBullets()
 }
 
 #pragma endregion
-
-

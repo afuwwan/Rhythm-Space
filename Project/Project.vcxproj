@@ -154,6 +154,7 @@
     <ClInclude Include="EvilShip.h" />
     <ClInclude Include="GameScreen.h" />
     <ClInclude Include="GameScreen2.h" />
+    <ClInclude Include="GameScreen3.h" />
     <ClInclude Include="Lesson11_ParallaxScrolling.h" />
     <ClInclude Include="LessonAI01_SteeringBehaviors.h" />
     <ClInclude Include="LessonAI02_NPCWave.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="Lesson08_Rotation.h" />
     <ClInclude Include="Lesson09_Bullet.h" />
     <ClInclude Include="LessonCamera.h" />
+    <ClInclude Include="LoadingScreen.h" />
     <ClInclude Include="MainMenuScreen.h" />
     <ClInclude Include="MenuScreen.h" />
     <ClInclude Include="Music.h" />
@@ -191,6 +193,7 @@
     <ClInclude Include="Text.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Turtle.h" />
+    <ClInclude Include="TutorialScreen.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bullet.cpp" />
@@ -201,6 +204,7 @@
     <ClCompile Include="EvilShip.cpp" />
     <ClCompile Include="GameScreen.cpp" />
     <ClCompile Include="GameScreen2.cpp" />
+    <ClCompile Include="GameScreen3.cpp" />
     <ClCompile Include="Lesson11_ParallaxScrolling.cpp" />
     <ClCompile Include="LessonAI01_SteeringBehaviors.cpp" />
     <ClCompile Include="LessonAI02_NPCWave.cpp" />
@@ -220,6 +224,7 @@
     <ClCompile Include="Lesson08_Rotation.cpp" />
     <ClCompile Include="Lesson09_Bullet.cpp" />
     <ClCompile Include="LessonCamera.cpp" />
+    <ClCompile Include="LoadingScreen.cpp" />
     <ClCompile Include="MainMenuScreen.cpp" />
     <ClCompile Include="MenuScreen.cpp" />
     <ClCompile Include="Music.cpp" />
@@ -239,6 +244,7 @@
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Turtle.cpp" />
+    <ClCompile Include="TutorialScreen.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

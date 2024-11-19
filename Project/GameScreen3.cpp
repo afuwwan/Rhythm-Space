@@ -1,6 +1,6 @@
-#include "GameScreen2.h"
+#include "GameScreen3.h"
 
-Engine::GameScreen2::GameScreen2()
+Engine::GameScreen3::GameScreen3()
 {
 	delete texture_N1;
 	delete sprite;
@@ -9,7 +9,7 @@ Engine::GameScreen2::GameScreen2()
 #pragma region File Loader
 
 // Define the LoadTimestamps function
-std::vector<float> Engine::GameScreen2::LoadTimestamps(const std::string& filename) {
+std::vector<float> Engine::GameScreen3::LoadTimestamps(const std::string& filename) {
 	std::vector<float> timestamps;
 	std::ifstream file(filename);
 	float timestamp;
@@ -27,7 +27,7 @@ std::vector<float> Engine::GameScreen2::LoadTimestamps(const std::string& filena
 
 #pragma endregion
 
-void Engine::GameScreen2::Init()
+void Engine::GameScreen3::Init()
 {
 
 #pragma region Sprite and Background
@@ -205,7 +205,7 @@ void Engine::GameScreen2::Init()
 
 }
 
-void Engine::GameScreen2::Update()
+void Engine::GameScreen3::Update()
 {
 #pragma region State Debugging
 
@@ -522,16 +522,16 @@ void Engine::GameScreen2::Update()
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();				
-				
+
 				// Use fmod for float comparison and apply tolerance
 				float beatInterval2 = 4.0f;
 				if (fabs(fmod(bps, beatInterval2)) < 0.1f) {
 					GenerateEnemylv2Pattern();
 
-				}				
-				
+				}
+
 				// Use fmod for float comparison and apply tolerance
-				float beatInterval3 = 2.0f;
+				float beatInterval3 = 1.0f;
 				if (fabs(fmod(bps, beatInterval3)) < 0.1f) {
 					GenerateEnemyPattern();
 
@@ -584,7 +584,7 @@ void Engine::GameScreen2::Update()
 					obstacle->SetBoundingBoxSize(0, 0);
 				}
 
-				
+
 			}
 			else
 			{
@@ -615,10 +615,10 @@ void Engine::GameScreen2::Update()
 		}
 
 		// Bullet behaviour
-		for (Bullet* b : inUseBullets) 
+		for (Bullet* b : inUseBullets)
 		{
 
-			if (game->GetSettings()->screenWidth <= b->GetPosition().x) 
+			if (game->GetSettings()->screenWidth <= b->GetPosition().x)
 			{
 				// Remove the bullet from in-use list and return to ready bullets
 				readyBullets.push_back(b);
@@ -635,11 +635,11 @@ void Engine::GameScreen2::Update()
 			}
 
 
-			for (auto it = enemies.begin(); it != enemies.end();) 
+			for (auto it = enemies.begin(); it != enemies.end();)
 			{
 				Sprite* enemy = *it;
 
-				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) 
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox()))
 				{
 					// Increase score when enemy is hit by bullet
 					score += 5;
@@ -653,18 +653,18 @@ void Engine::GameScreen2::Update()
 					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
 					break;  // Exit the loop after handling the collision
 				}
-				else 
+				else
 				{
 					++it;  // Continue iterating if no collision
 				}
 			}
 
 			//bullet behaviour for lv2 evilship
-			for (auto it = enemies2.begin(); it != enemies2.end();) 
+			for (auto it = enemies2.begin(); it != enemies2.end();)
 			{
 				Sprite* enemy = *it;
 
-				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) 
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox()))
 				{
 					// Increase score when enemy is hit by bullet
 					enemielv2health -= 10;
@@ -686,7 +686,7 @@ void Engine::GameScreen2::Update()
 					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
 					break;  // Exit the loop after handling the collision
 				}
-				else 
+				else
 				{
 					++it;  // Continue iterating if no collision
 				}
@@ -1091,7 +1091,7 @@ void Engine::GameScreen2::Update()
 
 }
 
-void Engine::GameScreen2::Draw()
+void Engine::GameScreen3::Draw()
 {
 
 #pragma region Camera Render
@@ -1181,7 +1181,7 @@ void Engine::GameScreen2::Draw()
 
 }
 
-void Engine::GameScreen2::ResetVariables()
+void Engine::GameScreen3::ResetVariables()
 {
 	//resets bullets
 	inUseBullets.clear();
@@ -1213,7 +1213,7 @@ void Engine::GameScreen2::ResetVariables()
 		enemy->SetPosition((game->GetSettings()->screenWidth) / 6, game->GetSettings()->screenHeight);  // Position at the starting point
 	}
 
-	
+
 
 	//resets sprite position
 	sprite->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f);
@@ -1224,7 +1224,7 @@ void Engine::GameScreen2::ResetVariables()
 
 #pragma region Obstacle Spawning
 
-void Engine::GameScreen2::SpawnObstacle(float xPosition)
+void Engine::GameScreen3::SpawnObstacle(float xPosition)
 {
 
 	Texture* platformTexture = new Texture("obstacle.png");
@@ -1232,15 +1232,15 @@ void Engine::GameScreen2::SpawnObstacle(float xPosition)
 
 	Sprite* platformSprite = new Sprite(platformTexture, game->GetDefaultSpriteShader(), game->GetDefaultQuad());
 	platformSprite->SetSize(840, 200)->SetPosition(start.x, start.y);
-	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleHeight()/4, platformSprite->GetScaleHeight() - 80);
-	platformSprite->SetNumXFrames(8)->SetNumYFrames(1)->AddAnimation("spin", 0,7)->PlayAnim("spin")->SetAnimationDuration(50);
+	platformSprite->SetBoundingBoxSize(platformSprite->GetScaleHeight() / 4, platformSprite->GetScaleHeight() - 80);
+	platformSprite->SetNumXFrames(8)->SetNumYFrames(1)->AddAnimation("spin", 0, 7)->PlayAnim("spin")->SetAnimationDuration(50);
 
 
 
 	platforms.push_back(platformSprite);  // Add the new obstacle to the list
 }
 
-void Engine::GameScreen2::GenerateObstaclePattern()
+void Engine::GameScreen3::GenerateObstaclePattern()
 {
 	int emptySection;
 
@@ -1282,7 +1282,7 @@ void Engine::GameScreen2::GenerateObstaclePattern()
 #pragma region Enemies (EvilShip) Handling
 
 //Small EvilShip
-void Engine::GameScreen2::SpawnEnemies(float xPosition) {
+void Engine::GameScreen3::SpawnEnemies(float xPosition) {
 	Texture* enemyTexture = new Texture("evilShip.png");
 	vec2 start = vec2(xPosition, (game->GetSettings()->screenHeight) - 50.0f);  // Starting position (top of screen)
 
@@ -1293,7 +1293,7 @@ void Engine::GameScreen2::SpawnEnemies(float xPosition) {
 	enemies.push_back(enemySprite);  // Add enemy ship to the list
 }
 
-void Engine::GameScreen2::GenerateEnemyPattern() {
+void Engine::GameScreen3::GenerateEnemyPattern() {
 	float minX = game->GetSettings()->screenWidth / 10;
 	float maxX = (game->GetSettings()->screenWidth / 10) * 9;
 	float randomX = minX + (rand() % (int)(maxX - minX + 1));  // Random X between minX and maxX
@@ -1301,7 +1301,7 @@ void Engine::GameScreen2::GenerateEnemyPattern() {
 }
 
 //Mid EvilShip
-void Engine::GameScreen2::SpawnEnemieslv2(float xPosition) {
+void Engine::GameScreen3::SpawnEnemieslv2(float xPosition) {
 	Texture* enemyTexture2 = new Texture("evilShip2.png");
 	vec2 start = vec2(xPosition, game->GetSettings()->screenHeight);  // Starting position (top of screen)
 
@@ -1314,7 +1314,7 @@ void Engine::GameScreen2::SpawnEnemieslv2(float xPosition) {
 	enemielv2health = 50;
 }
 
-void Engine::GameScreen2::GenerateEnemylv2Pattern() {
+void Engine::GameScreen3::GenerateEnemylv2Pattern() {
 
 	float minX1 = (game->GetSettings()->screenWidth - game->GetSettings()->screenWidth) + 100; // Range start near the left side
 	float maxX1 = game->GetSettings()->screenWidth / 3;
@@ -1337,8 +1337,8 @@ void Engine::GameScreen2::GenerateEnemylv2Pattern() {
 }
 
 //Large Evil Ship
-void Engine::GameScreen2::SpawnEnemieslv3(float xPosition) {
-	
+void Engine::GameScreen3::SpawnEnemieslv3(float xPosition) {
+
 	//float duration;
 	duration += game->GetGameTime();
 
@@ -1352,7 +1352,7 @@ void Engine::GameScreen2::SpawnEnemieslv3(float xPosition) {
 	enemySprite3->SetSize(34000, 750)->SetPosition(start.x, start.y)->SetFlipVertical(false);
 	enemySprite3->SetBoundingBoxSize(enemySprite3->GetScaleWidth() - (3.5 * enemySprite3->GetScale()), enemySprite3->GetScaleHeight() - 50);
 	enemySprite3->SetNumXFrames(27)->SetNumYFrames(1)->AddAnimation("idle", 4, 26)->PlayAnim("idle");
-		
+
 
 	if (floor(bps) >= previousBps2) {  // Check for significant change
 		previousBps2 = floor(bps);
@@ -1361,12 +1361,12 @@ void Engine::GameScreen2::SpawnEnemieslv3(float xPosition) {
 
 		enemySprite3->SetAnimationDuration(3.571428f);
 	}
-	
+
 
 	enemies3.push_back(enemySprite3);  // Add enemy ship to the list
 }
 
-void Engine::GameScreen2::GenerateEnemylv3Pattern() {
+void Engine::GameScreen3::GenerateEnemylv3Pattern() {
 	float randomX = ((game->GetSettings()->screenWidth) / 6);  // Random X position
 	SpawnEnemieslv3(randomX);  // Spawn an enemy at the random X position
 }
@@ -1377,7 +1377,7 @@ void Engine::GameScreen2::GenerateEnemylv3Pattern() {
 
 #pragma region Parallax Functions
 
-void Engine::GameScreen2::MoveLayer(vector<Sprite*>& bg, float speed)
+void Engine::GameScreen3::MoveLayer(vector<Sprite*>& bg, float speed)
 {
 	for (Sprite* s : bg) {
 		if (s->GetPosition().y < -game->GetSettings()->screenHeight + offset) {
@@ -1388,14 +1388,14 @@ void Engine::GameScreen2::MoveLayer(vector<Sprite*>& bg, float speed)
 	}
 }
 
-void Engine::GameScreen2::DrawLayer(vector<Sprite*>& bg)
+void Engine::GameScreen3::DrawLayer(vector<Sprite*>& bg)
 {
 	for (Sprite* s : bg) {
 		s->Draw();
 	}
 }
 
-void Engine::GameScreen2::AddToLayer(vector<Sprite*>& bg, string name)
+void Engine::GameScreen3::AddToLayer(vector<Sprite*>& bg, string name)
 {
 	Texture* texture = new Texture(name);
 
@@ -1412,7 +1412,7 @@ void Engine::GameScreen2::AddToLayer(vector<Sprite*>& bg, string name)
 
 #pragma region Bullet Spawn
 
-void Engine::GameScreen2::SpawnBullets()
+void Engine::GameScreen3::SpawnBullets()
 {
 	if (timeInterval >= 100) {
 		if (readyBullets.empty()) {

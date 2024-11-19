@@ -58,7 +58,7 @@ void Engine::MenuScreen::Init()
 		->AddInputMapping("press", SDLK_RETURN)
 		->AddInputMapping("exit", SDLK_BACKSPACE)
 		->AddInputMapping("Zoom In", SDLK_i)
-		->AddInputMapping("Zoom Out", SDLK_o);
+		->AddInputMapping("Zoom Out", SDLK_u);
 
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(30)->Play(true);
 

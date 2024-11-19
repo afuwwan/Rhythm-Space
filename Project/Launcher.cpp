@@ -19,7 +19,8 @@
 #include "LessonAI01_SteeringBehaviors.h"
 #include "LessonAI02_NPCWave.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) 
+{
 	Engine::Setting* setting = new Engine::Setting();
 	setting->screenWidth = 1920;
 	setting->screenHeight = 1080;

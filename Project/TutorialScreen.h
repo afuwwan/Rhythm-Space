@@ -1,5 +1,5 @@
-#ifndef GAMESCREEN_H
-#define GAMESCREEN_H
+#ifndef TUTORIALSCREEN_H
+#define TUTORIALSCREEN_H
 
 #include "Screen.h"
 #include "ScreenManager.h"
@@ -19,8 +19,9 @@
 #include <fstream>
 #include <string>
 
-namespace Engine {
-	class GameScreen :
+namespace Engine 
+{
+	class TutorialScreen :
 		public Engine::Screen
 	{
 	public:
@@ -33,7 +34,7 @@ namespace Engine {
 		};
 		GameState gstate;
 
-		GameScreen();
+		TutorialScreen();
 		void Init();
 		void Update();
 		void Draw();
@@ -52,16 +53,16 @@ namespace Engine {
 
 		Engine::Texture* texture2 = NULL;
 
-		Engine::Sprite* sprite2 = NULL;		
-		
+		Engine::Sprite* sprite2 = NULL;
+
 		Engine::Texture* texture_gov = NULL;
 
-		Engine::Sprite* gov = NULL;		
-		
+		Engine::Sprite* gov = NULL;
+
 		Engine::Texture* texture_you = NULL;
 
-		Engine::Sprite* you = NULL;		
-		
+		Engine::Sprite* you = NULL;
+
 		Engine::Texture* texture_survived = NULL;
 
 		Engine::Sprite* survived = NULL;
@@ -75,7 +76,7 @@ namespace Engine {
 		Music* music2 = NULL;
 
 		Music* finish_music = NULL;
-		
+
 		Music* gov_music = NULL;
 
 		//Sound* metronome = NULL;
@@ -166,15 +167,15 @@ namespace Engine {
 
 		glm::vec2 targetCameraPos;
 
-		
+
 		int score = 500;
 
 		Text* text1 = NULL;
 
 		Text* score_finish = NULL;
-		
+
 		Text* back_txt = NULL;
-		
+
 		Text* reset_txt = NULL;
 
 		float x_score;

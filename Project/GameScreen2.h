@@ -17,6 +17,9 @@
 //#include "Shader.h"
 #include <vector>
 #include <GLFW/glfw3.h>
+#include <cmath>
+#include <fstream>
+#include <string>
 
 namespace Engine {
 	class GameScreen2 :
@@ -66,6 +69,7 @@ namespace Engine {
 
 
 		////////////Music & Sound////////////
+
 		Music* music = NULL;
 
 		Sound* hit = NULL;
@@ -75,6 +79,8 @@ namespace Engine {
 		Music* finish_music = NULL;
 
 		Music* gov_music = NULL;
+
+		Sound* beat = NULL;
 
 		//Sound* metronome = NULL;
 
@@ -136,6 +142,10 @@ namespace Engine {
 
 
 		//////////Enemies////////////
+		float bossMovementTime = 0.0f;
+
+		bool bossReachedPlayerView = false;
+		
 		vector<Sprite*> enemies;
 
 		void SpawnEnemies(float xPosition);
@@ -174,8 +184,7 @@ namespace Engine {
 
 		glm::vec2 targetCameraPos;
 
-
-		int score = 100000;
+		int score = 500;
 
 		Text* text1 = NULL;
 
@@ -188,6 +197,13 @@ namespace Engine {
 		float x_score;
 
 		void ResetVariables();
+
+		std::vector<float> spawnTimestamps;
+
+		size_t currentTimestampIndex = 0;
+
+		std::vector<float> LoadTimestamps(const std::string& filename);
+
 
 	};
 }

@@ -1,7 +1,8 @@
-#ifndef GAMESCREEN_H
-#define GAMESCREEN_H
+#ifndef GAMESCREEN3_H
+#define GAMESCREEN3_H
 
 #include "Screen.h"
+#include "Turtle.h"
 #include "ScreenManager.h"
 #include "Game.h"
 #include "Setting.h"
@@ -15,12 +16,13 @@
 #include "Camera.h"
 //#include "Shader.h"
 #include <vector>
-//#include <GLFW/glfw3.h>
+#include <GLFW/glfw3.h>
+#include <cmath>
 #include <fstream>
 #include <string>
 
 namespace Engine {
-	class GameScreen :
+	class GameScreen3 :
 		public Engine::Screen
 	{
 	public:
@@ -33,11 +35,10 @@ namespace Engine {
 		};
 		GameState gstate;
 
-		GameScreen();
+		GameScreen3();
 		void Init();
 		void Update();
 		void Draw();
-
 
 	private:
 
@@ -52,22 +53,23 @@ namespace Engine {
 
 		Engine::Texture* texture2 = NULL;
 
-		Engine::Sprite* sprite2 = NULL;		
-		
+		Engine::Sprite* sprite2 = NULL;
+
 		Engine::Texture* texture_gov = NULL;
 
-		Engine::Sprite* gov = NULL;		
-		
+		Engine::Sprite* gov = NULL;
+
 		Engine::Texture* texture_you = NULL;
 
-		Engine::Sprite* you = NULL;		
-		
+		Engine::Sprite* you = NULL;
+
 		Engine::Texture* texture_survived = NULL;
 
 		Engine::Sprite* survived = NULL;
 
 
 		////////////Music & Sound////////////
+
 		Music* music = NULL;
 
 		Sound* hit = NULL;
@@ -75,8 +77,10 @@ namespace Engine {
 		Music* music2 = NULL;
 
 		Music* finish_music = NULL;
-		
+
 		Music* gov_music = NULL;
+
+		Sound* beat = NULL;
 
 		//Sound* metronome = NULL;
 
@@ -86,11 +90,11 @@ namespace Engine {
 
 		int previousBps;
 
+		float previousBps2;
+
 		float duration2;
 
 		int bps2;
-
-		int previousBps2;
 
 		float finish_duration;
 
@@ -138,6 +142,10 @@ namespace Engine {
 
 
 		//////////Enemies////////////
+		float bossMovementTime = 0.0f;
+
+		bool bossReachedPlayerView = false;
+
 		vector<Sprite*> enemies;
 
 		void SpawnEnemies(float xPosition);
@@ -154,11 +162,21 @@ namespace Engine {
 
 		vector<Sprite*> enemies3;
 
+		Engine::Texture* enemyTexture3 = NULL;
+
+		Engine::Sprite* enemySprite3 = NULL;
+
 		void SpawnEnemieslv3(float xPosition);
 
 		void GenerateEnemylv3Pattern();
 
 		bool enemySpawned = false;
+
+		float beatsPerAnimationCycle = 2.0f;  // Animation completes every 2 beats
+
+		float animationDuration;
+
+		float frameDelay;
 
 
 		////////////Others////////////
@@ -166,15 +184,14 @@ namespace Engine {
 
 		glm::vec2 targetCameraPos;
 
-		
 		int score = 500;
 
 		Text* text1 = NULL;
 
 		Text* score_finish = NULL;
-		
+
 		Text* back_txt = NULL;
-		
+
 		Text* reset_txt = NULL;
 
 		float x_score;

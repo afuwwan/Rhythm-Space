@@ -7,6 +7,10 @@
 #include "GameScreen.h"
 #include "SongListScreen.h"
 #include "GameScreen2.h"
+#include "GameScreen3.h"
+#include "TutorialScreen.h"
+#include "LoadingScreen.h"
+
 
 namespace Engine {
 	class RhythmSpace :public Engine::Game

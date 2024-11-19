@@ -164,6 +164,23 @@ Engine::GameScreen::GameScreen()
 	delete sprite;
 }
 
+// Define the LoadTimestamps function
+std::vector<float> Engine::GameScreen::LoadTimestamps(const std::string& filename) {
+	std::vector<float> timestamps;
+	std::ifstream file(filename);
+	float timestamp;
+
+	// Read each line as a timestamp
+	while (file >> timestamp) {
+		timestamps.push_back(timestamp);
+	}
+	file.close();
+
+	// Reverse the vector to get chronological order
+	std::reverse(timestamps.begin(), timestamps.end());
+	return timestamps;
+}
+
 void Engine::GameScreen::Init()
 {
 
@@ -259,7 +276,7 @@ void Engine::GameScreen::Init()
 
 	finish_music = (new Music("PIXL-Sugar-Rush-Challenge-Loop.ogg"))->SetVolume(45);
 
-	gov_music = (new Music("Kubbi - Formed by Glaciers (Game Over Theme).ogg"))->SetVolume(60);
+	gov_music = (new Music("Kubbi - Formed by Glaciers (Game Over Theme).ogg"))->SetVolume(150);
 
 	//metronome = (new Sound("beep.ogg"))->SetVolume(70)->Play(true);
 
@@ -273,9 +290,10 @@ void Engine::GameScreen::Init()
 		->AddInputMapping("Move Left", SDLK_a)
 		->AddInputMapping("Move Center", SDLK_s)
 		->AddInputMapping("Attack", SDL_BUTTON_LEFT)
+		->AddInputMapping("Null", SDL_BUTTON_RIGHT)
 		->AddInputMapping("Avoid", SDLK_SPACE)
 		->AddInputMapping("mainmenu", SDLK_ESCAPE)
-		->AddInputMapping("mainmenu", SDL_CONTROLLER_BUTTON_Y)
+		->AddInputMapping("mainmenu", SDLK_o)
 		->AddInputMapping("Reset", SDLK_r)
 		->AddInputMapping("Finish", SDLK_f)
 		->AddInputMapping("GameOver", SDLK_g)
@@ -330,6 +348,12 @@ void Engine::GameScreen::Init()
 
 #pragma endregion
 
+	spawnTimestamps = LoadTimestamps("Shirobon-On-The-Run.txt");
+	currentTimestampIndex = 0; // Start at the first timestamp
+	// Debug: Print all timestamps to confirm loading
+	for (float time : spawnTimestamps) {
+		std::cout << "Loaded timestamp: " << time << std::endl;
+	}
 }
 
 void Engine::GameScreen::Update()
@@ -395,7 +419,7 @@ void Engine::GameScreen::Update()
 		std::cout << "duration : " << duration / 1000 << std::endl;
 
 
-		if (duration / 1000 >= 1.8) //add slight delay to make sound match obstacle spawning
+		if (duration / 1000 >= 2.0f) //add slight delay to make sound match obstacle spawning
 		{
 			if (music->IsPlaying() == false)
 			{
@@ -504,6 +528,15 @@ void Engine::GameScreen::Update()
 
 		//float duration;
 		duration += game->GetGameTime();
+	
+		// Check if it's time to spawn an obstacle
+		if (currentTimestampIndex < spawnTimestamps.size() &&
+			duration/1000 >= spawnTimestamps[currentTimestampIndex]) {
+			std::cout << "Spawning obstacle at: " << duration << std::endl;
+			GenerateObstaclePattern();  // Spawn the obstacle
+			currentTimestampIndex++;    // Move to the next timestamp
+		}
+
 
 		//1 beat = 1 / 2.6 of a second
 		bps = (duration / 1000) * 2.6f;
@@ -515,12 +548,6 @@ void Engine::GameScreen::Update()
 			{
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 4
-				if (previousBps % 4 == 0) 
-				{
-					GenerateObstaclePattern(); 
-				}
 
 				if (previousBps % 2 == 0)
 				{
@@ -535,12 +562,6 @@ void Engine::GameScreen::Update()
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				
-				}
 
 				if (previousBps % 2 == 0)
 				{
@@ -562,11 +583,6 @@ void Engine::GameScreen::Update()
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 3
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
 				if (previousBps % 2 == 0)
 				{
 					GenerateEnemyPattern();
@@ -581,31 +597,11 @@ void Engine::GameScreen::Update()
 
 		}
 
-		if (duration / 1000 >= 84 && duration / 1000 < 107)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 1
-				if (previousBps % 1 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-			}
-
-		}
-
 		if (duration / 1000 >= 107 && duration / 1000 < 132)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
 
 				if (previousBps % 2 == 0)
 				{
@@ -622,31 +618,12 @@ void Engine::GameScreen::Update()
 
 		}
 
-		if (duration / 1000 >= 132 && duration / 1000 < 156)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 1
-				if (previousBps % 1 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-			}
-
-		}
-
 		if (duration / 1000 >= 156 && duration / 1000 < 167)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 4
-				if (previousBps % 4 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
 
 				if (previousBps % 2 == 0)
 				{
@@ -669,10 +646,7 @@ void Engine::GameScreen::Update()
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
+
 
 				if (previousBps % 2 == 0)
 				{
@@ -689,31 +663,12 @@ void Engine::GameScreen::Update()
 
 		}
 
-		if (duration / 1000 >= 192 && duration / 1000 < 215)
-		{
-			if (floor(bps) > previousBps) {
-				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 1
-				if (previousBps % 1 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
-
-			}
-
-		}
 
 		if (duration / 1000 >= 215 && duration / 1000 < 240)
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
-
-				// Check if the beat count is the equivalent of 2
-				if (previousBps % 2 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
 
 				if (previousBps % 2 == 0)
 				{
@@ -736,10 +691,7 @@ void Engine::GameScreen::Update()
 				previousBps = floor(bps);  // Update the previous BPS value
 				//SpawnBullets();
 
-				// Check if the beat count is the equivalent of 4
-				if (previousBps % 4 == 0) {
-					GenerateObstaclePattern();  // Spawn obstacle pattern every n beats
-				}
+
 
 				if (previousBps % 2 == 0)
 				{
@@ -777,7 +729,7 @@ void Engine::GameScreen::Update()
 					//gstate = GameState::GAME_OVER;
 					//return;
 					it = platforms.erase(it); // Remove obstacle on collision
-					score -= 50;
+					score -= 5;
 					//text->SetText("Score: " + std::to_string(score));
 				}
 				else if (y_ <= -300)
@@ -803,7 +755,7 @@ void Engine::GameScreen::Update()
 					spinT = 0;
 				}
 
-				obstacle->SetRotation(spinT);
+				//obstacle->SetRotation(spinT);
 			}
 			else
 			{
@@ -834,11 +786,30 @@ void Engine::GameScreen::Update()
 		}
 
 		// Bullet behaviour
-		for (Bullet* b : inUseBullets) {
-			for (auto it = enemies.begin(); it != enemies.end();) {
+		for (Bullet* b : inUseBullets) 
+		{
+			if (game->GetSettings()->screenWidth <= b->GetPosition().x)
+			{
+				// Remove the bullet from in-use list and return to ready bullets
+				readyBullets.push_back(b);
+				inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+				break;  // Exit the loop after handling the collision
+			}
+
+			if (game->GetSettings()->screenHeight <= b->GetPosition().y)
+			{
+				// Remove the bullet from in-use list and return to ready bullets
+				readyBullets.push_back(b);
+				inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
+				break;  // Exit the loop after handling the collision
+			}
+
+			for (auto it = enemies.begin(); it != enemies.end();) 
+			{
 				Sprite* enemy = *it;
 
-				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) {
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) 
+				{
 					// Increase score when enemy is hit by bullet
 					score += 5;
 					//text->SetText("Score: " + std::to_string(score));
@@ -851,16 +822,19 @@ void Engine::GameScreen::Update()
 					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
 					break;  // Exit the loop after handling the collision
 				}
-				else {
+				else 
+				{
 					++it;  // Continue iterating if no collision
 				}
 			}
 
 			//bullet behaviour for lv2 evilship
-			for (auto it = enemies2.begin(); it != enemies2.end();) {
+			for (auto it = enemies2.begin(); it != enemies2.end();) 
+			{
 				Sprite* enemy = *it;
 
-				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) {
+				if (b->GetBoundingBox()->CollideWith(enemy->GetBoundingBox())) 
+				{
 					// Increase score when enemy is hit by bullet
 					enemielv2health -= 10;
 					//text->SetText("Score: " + std::to_string(score));
@@ -881,7 +855,8 @@ void Engine::GameScreen::Update()
 					inUseBullets.erase(remove(inUseBullets.begin(), inUseBullets.end(), b), inUseBullets.end());
 					break;  // Exit the loop after handling the collision
 				}
-				else {
+				else 
+				{
 					++it;  // Continue iterating if no collision
 				}
 			}
@@ -891,7 +866,8 @@ void Engine::GameScreen::Update()
 
 #pragma region Enemies Handling
 
-		for (auto it = enemies.begin(); it != enemies.end();) {
+		for (auto it = enemies.begin(); it != enemies.end();) 
+		{
 			Sprite* enemy = *it;
 
 			float enemyX = enemy->GetPosition().x;
@@ -900,7 +876,8 @@ void Engine::GameScreen::Update()
 
 			
 			// Check if the enemy should speed up or move toward the sprite
-			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200)) {
+			if (y_2 < (game->GetSettings()->screenHeight / 2 + 200)) 
+			{
 
 				// Get sprite position
 				float spriteX = sprite->GetPosition().x;
@@ -912,7 +889,8 @@ void Engine::GameScreen::Update()
 
 				// Normalize direction
 				float length = sqrt(dirX * dirX + dirY * dirY);
-				if (length != 0) {
+				if (length != 0) 
+				{
 					dirX /= length;
 					dirY /= length;
 				}
@@ -931,7 +909,8 @@ void Engine::GameScreen::Update()
 				enemy->SetRotation(angle);
 
 			}
-			else {
+			else 
+			{
 				// Regular downward movement before reaching the threshold
 				y_2 -= 0.5f * game->GetGameTime();
 				enemy->SetPosition(enemyX, y_2);
@@ -939,21 +918,25 @@ void Engine::GameScreen::Update()
 
 			enemy->Update(game->GetGameTime());
 
-			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) {
+			if (enemy->GetBoundingBox()->CollideWith(sprite->GetBoundingBox())) 
+			{
 				it = enemies.erase(it); // Handle collision
 				score -= 10;
 			}
-			else if (y_2 <= -300) {
+			else if (y_2 <= -300) 
+			{
 				it = enemies.erase(it); // Remove enemy if off-screen
 			}
-			else {
+			else 
+			{
 				++it;
 			}
 			
 		}
 
 		//level2 enemy
-		for (auto it = enemies2.begin(); it != enemies2.end();) {
+		for (auto it = enemies2.begin(); it != enemies2.end();) 
+		{
 			Sprite* enemy = *it;
 
 			float enemyX = enemy->GetPosition().x;
@@ -1343,6 +1326,9 @@ void Engine::GameScreen::ResetVariables()
 	previousBps = 0;
 	bps = 0;
 
+	spawnTimestamps;
+	currentTimestampIndex = 0;
+
 	//resets sprite position
 	sprite->SetPosition(game->GetSettings()->screenWidth / 2.15f, (game->GetSettings()->screenHeight / 12) - 50.0f);
 
@@ -1575,5 +1561,3 @@ void Engine::GameScreen::SpawnBullets()
 }
 
 #pragma endregion
-
-
