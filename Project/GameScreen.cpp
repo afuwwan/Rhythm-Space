@@ -230,6 +230,14 @@ void Engine::GameScreen::Init()
 	survived->SetScale(2.5f)
 		->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 3);
 
+	//Paused sprite
+	texture_p = new Texture("Paused.png");
+	paused = (new Sprite(texture_p, game->GetDefaultSpriteShader(), game->GetDefaultQuad()));
+
+	paused->SetScale(5.0f)
+		->SetPosition((game->GetSettings()->screenWidth) / 3.25, (game->GetSettings()->screenHeight) / 2);
+
+
 #pragma endregion
 
 #pragma region Text init
@@ -244,6 +252,9 @@ void Engine::GameScreen::Init()
 	back_txt->SetScale(1)->SetColor(255, 0, 0)->SetText("PRESS Esc TO EXIT")
 		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.2f, ((game->GetSettings()->screenHeight) / 5) / 2);
 
+	cont_txt = new Text("homespun.ttf", 40, game->GetDefaultTextShader());
+	cont_txt->SetScale(1)->SetColor(255, 255, 255)->SetText("PRESS C TO CONTINUE")
+		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.25f, ((game->GetSettings()->screenHeight) / 5) / 2);
 
 
 #pragma endregion
@@ -252,13 +263,12 @@ void Engine::GameScreen::Init()
 
 	// Initialize camera properties (position, zoom)
 	camera.position = glm::vec2(0, 0);
-	camera.zoom = 1.0228f;  // Default zoom level
+	camera.zoom = 1.0228f; 
 
 #pragma endregion
 
 #pragma region Score init
 
-	//displays score in running state
 	text1 = new Text("homespun.ttf", 100, game->GetDefaultTextShader());
 	text1->SetScale(1)->SetColor(255, 255, 255)
 		 ->SetPosition((game->GetSettings()->screenWidth/4) * 3.25, ((game->GetSettings()->screenHeight/4) - 50) - (text1->GetFontSize() * text1->GetScale()));
@@ -266,6 +276,7 @@ void Engine::GameScreen::Init()
 	score_finish = new Text("homespun.ttf", 100, game->GetDefaultTextShader());
 	score_finish->SetScale(1)->SetColor(255, 255, 255)
 		->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), ((game->GetSettings()->screenHeight) / 4) * 1.3f);
+
 
 #pragma endregion
 
@@ -293,10 +304,11 @@ void Engine::GameScreen::Init()
 		->AddInputMapping("Null", SDL_BUTTON_RIGHT)
 		->AddInputMapping("Avoid", SDLK_SPACE)
 		->AddInputMapping("mainmenu", SDLK_ESCAPE)
-		->AddInputMapping("mainmenu", SDLK_o)
 		->AddInputMapping("Reset", SDLK_r)
 		->AddInputMapping("Finish", SDLK_f)
 		->AddInputMapping("GameOver", SDLK_g)
+		->AddInputMapping("Continue", SDLK_c)
+		->AddInputMapping("Pause", SDLK_p)
 		->AddInputMapping("Zoom In", SDLK_i)
 		->AddInputMapping("Zoom Out", SDLK_o);
 
@@ -358,23 +370,11 @@ void Engine::GameScreen::Init()
 
 void Engine::GameScreen::Update()
 {
-#pragma region State Debugging
 
-	if (game->GetInputManager()->IsKeyPressed("Finish")) 
+	if (game->GetInputManager()->IsKeyPressed("Pause"))
 	{
-		music->Stop();
-		gov_music->Stop();
-		gstate = GameState::FINISH;
+		gstate = GameState::PAUSED;
 	}
-
-	if (game->GetInputManager()->IsKeyPressed("GameOver")) 
-	{
-		music->Stop();
-		finish_music->Stop();
-		gstate = GameState::GAME_OVER;
-	}
-
-#pragma endregion
 
 
 	if (gstate == GameState::RUNNING)
@@ -440,14 +440,6 @@ void Engine::GameScreen::Update()
 
 #pragma region Camera Handling
 
-		// Optional: Zoom control with key input
-		//if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
-		//	camera.SetZoom(camera.zoom + 0.007f);
-		//}
-		//if (game->GetInputManager()->IsKeyPressed("Zoom Out")) {
-		//	camera.SetZoom(camera.zoom - 0.007f);
-		//}
-
 		// Update the shader's view matrix uniform
 		glUseProgram(game->GetDefaultSpriteShader()->GetId());
 		glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
@@ -490,10 +482,6 @@ void Engine::GameScreen::Update()
 		//Get the current mouse position on the screen using SDL
 		SDL_GetMouseState(&mouseX, &mouseY);
 
-		//float dx = mouseX - note1->GetPosition().x;
-		//float dy = mouseY - note1->GetPosition().y;
-		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
-
 		//Store the mouse position in a glm::vec2 for easier calculations
 		glm::vec2 mousePos = { mouseX, mouseY };
 
@@ -521,12 +509,10 @@ void Engine::GameScreen::Update()
 		sprite->SetRotation(angle);
 
 
-
 #pragma endregion
 
 #pragma region Obstacle and Enemies Mapping
 
-		//float duration;
 		duration += game->GetGameTime();
 	
 		// Check if it's time to spawn an obstacle
@@ -547,7 +533,6 @@ void Engine::GameScreen::Update()
 			if (floor(bps) > previousBps) 
 			{
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
 				if (previousBps % 2 == 0)
 				{
@@ -561,7 +546,6 @@ void Engine::GameScreen::Update()
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
 				if (previousBps % 2 == 0)
 				{
@@ -581,7 +565,6 @@ void Engine::GameScreen::Update()
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
 				if (previousBps % 2 == 0)
 				{
@@ -601,7 +584,6 @@ void Engine::GameScreen::Update()
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
 				if (previousBps % 2 == 0)
 				{
@@ -622,7 +604,6 @@ void Engine::GameScreen::Update()
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
 
 				if (previousBps % 2 == 0)
@@ -644,8 +625,6 @@ void Engine::GameScreen::Update()
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
-
 
 
 				if (previousBps % 2 == 0)
@@ -668,7 +647,6 @@ void Engine::GameScreen::Update()
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
 				if (previousBps % 2 == 0)
 				{
@@ -689,7 +667,6 @@ void Engine::GameScreen::Update()
 		{
 			if (floor(bps) > previousBps) {
 				previousBps = floor(bps);  // Update the previous BPS value
-				//SpawnBullets();
 
 
 
@@ -715,7 +692,7 @@ void Engine::GameScreen::Update()
 
 			Sprite* obstacle = *it;
 
-			//
+			//make sure obstacle is not null
 			if (obstacle)
 			{
 				float y_ = obstacle->GetPosition().y;
@@ -726,11 +703,8 @@ void Engine::GameScreen::Update()
 
 				if (obstacle->GetBoundingBox()->CollideWith(sprite->GetBoundingBox()))
 				{
-					//gstate = GameState::GAME_OVER;
-					//return;
 					it = platforms.erase(it); // Remove obstacle on collision
 					score -= 5;
-					//text->SetText("Score: " + std::to_string(score));
 				}
 				else if (y_ <= -300)
 				{
@@ -755,7 +729,6 @@ void Engine::GameScreen::Update()
 					spinT = 0;
 				}
 
-				//obstacle->SetRotation(spinT);
 			}
 			else
 			{
@@ -770,8 +743,8 @@ void Engine::GameScreen::Update()
 
 		timeInterval += game->GetGameTime();
 
-		if (game->GetInputManager()->IsKeyPressed("Attack")) {
-			//sprite->PlayAnim("attack");
+		if (game->GetInputManager()->IsKeyPressed("Attack")) 
+		{
 			SpawnBullets();
 		}
 
@@ -812,7 +785,6 @@ void Engine::GameScreen::Update()
 				{
 					// Increase score when enemy is hit by bullet
 					score += 5;
-					//text->SetText("Score: " + std::to_string(score));
 
 					// Erase the enemy after collision
 					it = enemies.erase(it);
@@ -837,7 +809,6 @@ void Engine::GameScreen::Update()
 				{
 					// Increase score when enemy is hit by bullet
 					enemielv2health -= 10;
-					//text->SetText("Score: " + std::to_string(score));
 
 					//If bullet hits 3 time lv2 enemie is dead
 					if (enemielv2health <= 0)
@@ -1224,6 +1195,19 @@ void Engine::GameScreen::Update()
 
 		gstate = GameState::RUNNING;
 	}
+	else if (gstate == GameState::PAUSED)
+	{
+		std::cout << "Game Paused" << std::endl;
+
+		music->Pause();
+
+		if (game->GetInputManager()->IsKeyReleased("Continue") && music->IsPaused() == true)
+		{
+			music->Resume();
+
+			gstate = GameState::RUNNING;
+		}
+	}
 
 }
 
@@ -1305,6 +1289,12 @@ void Engine::GameScreen::Draw()
 		back_txt->Draw();
 	}
 	
+	if (gstate == GameState::PAUSED)
+	{
+		paused->Draw();
+		cont_txt->Draw();
+	}
+
 }
 
 void Engine::GameScreen::ResetVariables()
@@ -1318,7 +1308,6 @@ void Engine::GameScreen::ResetVariables()
 	//resets enemies
 	enemies.clear();
 	enemies2.clear();
-	//enemielv2health = 30;
 	
 	//resets other variables
 	score = 500;

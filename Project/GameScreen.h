@@ -29,7 +29,8 @@ namespace Engine {
 			RUNNING,
 			RESET,
 			GAME_OVER,
-			FINISH
+			FINISH,
+			PAUSED
 		};
 		GameState gstate;
 
@@ -66,6 +67,10 @@ namespace Engine {
 
 		Engine::Sprite* survived = NULL;
 
+		Engine::Texture* texture_p = NULL;
+
+		Engine::Sprite* paused = NULL;
+
 
 		////////////Music & Sound////////////
 		Music* music = NULL;
@@ -77,8 +82,6 @@ namespace Engine {
 		Music* finish_music = NULL;
 		
 		Music* gov_music = NULL;
-
-		//Sound* metronome = NULL;
 
 		float duration;
 
@@ -106,10 +109,6 @@ namespace Engine {
 
 		float offset = 0;
 
-		/////////////Shader////////////
-		//Shader* shader;
-		//glm::mat4 view;
-
 
 		///////////Bullets////////////
 		Engine::Texture* texture = NULL, * bulletTexture = NULL;
@@ -133,8 +132,6 @@ namespace Engine {
 		void GenerateObstaclePattern();
 
 		int previousEmptySection = -1;
-
-		//float y_;
 
 
 		//////////Enemies////////////
@@ -176,6 +173,8 @@ namespace Engine {
 		Text* back_txt = NULL;
 		
 		Text* reset_txt = NULL;
+
+		Text* cont_txt = NULL;
 
 		float x_score;
 

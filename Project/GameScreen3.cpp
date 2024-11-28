@@ -115,9 +115,9 @@ void Engine::GameScreen3::Init()
 
 #pragma region Music and Sound init
 
-	music = (new Music("Bossfight-Milky-Ways.ogg"))->SetVolume(45)/*->Play(false)*/;
-
-	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(45)/*->Play(false)*/;
+	music = (new Music("Nitro Fun - New Game.ogg"))->SetVolume(45)/*->Play(false)*/;
+	
+	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(45)->Stop();
 
 	finish_music = (new Music("PIXL-Sugar-Rush-Challenge-Loop.ogg"))->SetVolume(45);
 
@@ -197,7 +197,8 @@ void Engine::GameScreen3::Init()
 	spawnTimestamps = LoadTimestamps("MilkyWay-Bossfight.txt");
 	currentTimestampIndex = 0; // Start at the first timestamp
 	// Debug: Print all timestamps to confirm loading
-	for (float time : spawnTimestamps) {
+	for (float time : spawnTimestamps) 
+	{
 		std::cout << "Loaded timestamp: " << time << std::endl;
 	}
 
@@ -227,6 +228,7 @@ void Engine::GameScreen3::Update()
 
 	if (gstate == GameState::RUNNING)
 	{
+
 		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
 			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
 			music->Stop();
@@ -873,129 +875,13 @@ void Engine::GameScreen3::Update()
 	}
 	else if (gstate == GameState::FINISH)
 	{
-		inUseBullets.clear();
+		music3->Pause();
 
-		camera.position = glm::vec2(0, 0);
-
-		finish_duration += game->GetGameTime();
-
-		//finish music
-		if (finish_music->IsPlaying() == false)
+		if (game->GetInputManager()->IsKeyReleased("Finish") && music3->IsPaused() == true) 
 		{
-			finish_music->Play(true);
-			finish_music->IsPlaying() == true;
-		}
-
-		//increases parallax speed
-		MoveLayer(backgrounds, 0.02f);
-		MoveLayer(middlegrounds, 0.12f);
-		MoveLayer(foregrounds, 1.2f);
-
-		//switch to main menu
-		if (game->GetInputManager()->IsKeyReleased("mainmenu")) {
-
-			music->Stop();
-
-			finish_music->Stop();
-
-			finish_duration = 0;
-
-			you->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 2);
-
-			survived->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 3);
-
-			score_finish->SetText(std::to_string(score))->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), score_finish->GetPosition().y);
-
-			ResetVariables();
+			music3->Resume();
 
 			gstate = GameState::RUNNING;
-
-			music2->Play(true);
-
-			ScreenManager::GetInstance(game)->SetCurrentScreen("mainmenu");
-		}
-
-		//spaceship goes upward
-		int y_2 = sprite->GetPosition().y;
-		y_2 += 4;
-
-		//sets sprite y value and sets angle to face upward
-		sprite->SetPosition(sprite->GetPosition().x, y_2)
-			->SetRotation(2);
-
-		//add a reset button
-		if (game->GetInputManager()->IsKeyReleased("Reset")) {
-
-			finish_duration = 0;
-
-			you->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 2);
-
-			survived->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 3);
-
-			score_finish->SetText(std::to_string(score))->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), score_finish->GetPosition().y);
-
-			gstate = GameState::RESET;
-		}
-
-		//finish sprite goes from left to middle of the screen
-		float x_2y = you->GetPosition().x;
-		float x_2s = survived->GetPosition().x;
-
-		//logic for "you" sprite goes from left to right
-		if (x_2y < ((game->GetSettings()->screenWidth / 3) / 1.1f))
-		{
-			x_2y += 4.0f * (game->GetGameTime());
-		}
-		else
-		{
-			x_2y = (game->GetSettings()->screenWidth / 3) / 1.1f;
-		}
-
-		//logic for "survived" sprite goes from left to right and a slight delay
-		if ((finish_duration / 1000) >= 1)
-		{
-			if (x_2s < ((game->GetSettings()->screenWidth / 3) / 1.1f))
-			{
-				x_2s += 4.0f * (game->GetGameTime());
-			}
-			else
-			{
-				x_2s = (game->GetSettings()->screenWidth / 3) / 1.1f;
-			}
-		}
-
-		you->SetPosition(x_2y, game->GetSettings()->screenHeight / 2);
-		survived->SetPosition(x_2s, game->GetSettings()->screenHeight / 3);
-
-		you->Update(game->GetGameTime());
-		survived->Update(game->GetGameTime());
-
-		text1->SetText(" ");
-
-		// Get current x position of the score text
-		x_score = score_finish->GetPosition().x;
-
-		// Logic for score text movement with delay, stops at center screen
-		if ((finish_duration / 1000) >= 1)
-		{
-			// Set initial position
-			score_finish->SetText(std::to_string(score))->SetPosition(1, score_finish->GetPosition().y);
-
-			// Move the score text to the right if it hasn't reached the center
-			if (x_score < (game->GetSettings()->screenWidth / 2.15f))
-			{
-				x_score += 5 * game->GetGameTime();  // Adjust the speed as needed
-			}
-			else
-			{
-				x_score = (game->GetSettings()->screenWidth / 2.15f); // Stop at center
-			}
-
-			// Update position
-			score_finish->SetPosition(x_score, score_finish->GetPosition().y);
-
-			// Debugging print
-			std::cout << x_score << std::endl;
 		}
 
 		std::cout << "Game state is at finish" << std::endl;

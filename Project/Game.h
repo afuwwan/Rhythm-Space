@@ -8,7 +8,7 @@
 #include "Setting.h"
 #include "Shader.h"
 #include "Quad.h"
-#include "Input.h"
+#include "Input.h" 
 //#include "Camera.h"//
 //#include "Screen.h"//
 #include <map>
@@ -38,6 +38,9 @@ namespace Engine {
 		float GetGameTime();
 		State GetState();
 		void SetState(State state);
+
+		int selectedSong;
+
 	protected:
 		Setting* setting = NULL;
 		State state;

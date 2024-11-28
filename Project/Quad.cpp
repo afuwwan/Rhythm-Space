@@ -31,6 +31,7 @@ void Quad::Build()
 
 	GLuint indices[] = {  // Note that we start from 0!
 		0, 3, 2, 1
+
 	};
 
 	glGenVertexArrays(1, &vao);

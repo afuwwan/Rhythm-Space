@@ -76,6 +76,8 @@ namespace Engine {
 
 		Music* music2 = NULL;
 
+		Music* music3 = NULL;
+
 		Music* finish_music = NULL;
 
 		Music* gov_music = NULL;

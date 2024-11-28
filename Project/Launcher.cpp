@@ -22,6 +22,7 @@
 int main(int argc, char** argv) 
 {
 	Engine::Setting* setting = new Engine::Setting();
+
 	setting->screenWidth = 1920;
 	setting->screenHeight = 1080;
 	setting->windowFlag = Engine::WindowFlag::WINDOWED;

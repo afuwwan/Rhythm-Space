@@ -117,7 +117,7 @@ void Engine::MenuScreen::Update()
 	}
 	
 	// Set background
-	game->SetBackgroundColor(52, 155, 235);
+	game->SetBackgroundColor(0, 0, 0);
 
 	if (game->GetInputManager()->IsKeyReleased("next")) {
 		// Set previous button to normal state

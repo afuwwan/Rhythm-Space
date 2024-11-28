@@ -31,7 +31,8 @@ namespace Engine {
 			RUNNING,
 			RESET,
 			GAME_OVER,
-			FINISH
+			FINISH,
+			PAUSED
 		};
 		GameState gstate;
 
@@ -66,6 +67,10 @@ namespace Engine {
 		Engine::Texture* texture_survived = NULL;
 
 		Engine::Sprite* survived = NULL;
+
+		Engine::Texture* texture_p = NULL;
+
+		Engine::Sprite* paused = NULL;
 
 
 		////////////Music & Sound////////////
@@ -193,6 +198,8 @@ namespace Engine {
 		Text* back_txt = NULL;
 
 		Text* reset_txt = NULL;
+		
+		Text* cont_txt = NULL;
 
 		float x_score;
 

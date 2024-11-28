@@ -27,8 +27,14 @@ namespace Engine {
 
 		Camera camera;
 
+		float duration = 0.0f;
+
+		float loadingStartTime = 0.0f;
+
 		Engine::Texture* texture = NULL;
+		Engine::Texture* bgtexture = NULL;
 		Engine::Sprite* sprite = NULL;
+		Engine::Sprite* sprite2 = NULL;
 
 	};
 }

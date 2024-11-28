@@ -37,7 +37,8 @@ namespace Engine {
 		void AddToLayer(vector<Sprite*>& bg, string name);
 		float offset = 1;
 
-
+		float duration;
+		float buttonPressTime = 0.0f;
 
 
 	};

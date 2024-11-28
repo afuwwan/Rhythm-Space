@@ -96,7 +96,6 @@ void Engine::SongListScreen::Init()
 #pragma region Music Init
 
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(30)->Play(true);
-
 	music = (new Music("Shirobon-On-The-Run-(Preview).ogg"))->SetVolume(45)/*->Play(false)*/;
 	music3 = (new Music("Bossfight-Milky-Ways-(Preview).ogg"))->SetVolume(45)/*->Play(false)*/;
 
@@ -124,8 +123,11 @@ void Engine::SongListScreen::Init()
 
 void Engine::SongListScreen::Update()
 {
+	
+	duration += game->GetGameTime();
+	
 	// Set background
-	game->SetBackgroundColor(52, 155, 235);
+	game->SetBackgroundColor(0, 0, 0);
 
 	if (game->GetInputManager()->IsKeyReleased("next")) {
 		// Set previous button to normal state
@@ -138,6 +140,7 @@ void Engine::SongListScreen::Update()
 		if (currentButtonIndex == 0)
 		{
 			music2->Stop();
+			game->selectedSong = 1;
 
 			if (!music->IsPlaying()) {  // Check if music is not playing before calling Play
 				music3->Stop();
@@ -148,6 +151,7 @@ void Engine::SongListScreen::Update()
 		else if (currentButtonIndex == 1)
 		{
 			music2->Stop();
+			game->selectedSong = 2;
 
 			if (!music3->IsPlaying()) {  // Check if music3 is not playing before calling Play
 				music->Stop();
@@ -170,6 +174,7 @@ void Engine::SongListScreen::Update()
 		if (currentButtonIndex == 0)
 		{
 			music2->Stop();
+			game->selectedSong = 1;
 
 			if (!music->IsPlaying()) {  // Check if music is not playing before calling Play
 				music3->Stop();
@@ -180,6 +185,7 @@ void Engine::SongListScreen::Update()
 		else if (currentButtonIndex == 1)
 		{
 			music2->Stop();
+			game->selectedSong = 2;
 
 			if (!music3->IsPlaying()) {  // Check if music3 is not playing before calling Play
 				music->Stop();
@@ -190,9 +196,7 @@ void Engine::SongListScreen::Update()
 
 	}
 
-
-
-
+	std::cout << game->selectedSong << std::endl;
 
 	if (game->GetInputManager()->IsKeyReleased("press")) 
 	{
@@ -202,13 +206,17 @@ void Engine::SongListScreen::Update()
 
 		b->GetSprite()->PlayAnim("press");
 
+
 		// If play button then go to InGame, exit button then exit
 		if ("song1" == b->GetButtonName()) {
-			ScreenManager::GetInstance(game)->SetCurrentScreen("ingame");
+			
+			ScreenManager::GetInstance(game)->SetCurrentScreen("loading");
 			music2->Stop();
+
 		}
 		else if ("song2" == b->GetButtonName()) {
-			ScreenManager::GetInstance(game)->SetCurrentScreen("ingame2");
+			
+			ScreenManager::GetInstance(game)->SetCurrentScreen("loading");
 			music2->Stop();
 
 		}

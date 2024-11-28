@@ -63,7 +63,7 @@ void Engine::GameScreen2::Init()
 		->SetPosition((game->GetSettings()->screenWidth) * 2, (game->GetSettings()->screenHeight) * 1.5f)
 		->SetAnimationDuration(200);
 
-
+	//finished sprite
 	texture_you = new Texture("You.png");
 	you = (new Sprite(texture_you, game->GetDefaultSpriteShader(), game->GetDefaultQuad()));
 
@@ -76,19 +76,28 @@ void Engine::GameScreen2::Init()
 	survived->SetScale(2.5f)
 		->SetPosition((game->GetSettings()->screenWidth) - ((game->GetSettings()->screenWidth) * 2), (game->GetSettings()->screenHeight) / 3);
 
+	//Paused sprite
+	texture_p = new Texture("Paused.png");
+	paused = (new Sprite(texture_p, game->GetDefaultSpriteShader(), game->GetDefaultQuad()));
+
+	paused->SetScale(5.0f)
+		->SetPosition((game->GetSettings()->screenWidth) / 3.25, (game->GetSettings()->screenHeight) / 2);
+
 #pragma endregion
 
 #pragma region Text init
 
-	//displays score in running state
 	reset_txt = new Text("homespun.ttf", 40, game->GetDefaultTextShader());
 	reset_txt->SetScale(1)->SetColor(255, 255, 255)->SetText("PRESS R TO PLAY AGAIN")
 		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.25f, ((game->GetSettings()->screenHeight) / 5) / 1.25f);
 
-	//displays score in running state
 	back_txt = new Text("homespun.ttf", 40, game->GetDefaultTextShader());
 	back_txt->SetScale(1)->SetColor(255, 0, 0)->SetText("PRESS Esc TO EXIT")
 		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.2f, ((game->GetSettings()->screenHeight) / 5) / 2);
+
+	cont_txt = new Text("homespun.ttf", 40, game->GetDefaultTextShader());
+	cont_txt->SetScale(1)->SetColor(255, 255, 255)->SetText("PRESS C TO CONTINUE")
+		->SetPosition(((game->GetSettings()->screenWidth) / 2) / 1.25f, ((game->GetSettings()->screenHeight) / 5) / 2);
 
 #pragma endregion
 
@@ -137,11 +146,12 @@ void Engine::GameScreen2::Init()
 		->AddInputMapping("Attack", SDL_BUTTON_LEFT)
 		->AddInputMapping("Avoid", SDLK_SPACE)
 		->AddInputMapping("mainmenu", SDLK_ESCAPE)
-		->AddInputMapping("mainmenu", SDL_CONTROLLER_BUTTON_Y)
 		->AddInputMapping("Reset", SDLK_r)
 		->AddInputMapping("Finish", SDLK_f)
 		->AddInputMapping("GameOver", SDLK_g)
-		->AddInputMapping("Zoom Out", SDLK_u)
+		->AddInputMapping("Continue", SDLK_c)
+		->AddInputMapping("Pause", SDLK_p)
+		->AddInputMapping("Zoom Out", SDLK_o)
 		->AddInputMapping("Zoom In", SDLK_i);
 
 #pragma endregion
@@ -207,23 +217,11 @@ void Engine::GameScreen2::Init()
 
 void Engine::GameScreen2::Update()
 {
-#pragma region State Debugging
 
-	if (game->GetInputManager()->IsKeyPressed("Finish"))
+	if (game->GetInputManager()->IsKeyPressed("Pause"))
 	{
-		music->Stop();
-		gov_music->Stop();
-		gstate = GameState::FINISH;
+		gstate = GameState::PAUSED;
 	}
-
-	if (game->GetInputManager()->IsKeyPressed("GameOver"))
-	{
-		music->Stop();
-		finish_music->Stop();
-		gstate = GameState::GAME_OVER;
-	}
-
-#pragma endregion
 
 	if (gstate == GameState::RUNNING)
 	{
@@ -274,14 +272,6 @@ void Engine::GameScreen2::Update()
 
 #pragma region Camera Handling
 
-		// Optional: Zoom control with key input
-		//if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
-		//	camera.SetZoom(camera.zoom + 0.007f);
-		//}
-		//if (game->GetInputManager()->IsKeyPressed("Zoom Out")) {
-		//	camera.SetZoom(camera.zoom - 0.007f);
-		//}
-
 		// Update the shader's view matrix uniform
 		glUseProgram(game->GetDefaultSpriteShader()->GetId());
 		glm::mat4 view = camera.GetViewMatrix(game->GetSettings()->screenWidth, game->GetSettings()->screenHeight);
@@ -329,6 +319,7 @@ void Engine::GameScreen2::Update()
 
 #pragma endregion
 
+//for future improvement
 #pragma region Beat Sound every sprite movement
 
 		// Define a small tolerance for comparing floating-point positions
@@ -384,10 +375,6 @@ void Engine::GameScreen2::Update()
 		//Get the current mouse position on the screen using SDL
 		SDL_GetMouseState(&mouseX, &mouseY);
 
-		//float dx = mouseX - note1->GetPosition().x;
-		//float dy = mouseY - note1->GetPosition().y;
-		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
-
 		//Store the mouse position in a glm::vec2 for easier calculations
 		glm::vec2 mousePos = { mouseX, mouseY };
 
@@ -432,7 +419,6 @@ void Engine::GameScreen2::Update()
 			currentTimestampIndex++;    // Move to the next timestamp
 		}
 
-		//1 beat = 1 / 2.6 of a second
 		bps = (duration / 1000) * 6.1f;
 
 		//phases based on song timestamps
@@ -553,7 +539,6 @@ void Engine::GameScreen2::Update()
 
 			Sprite* obstacle = *it;
 
-			//
 			if (obstacle)
 			{
 				float y_ = obstacle->GetPosition().y;
@@ -566,7 +551,7 @@ void Engine::GameScreen2::Update()
 				{
 
 					it = platforms.erase(it); // Remove obstacle on collision
-					score -= 2;
+					score -= 10;
 
 				}
 				else if (y_ <= -300)
@@ -584,7 +569,6 @@ void Engine::GameScreen2::Update()
 					obstacle->SetBoundingBoxSize(0, 0);
 				}
 
-				
 			}
 			else
 			{
@@ -599,12 +583,13 @@ void Engine::GameScreen2::Update()
 
 		timeInterval += game->GetGameTime();
 
-		if (game->GetInputManager()->IsKeyPressed("Attack")) {
-			//sprite->PlayAnim("attack");
+		if (game->GetInputManager()->IsKeyPressed("Attack")) 
+		{
 			SpawnBullets();
 		}
 
-		for (Bullet* b : inUseBullets) {
+		for (Bullet* b : inUseBullets) 
+		{
 			// If bullet off screen then remove a bullet from in-use container, and insert into ready-to-use container
 			if (b->GetPosition().x < -b->sprite->GetScaleWidth() || b->GetPosition().x > game->GetSettings()->screenWidth) {
 				readyBullets.push_back(b);
@@ -643,7 +628,6 @@ void Engine::GameScreen2::Update()
 				{
 					// Increase score when enemy is hit by bullet
 					score += 5;
-					//text->SetText("Score: " + std::to_string(score));
 
 					// Erase the enemy after collision
 					it = enemies.erase(it);
@@ -668,7 +652,6 @@ void Engine::GameScreen2::Update()
 				{
 					// Increase score when enemy is hit by bullet
 					enemielv2health -= 10;
-					//text->SetText("Score: " + std::to_string(score));
 
 					//If bullet hits 3 time lv2 enemie is dead
 					if (enemielv2health <= 0)
@@ -1087,6 +1070,19 @@ void Engine::GameScreen2::Update()
 		gov_music->Stop();
 
 		gstate = GameState::RUNNING;
+	}	
+	else if (gstate == GameState::PAUSED)
+	{
+		std::cout << "Game Paused" << std::endl;
+
+		music->Pause();
+
+		if (game->GetInputManager()->IsKeyReleased("Continue") && music->IsPaused() == true)
+		{
+			music->Resume();
+
+			gstate = GameState::RUNNING;
+		}
 	}
 
 }
@@ -1179,6 +1175,12 @@ void Engine::GameScreen2::Draw()
 		back_txt->Draw();
 	}
 
+	if (gstate == GameState::PAUSED)
+	{
+		paused->Draw();
+		cont_txt->Draw();
+	}
+
 }
 
 void Engine::GameScreen2::ResetVariables()
@@ -1193,7 +1195,6 @@ void Engine::GameScreen2::ResetVariables()
 	enemies.clear();
 	enemies2.clear();
 	enemies3.clear();
-	//enemielv2health = 30;
 
 	//resets other variables
 	score = 500;
@@ -1439,11 +1440,6 @@ void Engine::GameScreen2::SpawnBullets()
 
 		int mouseX, mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);
-
-		//float dx = mouseX - note1->GetPosition().x;
-		//float dy = mouseY - note1->GetPosition().y;
-
-		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
 
 		glm::vec2 mousePos = { mouseX, mouseY };
 
