@@ -116,6 +116,10 @@ SDL_Window* Game::InitInternal()
 		flags |= SDL_WINDOW_FULLSCREEN;
 	}
 
+	if (WindowFlag::RESIZEABLE == setting->windowFlag) {
+		flags |= SDL_WINDOW_RESIZABLE;
+	}
+
 	if (WindowFlag::FULLSCREEN == setting->windowFlag) {
 		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 	}

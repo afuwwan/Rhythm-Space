@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 
 	setting->screenWidth = 1920;
 	setting->screenHeight = 1080;
-	setting->windowFlag = Engine::WindowFlag::WINDOWED;
+	setting->windowFlag = Engine::WindowFlag::RESIZEABLE;
 	setting->vsync = false;
 	setting->targetFrameRate = 75;
 	Engine::Game* game = new Engine::RhythmSpace(setting);

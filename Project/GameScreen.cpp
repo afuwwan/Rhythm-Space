@@ -595,7 +595,6 @@ void Engine::GameScreen::Update()
 					GenerateEnemylv2Pattern();
 				}
 
-
 			}
 
 		}
@@ -615,7 +614,6 @@ void Engine::GameScreen::Update()
 				{
 					GenerateEnemylv2Pattern();
 				}
-
 
 			}
 
@@ -641,7 +639,6 @@ void Engine::GameScreen::Update()
 			}
 
 		}
-
 
 		if (duration / 1000 >= 215 && duration / 1000 < 240)
 		{
@@ -1508,11 +1505,6 @@ void Engine::GameScreen::SpawnBullets()
 
 		int mouseX, mouseY;
 		SDL_GetMouseState(&mouseX, &mouseY);
-
-		//float dx = mouseX - note1->GetPosition().x;
-		//float dy = mouseY - note1->GetPosition().y;
-
-		//float angle = atan2(dy, dx) * (180 / M_PI) - 90;
 
 		glm::vec2 mousePos = { mouseX, mouseY };
 

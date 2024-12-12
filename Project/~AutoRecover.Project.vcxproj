@@ -251,10 +251,7 @@
     <ResourceCompile Include="Project.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\..\..\..\ship.ico" />
-    <Image Include="..\..\..\..\..\..\..\ship.png" />
     <Image Include="..\..\..\..\..\..\ship.ico" />
-    <Image Include="RhythmSpace2.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

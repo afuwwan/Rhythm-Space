@@ -10,7 +10,8 @@ namespace Engine {
 		WINDOWED,
 		FULLSCREEN,
 		EXCLUSIVE_FULLSCREEN,
-		BORDERLESS
+		BORDERLESS,
+		RESIZEABLE
 	};
 
 	class Setting

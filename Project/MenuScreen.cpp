@@ -63,13 +63,16 @@ void Engine::MenuScreen::Init()
 	music2 = (new Music("Shirobon-Regain-Control.ogg"))->SetVolume(30)->Play(true);
 
 
-	for (int i = 0; i <= 2; i++) {
+	for (int i = 0; i <= 2; i++) 
+	{
 		AddToLayer(backgrounds, "spc0" + to_string(i) + ".png");
 	}
-	for (int i = 3; i <= 4; i++) {
+	for (int i = 3; i <= 4; i++) 
+	{
 		AddToLayer(middlegrounds, "spc0" + to_string(i) + ".png");
 	}
-	for (int i = 5; i <= 5; i++) {
+	for (int i = 5; i <= 5; i++) 
+	{
 		AddToLayer(foregrounds, "spc0" + to_string(i) + ".png");
 	}
 
@@ -98,16 +101,19 @@ void Engine::MenuScreen::Update()
 	// Calculate beats per second (bps)
 	bps2 = (duration2 / 1000) * 1.500;
 
-	if (bps2 >= 1) {
+	if (bps2 >= 1) 
+	{
 		// Get the fractional part of the beat to control smooth scaling during the beat
 		fractionalBeat = fmod(bps2, 1.0f);
 
 		// Check if we are in the first half (scale down) or second half (scale up) of the beat
-		if (fractionalBeat < 0.9f) {
+		if (fractionalBeat < 0.9f) 
+		{
 			// Scale down first
 			currentScale = maxScale - (maxScale - originalScale) * (fractionalBeat / 0.9f); // Scale down over first half
 		}
-		else {
+		else 
+		{
 			// Scale up next
 			currentScale = originalScale + (maxScale - originalScale) * ((fractionalBeat - 0.9f) / 0.1f); // Scale up over second half
 		}
@@ -119,7 +125,8 @@ void Engine::MenuScreen::Update()
 	// Set background
 	game->SetBackgroundColor(0, 0, 0);
 
-	if (game->GetInputManager()->IsKeyReleased("next")) {
+	if (game->GetInputManager()->IsKeyReleased("next")) 
+	{
 		// Set previous button to normal state
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::NORMAL);
 		// Next Button
@@ -128,7 +135,8 @@ void Engine::MenuScreen::Update()
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::HOVER);
 	}
 
-	if (game->GetInputManager()->IsKeyReleased("prev")) {
+	if (game->GetInputManager()->IsKeyReleased("prev")) 
+	{
 		// Set previous button to normal state
 		buttons[currentButtonIndex]->SetButtonState(Engine::ButtonState::NORMAL);
 		// Prev Button
@@ -139,30 +147,35 @@ void Engine::MenuScreen::Update()
 
 
 
-	if (game->GetInputManager()->IsKeyReleased("press")) {
+	if (game->GetInputManager()->IsKeyReleased("press")) 
+	{
 		// Set current button to press state
 		Button* b = buttons[currentButtonIndex];
 		b->SetButtonState(Engine::ButtonState::PRESS);
 
 		// If play button then go to Song List, exit button then exit
-		if ("play" == b->GetButtonName()) {
+		if ("play" == b->GetButtonName()) 
+		{
 			ScreenManager::GetInstance(game)->SetCurrentScreen("songlist");
 			//music2->Stop();
 			duration2 = 0;
 			bps2 = 0;
 			fractionalBeat = 0;
 		}
-		else if ("exit" == b->GetButtonName()) {
+		else if ("exit" == b->GetButtonName()) 
+		{
 			game->SetState(Engine::State::EXIT);
 		}
 	}
 
-	if (game->GetInputManager()->IsKeyReleased("exit")) {
+	if (game->GetInputManager()->IsKeyReleased("exit")) 
+	{
 		game->SetState(Engine::State::EXIT);
 	}
 
 	// Update All buttons
-	for (Button* b : buttons) {
+	for (Button* b : buttons) 
+	{
 		b->Update(game->GetGameTime());
 	}
 
@@ -173,12 +186,14 @@ void Engine::MenuScreen::Update()
 	//camera.Follow(sprite->GetPosition());
 
 	// Optional: Zoom control with key input
-	if (game->GetInputManager()->IsKeyPressed("Zoom In")) {
-		camera.SetZoom(camera.zoom + 0.007f);
-	}
-	if (game->GetInputManager()->IsKeyPressed("Zoom Out")) {
-		camera.SetZoom(camera.zoom - 0.007f);
-	}
+	//if (game->GetInputManager()->IsKeyPressed("Zoom In")) 
+	//{
+	//	camera.SetZoom(camera.zoom + 0.007f);
+	//}
+	//if (game->GetInputManager()->IsKeyPressed("Zoom Out")) 
+	//{
+	//	camera.SetZoom(camera.zoom - 0.007f);
+	//}
 
 	// Update the shader's view matrix uniform
 	glUseProgram(game->GetDefaultSpriteShader()->GetId());
@@ -216,8 +231,10 @@ void Engine::MenuScreen::Draw()
 
 void Engine::MenuScreen::MoveLayer(vector<Sprite*>& bg, float speed)
 {
-	for (Sprite* s : bg) {
-		if (s->GetPosition().y < -game->GetSettings()->screenHeight + offset) {
+	for (Sprite* s : bg) 
+	{
+		if (s->GetPosition().y < -game->GetSettings()->screenHeight + offset) 
+		{
 			s->SetPosition(0, game->GetSettings()->screenHeight + offset - 1);
 		}
 		s->SetPosition(s->GetPosition().x, s->GetPosition().y - speed * game->GetGameTime());
@@ -227,7 +244,8 @@ void Engine::MenuScreen::MoveLayer(vector<Sprite*>& bg, float speed)
 
 void Engine::MenuScreen::DrawLayer(vector<Sprite*>& bg)
 {
-	for (Sprite* s : bg) {
+	for (Sprite* s : bg) 
+	{
 		s->Draw();
 	}
 }

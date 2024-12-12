@@ -2,8 +2,6 @@
 
 Camera::Camera() : position(0.0f, 0.0f), zoom(1.0f) 
 {
-
-
 }
 
 // Returns the view matrix based on the camera position and zoom level

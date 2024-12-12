@@ -182,6 +182,9 @@
     <ClInclude Include="LoadingScreen.h">
       <Filter>Demo Files\Rhythm Space</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Shader.cpp">
@@ -331,5 +334,24 @@
     <ClCompile Include="LoadingScreen.cpp">
       <Filter>Demo Files\Rhythm Space</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Project.rc">
+      <Filter>Shader Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\..\..\ship.ico">
+      <Filter>Shader Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\..\..\ship.png">
+      <Filter>Shader Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\..\..\..\ship.ico">
+      <Filter>Shader Files</Filter>
+    </Image>
+    <Image Include="RhythmSpace2.png">
+      <Filter>Shader Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
